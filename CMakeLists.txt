@@ -16,6 +16,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules/")
 
 option(BUILD_TESTS "Build the tests" OFF)
 if(BUILD_TESTS)
+  enable_testing()
   add_subdirectory("tests")
 endif()
 

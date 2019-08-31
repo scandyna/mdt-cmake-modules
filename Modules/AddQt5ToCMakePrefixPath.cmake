@@ -70,8 +70,27 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #=============================================================================
 
-include(CMakeParseArguments)
+macro(add_qt5_to_cmake_prefix_path)
 
-function(add_qt5_to_cmake_prefix_path)
-  
-endfunction()
+  # We have to use a macro to unset cache variables
+  # Using macro has its caveats (see CMake doc for arguments, we also cannot use return() )
+
+  if( (${ARGC} LESS 1) OR ("${ARGV0}" STREQUAL "") )
+    # Ok, simply no path given
+    message("No path")
+  elseif( NOT (${ARGC} STREQUAL "1") )
+    message(FATAL_ERROR "add_qt5_to_cmake_prefix_path(): unexpected count of arguments")
+  else()
+    list(APPEND CMAKE_PREFIX_PATH "${ARGV0}")
+  endif()
+
+  # Remove the previously set Qt5 variables from the cache
+  # We do it at each call, so the user can specify to use the system installed version without having to delete the entiere cache
+  get_cmake_property(_qt5_cached_vars CACHE_VARIABLES)
+  list(FILTER _qt5_cached_vars INCLUDE REGEX "^Qt5.*DIR$")
+  foreach(var ${_qt5_cached_vars})
+    message("unset ${var}")
+    unset(${var} CACHE)
+  endforeach()
+
+endmacro()
