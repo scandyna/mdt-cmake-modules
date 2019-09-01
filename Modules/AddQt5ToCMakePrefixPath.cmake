@@ -3,7 +3,7 @@
 
 #.rst:
 # AddQt5ToCMakePrefixPath
-# -------------
+# -----------------------
 #
 # ::
 #
@@ -77,7 +77,6 @@ macro(add_qt5_to_cmake_prefix_path)
 
   if( (${ARGC} LESS 1) OR ("${ARGV0}" STREQUAL "") )
     # Ok, simply no path given
-    message("No path")
   elseif( NOT (${ARGC} STREQUAL "1") )
     message(FATAL_ERROR "add_qt5_to_cmake_prefix_path(): unexpected count of arguments")
   else()
@@ -89,7 +88,6 @@ macro(add_qt5_to_cmake_prefix_path)
   get_cmake_property(_qt5_cached_vars CACHE_VARIABLES)
   list(FILTER _qt5_cached_vars INCLUDE REGEX "^Qt5.*DIR$")
   foreach(var ${_qt5_cached_vars})
-    message("unset ${var}")
     unset(${var} CACHE)
   endforeach()
 
