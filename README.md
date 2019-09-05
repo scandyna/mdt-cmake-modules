@@ -23,6 +23,7 @@ cmake-gui .
 
 Install the modules:
 ```bash
+make
 make install
 ```
 
@@ -33,11 +34,13 @@ make install
 
 # Usage
 
-#TODO: is find_package() required ???
 Add the following to your ``CMakeLists.txt``:
 ```cmake
 find_package(MdtCMakeModules REQUIRED)
 ```
+
+This will also add the path to the installed MdtCMakeModules
+to CMAKE_MODULE_PATH (if not allready exists).
 
 Then the required modules can be used:
 ```cmake
@@ -65,3 +68,7 @@ CMAKE_MODULE_PATH can also be used directly:
 ```bash
 cmake -DCMAKE_MODULE_PATH=/some/path ..
 ```
+
+Note also that not creating MDT_CMAKE_MODULE_PATH,
+but adding the path directly to CMAKE_PREFIX_PATH will work.
+Adding the path to CMAKE_MODULE_PATH is also fine.
