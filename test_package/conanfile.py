@@ -8,3 +8,6 @@ class MdtCMakeModulesTestConan(ConanFile):
     cmake.definitions["CMAKE_TOOLCHAIN_FILE"] = "%s/conan_paths.cmake" % (self.build_folder)
     cmake.configure()
 
+  def test(self):
+    cmake = CMake(self)
+    # We have no test to run, here we fake a bit..
