@@ -3,6 +3,12 @@ Some CMake modules used in my projects
 
 # Install
 
+MdtCMakeModules can be installed by using CMake directly,
+or the Conan package manager.
+
+In this section, a build folder is assumed to be in the source tree,
+which is only for simplicity.
+
 ## Install using CMake
 
 Get the sources:
@@ -29,8 +35,16 @@ make install
 
 ## Install using Conan
 
+Get the sources:
+```bash
+git clone https://github.com/scandyna/mdt-cmake-modules.git
+```
 
-
+Install the modules:
+```bash
+mkdir build && cd build
+conan create ..
+```
 
 # Usage
 
@@ -47,7 +61,7 @@ Then the required modules can be used:
 include(AddQt5ToCMakePrefixPath)
 ```
 
-## Find MdtCMakeModules from your project
+## Find MdtCMakeModules with CMake
 
 In your CMakeLists.txt you can provide a cache variable:
 ```cmake
@@ -72,3 +86,25 @@ cmake -DCMAKE_MODULE_PATH=/some/path ..
 Note also that not creating MDT_CMAKE_MODULE_PATH,
 but adding the path directly to CMAKE_PREFIX_PATH will work.
 Adding the path to CMAKE_MODULE_PATH is also fine.
+
+## Find MdtCMakeModules with Conan
+
+To use Conan, create a conanfile.txt:
+```conan
+[requires]
+MdtCMakeModules/0.1@???????/stable
+
+[generators]
+cmake_paths
+```
+
+Install the dependencies:
+```bash
+mkdir build && cd build
+conan install ..
+```
+
+Configure your project:
+```bash
+cmake -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake
+```
