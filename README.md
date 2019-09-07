@@ -80,14 +80,13 @@ Configuring the project could also be done on the command-line:
 cmake -DMDT_CMAKE_MODULE_PATH=/some/path ..
 ```
 
-CMAKE_MODULE_PATH can also be used directly:
+CMAKE_PREFIX_PATH can also be used directly:
 ```bash
-cmake -DCMAKE_MODULE_PATH=/some/path ..
+cmake -DCMAKE_PREFIX_PATH=/some/path ..
 ```
 
-Note also that not creating MDT_CMAKE_MODULE_PATH,
-but adding the path directly to CMAKE_PREFIX_PATH will work.
-Adding the path to CMAKE_MODULE_PATH is also fine.
+It is also possible to not use find_package()
+and sepcify the path using CMAKE_MODULE_PATH .
 
 ## Find MdtCMakeModules with Conan
 
