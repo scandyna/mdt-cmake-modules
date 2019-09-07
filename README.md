@@ -35,6 +35,8 @@ make install
 
 ## Install using Conan
 
+This part has only sense to work on MdtCMakeModules itself.
+
 Get the sources:
 ```bash
 git clone https://github.com/scandyna/mdt-cmake-modules.git
@@ -92,10 +94,15 @@ Adding the path to CMAKE_MODULE_PATH is also fine.
 To use Conan, create a conanfile.txt:
 ```conan
 [requires]
-MdtCMakeModules/0.1@???????/stable
+MdtCMakeModules/0.1@scandyna/testing
 
 [generators]
 cmake_paths
+```
+
+Add the remote:
+```bash
+conan remote add scandyna https://api.bintray.com/conan/scandyna/public-conan
 ```
 
 Install the dependencies:
@@ -106,5 +113,5 @@ conan install ..
 
 Configure your project:
 ```bash
-cmake -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake
+cmake -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake ..
 ```
