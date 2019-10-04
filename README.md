@@ -113,4 +113,5 @@ conan install ..
 Configure your project:
 ```bash
 cmake -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake ..
+cmake-gui .
 ```
