@@ -87,7 +87,7 @@ CMAKE_PREFIX_PATH can also be used directly:
 cmake -DCMAKE_PREFIX_PATH=/some/path/MdtCMakeModules ..
 ```
 
-It is also possible to not use find_package() and sepcify the path using CMAKE_MODULE_PATH (not recommanded):
+It is also possible to not use find_package() and sepcify the path using CMAKE_MODULE_PATH (not recommended):
 ```bash
 cmake -DCMAKE_MODULE_PATH=/some/path/MdtCMakeModules/Modules ..
 ```
