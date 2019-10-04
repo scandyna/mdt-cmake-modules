@@ -67,7 +67,7 @@ include(AddQt5ToCMakePrefixPath)
 
 In your CMakeLists.txt you can provide a cache variable:
 ```cmake
-set(MDT_CMAKE_MODULE_PREFIX_PATH CACHE PATH "Path to the root of MdtCMakeModules. (For example: /opt/MdtCMakeModules). If empty, CMAKE_MODULE_PATH is used.")
+set(MDT_CMAKE_MODULE_PREFIX_PATH CACHE PATH "Path to the root of MdtCMakeModules. (For example: /opt/MdtCMakeModules).")
 if(MDT_CMAKE_MODULE_PREFIX_PATH)
   list(APPEND CMAKE_PREFIX_PATH "${MDT_CMAKE_MODULE_PREFIX_PATH}")
 endif()
