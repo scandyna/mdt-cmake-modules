@@ -2,19 +2,16 @@ from conans import ConanFile, CMake, tools
 
 class MdtCMakeModulesConan(ConanFile):
   name = "MdtCMakeModules"
-  version = "0.1"
+  version = "0.1.2"
   license = "BSD 3-Clause"
   url = "https://github.com/scandyna/mdt-cmake-modules"
   description = "Some CMake modules used in Mdt projects"
   generators = "cmake"
-
-  def source(self):
-    self.run("git clone https://github.com/scandyna/mdt-cmake-modules")
+  exports_sources="*" # Conan seems to be smart enough to not copy test_package/build
 
   def build(self):
     cmake = CMake(self)
-    cmake.definitions["DETERMINE_INSTALL_ROOT_DIR"] = "OFF"
-    cmake.configure(source_folder="mdt-cmake-modules")
+    cmake.configure()
     cmake.build()
 
   def package(self):

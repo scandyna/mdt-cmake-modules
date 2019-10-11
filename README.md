@@ -22,6 +22,16 @@ mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=/some/path ..
 ```
 
+The install prefix path could be Linux system wide:
+```bash
+cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+```
+
+Example for a stand-alone install:
+```bash
+cmake -DCMAKE_INSTALL_PREFIX=~/opt/MdtCMakeModules ..
+```
+
 The configuration could also be done using cmake-gui:
 ```bash
 cmake-gui .
@@ -45,7 +55,7 @@ git clone https://github.com/scandyna/mdt-cmake-modules.git
 Install the modules:
 ```bash
 mkdir build && cd build
-conan create ..
+conan create user/channel ..
 ```
 
 # Usage

@@ -19,7 +19,8 @@
 #  If a project is installed system wide on UNIX, for example in ``/usr`` or ``/usr/local``,
 #  the Gnu Coding Standards should be followed.
 #
-#   Example:
+#   Example::
+#
 #    /usr/bin/projectexecutable
 #    /usr/lib/x86_64-linux-gnu/projectlib.so
 #    /usr/share/project-name/
@@ -27,28 +28,31 @@
 #  It is also common to install a project to a other location,
 #  in which case the organisation could be different.
 #
-#   Example:
+#   Example::
+#
 #    ~/opt/project-name/bin/projectexecutable
 #    ~/opt/project-name/lib/projectlib.so
 #    ~/opt/project-name/
 #
 #  A project has probably some files to install in what is defined ``DATADIR`` (and also ``DATAROOTDIR``),
-#  which is defined as ``share`` .
+#  which is mostly defined as ``share`` .
 #
 #  If a project is installed on Linux system wide (typically in /usr or /urs/local),
 #  the data should be installed in a subdirectory, typically ``DATADIR/project-name`` .
 #  The documentation should be installed in ``DOCDIR``, which is ``DATAROOTDIR/doc/project-name``
 #
-#  Example:
-#   /usr/share/project-name/themes
+#  Example::
+#
+#   /usr/share/project-name/icons
 #   /usr/share/doc/project-name
 #
 #  It is also common to install a project to a other location,
 #  for example ~/opt/project-name .
-#  In that case, the files should be installed in ``DATADIR`` directly.
+#  In that case, ``DATADIR`` and ``DATAROOTDIR`` have no sense.
 #
-#  Example:
-#   ~/opt/project-name/share/themes
+#  Example::
+#
+#   ~/opt/project-name/icons
 #   ~/opt/project-name/doc
 #
 # Inclusion of this module defines the following variables:
@@ -57,24 +61,51 @@
 #    If ``CMAKE_INSTALL_PREFIX`` starts with ``/usr``, it will be set to ``TRUE``,
 #    otherwise to ``FALSE``.
 #
-# ``MDT_INSTALL_ROOTDIR``
-#    If ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``.``.
-#    If ``CMAKE_INSTALL_PREFIX`` ends with ``${PROJECT_NAME}``, it will also be set to ``.``.
-#    Otherwise it will be set to ``${PROJECT_NAME}``.
-#
 # ``MDT_INSTALL_DATAROOTDIR``
-#    Either ``DATAROOTDIR/${PROJECT_NAME}`` for Unix system wide installation,
-#    otherwise ``DATAROOTDIR``
+#    If ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``DATAROOTDIR/${PROJECT_NAME}``
+#    (which mostly expands to ``share/project-name``),
+#    otherwise it will be set to ``.`` .
 #
 # ``MDT_INSTALL_DATADIR``
-#    Either ``DATADIR/${PROJECT_NAME}`` for Unix system wide installation,
-#    otherwise ``DATADIR``
+#    If ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``DATADIR/${PROJECT_NAME}``
+#    (which mostly expands to ``share/project-name``),
+#    otherwise it will be set to ``.`` .
 #
 # Note: if ``CMAKE_INSTALL_DATAROOTDIR`` and ``CMAKE_INSTALL_DATADIR`` are defined
 # (i.e. GNUInstallDirs have been included before including MdtInstallDirs),
 # they will be used to define ``MDT_INSTALL_DATAROOTDIR`` and ``MDT_INSTALL_DATADIR``,
 # otherwise ``share`` will be considered.
 #
+# Example of a CMakeLists.txt::
+#
+#  project(MyProject)
+#
+#  find_package(MdtCMakeModules REQUIRED)
+#
+#  add_library(myLib myLib.cpp)
+#  add_executable(myApp main.cpp)
+#  target_link_libraries(myApp myLib)
+#  # Other commands (f.ex. header include dirs for myLib, exports, etc..) are omited here
+#
+#  include(GNUInstallDirs)
+#  include(MdtInstallDirs)
+#
+#  install(DIRECTORY ${CMAKE_SOURCE_DIR}/icons DESTINATION ${MDT_INSTALL_DATADIR})
+#
+# CMake uses ``CMAKE_INSTALL_PREFIX`` as root of the installation.
+#
+# Example of install on Linux system wide with ``CMAKE_INSTALL_PREFIX == /usr`` ::
+#
+#  /usr/share/project-name/icons
+#
+# Example of install on Windows system wide with ``CMAKE_INSTALL_PREFIX == c:/Program Files/${PROJECT_NAME}`` ::
+#
+#  c:/Program Files/project-name/icons
+#
+# Example of install to a other directory (stand-alone install) ``CMAKE_INSTALL_PREFIX == ~/opt/${PROJECT_NAME}`` ::
+#
+#  ~/opt/project-name/icons
+
 
 #=============================================================================
 # Copyright 2019 Philippe Steinmann
@@ -103,6 +134,12 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #=============================================================================
 
+# TODO should define:
+# MDT_INSTALL_CMAKE_MODULE_DIR
+# MDT_INSTALL_CMAKE_MODULE_CONFIG_DIR
+# MDT_INSTALL_CMAKE_LIB_CONFIG_DIR
+
+
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "^/usr")
   set(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE TRUE CACHE BOOL "" FORCE)
 else()
@@ -111,23 +148,14 @@ endif()
 mark_as_advanced(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
 
 
-# If the user does not provide any install root directory, we set the default one,
-# else we let what he has set
-if(NOT MDT_INSTALL_ROOTDIR)
-  unset(MDT_INSTALL_ROOTDIR CACHE)
-endif()
-if( MDT_INSTALL_IS_UNIX_SYSTEM_WIDE OR ("${CMAKE_INSTALL_PREFIX}" MATCHES "^?${PROJECT_NAME}/?$") )
-  set(MDT_INSTALL_ROOTDIR "." CACHE STRING "Relative root install directory")
-else()
-  set(MDT_INSTALL_ROOTDIR "${PROJECT_NAME}" CACHE STRING "Relative root install directory")
-endif()
-
+# Define the DATAROOTDIR regarding the existance of CMAKE_INSTALL_DATAROOTDIR (defined if GNUInstallDirs have been included)
 if(CMAKE_INSTALL_DATAROOTDIR)
   set(_MDT_INSTALL_DIRS_DATAROOTDIR ${CMAKE_INSTALL_DATAROOTDIR})
 else()
   set(_MDT_INSTALL_DIRS_DATAROOTDIR "share")
 endif()
 
+# Define the DATADIR regarding the existance of CMAKE_INSTALL_DATAROOTDIR (defined if GNUInstallDirs have been included)
 if(CMAKE_INSTALL_DATADIR)
   set(_MDT_INSTALL_DIRS_DATADIR ${CMAKE_INSTALL_DATADIR})
 else()
@@ -139,6 +167,6 @@ if(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
   set(MDT_INSTALL_DATAROOTDIR "${_MDT_INSTALL_DIRS_DATAROOTDIR}/${PROJECT_NAME}")
   set(MDT_INSTALL_DATADIR "${_MDT_INSTALL_DIRS_DATADIR}/${PROJECT_NAME}")
 else()
-  set(MDT_INSTALL_DATAROOTDIR "${MDT_INSTALL_ROOTDIR}/${_MDT_INSTALL_DIRS_DATAROOTDIR}")
-  set(MDT_INSTALL_DATADIR "${MDT_INSTALL_ROOTDIR}/${_MDT_INSTALL_DIRS_DATADIR}")
+  set(MDT_INSTALL_DATAROOTDIR ".")
+  set(MDT_INSTALL_DATADIR ".")
 endif()
