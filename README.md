@@ -43,19 +43,16 @@ make
 make install
 ```
 
-## Install using Conan
-
-This part has only sense to work on MdtCMakeModules itself.
+## Create a Conan package
 
 Get the sources:
 ```bash
 git clone https://github.com/scandyna/mdt-cmake-modules.git
 ```
 
-Install the modules:
+Create the package:
 ```bash
-mkdir build && cd build
-conan create user/channel ..
+conan create user/channel mdt-cmake-modules
 ```
 
 # Usage
