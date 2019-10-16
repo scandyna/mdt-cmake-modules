@@ -2,7 +2,7 @@ from conans import ConanFile, CMake, tools
 
 class MdtCMakeModulesConan(ConanFile):
   name = "MdtCMakeModules"
-  version = "0.2"
+  version = "0.3"
   license = "BSD 3-Clause"
   url = "https://github.com/scandyna/mdt-cmake-modules"
   description = "Some CMake modules used in Mdt projects"

@@ -52,7 +52,7 @@ git clone https://github.com/scandyna/mdt-cmake-modules.git
 
 Create the package:
 ```bash
-conan create user/channel mdt-cmake-modules
+conan create mdt-cmake-modules user/channel
 ```
 
 # Usage
@@ -108,7 +108,7 @@ This will break if the internal directory organisation changes.
 To use Conan, create a conanfile.txt:
 ```conan
 [requires]
-MdtCMakeModules/0.2@scandyna/testing
+MdtCMakeModules/0.3@scandyna/testing
 
 [generators]
 cmake_paths

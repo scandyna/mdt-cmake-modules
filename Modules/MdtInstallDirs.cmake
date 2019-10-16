@@ -12,7 +12,12 @@
 #
 # .. _`GNU Coding Standards`: https://www.gnu.org/prep/standards/html_node/Directory-Variables.html
 #
-# But some use cases are not covered:
+# The GNUInstallDirs module also provides some support for
+# `Debian MultiArch`_.
+#
+# .. _`Multiarch`: https://wiki.debian.org/Multiarch/Implementation
+#
+# But some use cases are not covered.
 #
 #  As described in the CMake documentation,
 #  ``CMAKE_INSTALL_PREFIX`` defaults to ``/usr/local`` on UNIX and ``c:/Program Files/${PROJECT_NAME}`` on Windows.
@@ -22,7 +27,22 @@
 #   Example::
 #
 #    /usr/bin/projectexecutable
+#    /usr/lib/projectlib.so
+#    /usr/include/projectlib.h
+#    /usr/share/project-name/
+#
+#   On a Debian Multiarch  distribution, the installation will be like::
+#
+#    /usr/bin/projectexecutable
 #    /usr/lib/x86_64-linux-gnu/projectlib.so
+#    /usr/include/x86_64-linux-gnu/projectlib.h
+#    /usr/share/project-name/
+#
+#   After looking at a Ubuntu 18.04 installation, lots of libraries do not put their header files directly in the include dir, but in a subdirectory::
+#
+#    /usr/bin/projectexecutable
+#    /usr/lib/x86_64-linux-gnu/projectlib.so
+#    /usr/include/x86_64-linux-gnu/project-name/projectlib.h
 #    /usr/share/project-name/
 #
 #  It is also common to install a project to a other location,
@@ -32,6 +52,7 @@
 #
 #    ~/opt/project-name/bin/projectexecutable
 #    ~/opt/project-name/lib/projectlib.so
+#    ~/opt/project-name/include/projectlib.h
 #    ~/opt/project-name/
 #
 #  A project has probably some files to install in what is defined ``DATADIR`` (and also ``DATAROOTDIR``),
@@ -60,6 +81,15 @@
 # ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE``
 #    If ``CMAKE_INSTALL_PREFIX`` starts with ``/usr``, it will be set to ``TRUE``,
 #    otherwise to ``FALSE``.
+#
+# ``MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE``
+#    The logic to determine this variable is similar to the one implemented
+#    in the GNUInstallDirs module to define ``CMAKE_INSTALL_LIBDIR`` .
+#
+# ``MDT_INSTALL_INCLUDEDIR``
+#    If ``MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``include/${CMAKE_LIBRARY_ARCHITECTURE}/${PROJECT_NAME}`` ,
+#    else, if ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``include/${PROJECT_NAME}`` ,
+#    otherwise it will be set to include .
 #
 # ``MDT_INSTALL_DATAROOTDIR``
 #    If ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``DATAROOTDIR/${PROJECT_NAME}``
@@ -147,6 +177,25 @@ else()
 endif()
 mark_as_advanced(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
 
+set(MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE FALSE CACHE BOOL "" FORCE)
+if(CMAKE_LIBRARY_ARCHITECTURE)
+  if("${CMAKE_INSTALL_PREFIX}" MATCHES "^/usr/?$")
+    if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|kFreeBSD|GNU)$" AND NOT CMAKE_CROSSCOMPILING)
+      if(EXISTS "/etc/debian_version")
+        set(MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE TRUE CACHE BOOL "" FORCE)
+      endif()
+    endif()
+  endif()
+endif()
+mark_as_advanced(MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE)
+
+if(MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE)
+  set(MDT_INSTALL_INCLUDEDIR "include/${CMAKE_LIBRARY_ARCHITECTURE}/${PROJECT_NAME}")
+elseif(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
+  set(MDT_INSTALL_INCLUDEDIR "include/${PROJECT_NAME}")
+else()
+  set(MDT_INSTALL_INCLUDEDIR "include")
+endif()
 
 # Define the DATAROOTDIR regarding the existance of CMAKE_INSTALL_DATAROOTDIR (defined if GNUInstallDirs have been included)
 if(CMAKE_INSTALL_DATAROOTDIR)
