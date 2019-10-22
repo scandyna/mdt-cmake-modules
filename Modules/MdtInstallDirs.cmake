@@ -47,7 +47,7 @@
 #    /usr/bin/projectexecutable
 #    /usr/lib/x86_64-linux-gnu/projectlib.so
 #    /usr/include/x86_64-linux-gnu/package-name/projectlib.h
-#    /usr/share/project-name/
+#    /usr/share/package-name/
 #
 #  It is also common to install a project to a other location,
 #  in which case the organisation could be different.
@@ -63,13 +63,13 @@
 #  which is mostly defined as ``share`` .
 #
 #  If a project is installed on Linux system wide (typically in /usr or /urs/local),
-#  the data should be installed in a subdirectory, typically ``DATADIR/project-name`` .
-#  The documentation should be installed in ``DOCDIR``, which is ``DATAROOTDIR/doc/project-name``
+#  the data should be installed in a subdirectory, typically ``DATADIR/package-name`` .
+#  The documentation should be installed in ``DOCDIR``, which is ``DATAROOTDIR/doc/package-name``
 #
 #  Example::
 #
-#   /usr/share/project-name/icons
-#   /usr/share/doc/project-name
+#   /usr/share/package-name/icons
+#   /usr/share/doc/package-name
 #
 #  It is also common to install a project to a other location,
 #  for example ~/opt/project-name .
@@ -94,18 +94,18 @@
 #    If not set while including this module, it will be set to ``${PROJECT_NAME}`` .
 #
 # ``MDT_INSTALL_INCLUDEDIR``
-#    If ``MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``include/${CMAKE_LIBRARY_ARCHITECTURE}/${PROJECT_NAME}`` ,
-#    else, if ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``include/${PROJECT_NAME}`` ,
+#    If ``MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``include/${CMAKE_LIBRARY_ARCHITECTURE}/${MDT_INSTALL_PACKAGE_NAME}`` ,
+#    else, if ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``include/${MDT_INSTALL_PACKAGE_NAME}`` ,
 #    otherwise it will be set to include .
 #
 # ``MDT_INSTALL_DATAROOTDIR``
-#    If ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``DATAROOTDIR/${PROJECT_NAME}``
-#    (which mostly expands to ``share/project-name``),
+#    If ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``DATAROOTDIR/${MDT_INSTALL_PACKAGE_NAME}``
+#    (which mostly expands to ``share/package-name``),
 #    otherwise it will be set to ``.`` .
 #
 # ``MDT_INSTALL_DATADIR``
-#    If ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``DATADIR/${PROJECT_NAME}``
-#    (which mostly expands to ``share/project-name``),
+#    If ``MDT_INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``DATADIR/${MDT_INSTALL_PACKAGE_NAME}``
+#    (which mostly expands to ``share/package-name``),
 #    otherwise it will be set to ``.`` .
 #
 # Note: if ``CMAKE_INSTALL_DATAROOTDIR`` and ``CMAKE_INSTALL_DATADIR`` are defined
@@ -124,6 +124,7 @@
 #  target_link_libraries(myApp myLib)
 #  # Other commands (f.ex. header include dirs for myLib, exports, etc..) are omited here
 #
+#  set(MDT_INSTALL_PACKAGE_NAME MyPackageName)
 #  include(GNUInstallDirs)
 #  include(MdtInstallDirs)
 #
@@ -133,7 +134,7 @@
 #
 # Example of install on Linux system wide with ``CMAKE_INSTALL_PREFIX == /usr`` ::
 #
-#  /usr/share/project-name/icons
+#  /usr/share/package-name/icons
 #
 # Example of install on Windows system wide with ``CMAKE_INSTALL_PREFIX == c:/Program Files/${PROJECT_NAME}`` ::
 #
@@ -196,10 +197,14 @@ if(CMAKE_LIBRARY_ARCHITECTURE)
 endif()
 mark_as_advanced(MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE)
 
+if(NOT MDT_INSTALL_PACKAGE_NAME)
+  set(MDT_INSTALL_PACKAGE_NAME "${PROJECT_NAME}")
+endif()
+
 if(MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE)
-  set(MDT_INSTALL_INCLUDEDIR "include/${CMAKE_LIBRARY_ARCHITECTURE}/${PROJECT_NAME}")
+  set(MDT_INSTALL_INCLUDEDIR "include/${CMAKE_LIBRARY_ARCHITECTURE}/${MDT_INSTALL_PACKAGE_NAME}")
 elseif(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
-  set(MDT_INSTALL_INCLUDEDIR "include/${PROJECT_NAME}")
+  set(MDT_INSTALL_INCLUDEDIR "include/${MDT_INSTALL_PACKAGE_NAME}")
 else()
   set(MDT_INSTALL_INCLUDEDIR "include")
 endif()
@@ -220,8 +225,8 @@ endif()
 
 # TODO why seems this to work without CACHE ??
 if(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
-  set(MDT_INSTALL_DATAROOTDIR "${_MDT_INSTALL_DIRS_DATAROOTDIR}/${PROJECT_NAME}")
-  set(MDT_INSTALL_DATADIR "${_MDT_INSTALL_DIRS_DATADIR}/${PROJECT_NAME}")
+  set(MDT_INSTALL_DATAROOTDIR "${_MDT_INSTALL_DIRS_DATAROOTDIR}/${MDT_INSTALL_PACKAGE_NAME}")
+  set(MDT_INSTALL_DATADIR "${_MDT_INSTALL_DIRS_DATADIR}/${MDT_INSTALL_PACKAGE_NAME}")
 else()
   set(MDT_INSTALL_DATAROOTDIR ".")
   set(MDT_INSTALL_DATADIR ".")
