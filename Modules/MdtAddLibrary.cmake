@@ -16,7 +16,6 @@
 #   )
 #
 # This will create a target ``NameSpace::LibraryName`` .
-# This will create a target ``NameSpace_LibraryName`` and also a Alias Target ``NameSpace::LibraryName`` .
 #
 # Example::
 #
@@ -28,7 +27,6 @@
 #   )
 #
 # This will create a target ``Mdt::Led`` .
-# This will create a target ``Mdt_Led`` and also a Alias Target ``Mdt::Led`` .
 #
 # Install a library::
 #
@@ -38,8 +36,7 @@
 #   )
 #
 # Will export ``Target`` as ``InstallNameSpace::LibraryName`` import target.
-# The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been added by mdt_add_library() .
-# This will also export the ``ProjectNameSpace_LibraryName`` target as ``LibraryName`` and install it as the ``Mdt${PROJECT_VERSION_MAJOR}::`` namespace.
+# The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been set by mdt_add_library() .
 #
 # Example::
 #
@@ -49,7 +46,10 @@
 #   )
 #
 # Will export ``Mdt::Led`` as ``Mdt0::Led`` import target.
-# This will also export the ``Mdt_Led`` target as ``Led`` and install it as the ``Mdt0::`` namespace.
+#
+# Several components will be created:
+#  - Mdt_Led_Runtime: lib, cmake, ..................
+#  - Mdt_Led_Dev: headers, cmake ?? ................
 #
 # Once the library is installed, the user should be able to find it using CMake ``find_package()`` in its ``CMakeLists.txt``::
 #
