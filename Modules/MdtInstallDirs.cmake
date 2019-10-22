@@ -7,42 +7,46 @@
 #
 # Define some relative installation directories
 #
-# The GNUInstallDirs module, provided by CMake, provides install directory variables as defined by the
+# The GNUInstallDirs_ module, provided by CMake_, provides install directory variables as defined by the
 # `GNU Coding Standards`_.
 #
+# .. _GNUInstallDirs: https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
+# .. _CMake: https://cmake.org/cmake/help/latest/index.html
 # .. _`GNU Coding Standards`: https://www.gnu.org/prep/standards/html_node/Directory-Variables.html
 #
 # The GNUInstallDirs module also provides some support for
 # `Debian MultiArch`_.
 #
-# .. _`Multiarch`: https://wiki.debian.org/Multiarch/Implementation
+# .. _`Debian Multiarch`: https://wiki.debian.org/Multiarch/Implementation
 #
 # But some use cases are not covered.
 #
-#  As described in the CMake documentation,
+#  As described in the `CMake CMAKE_INSTALL_PREFIX`_ documentation,
 #  ``CMAKE_INSTALL_PREFIX`` defaults to ``/usr/local`` on UNIX and ``c:/Program Files/${PROJECT_NAME}`` on Windows.
 #  If a project is installed system wide on UNIX, for example in ``/usr`` or ``/usr/local``,
 #  the Gnu Coding Standards should be followed.
+#
+# .. _`CMake CMAKE_INSTALL_PREFIX`: https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html
 #
 #   Example::
 #
 #    /usr/bin/projectexecutable
 #    /usr/lib/projectlib.so
 #    /usr/include/projectlib.h
-#    /usr/share/project-name/
+#    /usr/share/package-name/
 #
 #   On a Debian Multiarch  distribution, the installation will be like::
 #
 #    /usr/bin/projectexecutable
 #    /usr/lib/x86_64-linux-gnu/projectlib.so
 #    /usr/include/x86_64-linux-gnu/projectlib.h
-#    /usr/share/project-name/
+#    /usr/share/package-name/
 #
 #   After looking at a Ubuntu 18.04 installation, lots of libraries do not put their header files directly in the include dir, but in a subdirectory::
 #
 #    /usr/bin/projectexecutable
 #    /usr/lib/x86_64-linux-gnu/projectlib.so
-#    /usr/include/x86_64-linux-gnu/project-name/projectlib.h
+#    /usr/include/x86_64-linux-gnu/package-name/projectlib.h
 #    /usr/share/project-name/
 #
 #  It is also common to install a project to a other location,
@@ -85,6 +89,9 @@
 # ``MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE``
 #    The logic to determine this variable is similar to the one implemented
 #    in the GNUInstallDirs module to define ``CMAKE_INSTALL_LIBDIR`` .
+#
+# ``MDT_INSTALL_PACKAGE_NAME``
+#    If not set while including this module, it will be set to ``${PROJECT_NAME}`` .
 #
 # ``MDT_INSTALL_INCLUDEDIR``
 #    If ``MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE`` is ``TRUE``, it will be set to ``include/${CMAKE_LIBRARY_ARCHITECTURE}/${PROJECT_NAME}`` ,

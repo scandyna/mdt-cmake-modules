@@ -6,6 +6,7 @@ All Modules
    :maxdepth: 1
    :caption: Contents:
 
-   FindSphinx.rst
-   MdtInstallDirs.rst
    AddQt5ToCMakePrefixPath.rst
+   FindSphinx.rst
+   MdtAddLibrary.rst
+   MdtInstallDirs.rst
