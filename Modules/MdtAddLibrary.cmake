@@ -5,7 +5,7 @@
 # MdtAddLibrary
 # ---------------------
 #
-# Add a "Multi-Dev-Tools" library::
+# Add a library::
 #
 #   mdt_add_library(
 #     NAMESPACE NameSpace
@@ -15,7 +15,9 @@
 #       file2.cpp
 #   )
 #
-# This will create a target ``NameSpace::LibraryName`` .
+# This will create a target ``NameSpace_LibraryName`` and also a ALIAS target ``NameSpace::LibraryName`` .
+# To define other properties to the target, use ``NameSpace_LibraryName``
+# (CMake will trow errors if ``NameSpace::LibraryName`` is used).
 #
 # Example::
 #
@@ -26,7 +28,23 @@
 #       Mdt/Led.cpp
 #   )
 #
-# This will create a target ``Mdt::Led`` .
+# This will create a target ``Mdt_Led`` and a alias target ``Mdt::Led`` .
+#
+# Add a "Multi-Dev-Tools" library::
+#
+#   mdt_add_mdt_library(
+#     LIBRARY_NAME LibraryName
+#     SOURCE_FILES
+#       file1.cpp
+#       file2.cpp
+#   )
+#
+# This will create a target ``Mdt_LibraryName`` and a alias target ``Mdt::LibraryName`` .
+#
+# TODO for install, do not include GNUInstallDirs and MdtInstallDirs, but document that they are required
+#      this allows the user to do some setup before..
+#
+# TODO Public and Private dependencies
 #
 # Install a library::
 #
@@ -40,12 +58,21 @@
 #
 # Example::
 #
+#   # This should be set at the top level CMakeLists.txt
+#   set(MDT_INSTALL_PACKAGE_NAME Mdt0)
+#   include(GNUInstallDirs)
+#   include(MdtInstallDirs)
+#
 #   mdt_install_library(
 #     INSTALL_NAMESPACE Mdt0
-#     TARGET Mdt::Led
+#     TARGET Mdt_Led
 #   )
 #
-# Will export ``Mdt::Led`` as ``Mdt0::Led`` import target.
+# Will export ``Mdt_Led`` as ``Mdt0::Led`` import target.
+#
+# The ``INSTALL_NAMESPACE`` argument will be used for..... example: lib${InstallNameSpace}LibraryName.so.${VERSION??}.${VERSION??}.${VERSION??}
+#
+# Despite MDT_INSTALL_PACKAGE_NAME and INSTALL_NAMESPACE argument are both set to Mdt0 (which is recomended for coherence), their usage are different....
 #
 # Several components will be created:
 #  - Mdt_Led_Runtime: lib, cmake, ..................
@@ -77,4 +104,13 @@
 #
 # Here, ``~/opt/MdtLed/lib/cmake/Mdt0/Mdt0Config.cmake`` will be generated automatically,
 # allowing the usage of the component syntax of ``find_package()`` .
+#
+# Install a "Multi-Dev-Tools" library::
+#
+#   mdt_install_mdt_library(
+#     TARGET Target
+#   )
+#
+# Will export ``Target`` as ``Mdt${PROJECT_VERSION_MAJOR}::LibraryName`` import target.
+# The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been set by mdt_add_mdt_library() .
 #

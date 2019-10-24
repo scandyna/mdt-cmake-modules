@@ -63,6 +63,7 @@ install(
     "Modules/FindSphinx.cmake"
     "Modules/AddQt5ToCMakePrefixPath.cmake"
     "Modules/MdtInstallDirs.cmake"
+    "Modules/MdtInstallNamespacePackageConfigFile.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
 )
 
@@ -80,3 +81,11 @@ install(
 #   "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesVersion.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
 )
+
+if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
+  include(MdtInstallNamespacePackageConfigFile)
+  mdt_install_namespace_package_config_file(
+    INSTALL_NAMESPACE Mdt0
+    DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
+  )
+endif()

@@ -10,3 +10,4 @@ All Modules
    FindSphinx.rst
    MdtAddLibrary.rst
    MdtInstallDirs.rst
+   MdtInstallNamespacePackageConfigFile.rst
