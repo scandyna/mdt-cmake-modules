@@ -11,3 +11,4 @@ All Modules
    MdtAddLibrary.rst
    MdtInstallDirs.rst
    MdtInstallNamespacePackageConfigFile.rst
+   MdtInstallPackageConfigFile.rst

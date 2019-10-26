@@ -57,6 +57,7 @@ function(mdt_install_namespace_package_config_file)
   message("DESTINATION: ${ARG_DESTINATION}")
   message("ARG_COMPONENT: ${ARG_COMPONENT}")
 
+  # TODO shoud be aware not to find other installed components. See find_package() option (No module, no system paths)
   set(config_file "${CMAKE_CURRENT_BINARY_DIR}/${ARG_INSTALL_NAMESPACE}Config.cmake")
   file(WRITE "${config_file}" "if(NOT ${ARG_INSTALL_NAMESPACE}_FIND_COMPONENTS)\n")
   file(APPEND "${config_file}" "  set(${ARG_INSTALL_NAMESPACE}_NOT_FOUND_MESSAGE \"The ${ARG_INSTALL_NAMESPACE} package requires at least one component\")\n")

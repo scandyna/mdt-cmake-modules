@@ -64,6 +64,7 @@ install(
     "Modules/AddQt5ToCMakePrefixPath.cmake"
     "Modules/MdtInstallDirs.cmake"
     "Modules/MdtInstallNamespacePackageConfigFile.cmake"
+    "Modules/MdtInstallPackageConfigFile.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
 )
 

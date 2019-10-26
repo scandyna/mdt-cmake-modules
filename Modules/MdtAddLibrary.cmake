@@ -10,6 +10,8 @@
 #   mdt_add_library(
 #     NAMESPACE NameSpace
 #     LIBRARY_NAME LibraryName
+#     [PUBLIC_DEPENDENCIES <dependencies>]
+#     [PRIVATE_DEPENDENCIES <dependencies>]
 #     SOURCE_FILES
 #       file1.cpp
 #       file2.cpp
@@ -19,11 +21,14 @@
 # To define other properties to the target, use ``NameSpace_LibraryName``
 # (CMake will trow errors if ``NameSpace::LibraryName`` is used).
 #
+# Note: each dependency passed to PUBLIC_DEPENDENCIES and PRIVATE_DEPENDENCIES must be a target.
+#
 # Example::
 #
 #   mdt_add_library(
 #     NAMESPACE Mdt
 #     LIBRARY_NAME Led
+#     PUBLIC_DEPENDENCIES Mdt::Core Qt5::Widgets
 #     SOURCE_FILES
 #       Mdt/Led.cpp
 #   )
@@ -51,10 +56,17 @@
 #   mdt_install_library(
 #     INSTALL_NAMESPACE InstallNameSpace
 #     TARGET Target
+#     [RUNTIME_COMPONENT <component-name>]
+#     [DEVELOPMENT_COMPONENT <component-name>]
 #   )
 #
-# Will export ``Target`` as ``InstallNameSpace::LibraryName`` import target.
 # The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been set by mdt_add_library() .
+# Will export ``Target`` as ``InstallNameSpace::LibraryName`` import target.
+#
+# A property ``INTERFACE_FIND_PACKAGE_NAME`` with a value ``${INSTALL_NAMESPACE}${LIBRARY_NAME}`` will also be added to the target if not allready set.
+# This property will then be used to generate a package config file to find it later by the user of the installed library.
+# See also this discussion: https://gitlab.kitware.com/cmake/cmake/issues/17006
+# This idea comes from the BCM modules: https://bcm.readthedocs.io/en/latest/index.html
 #
 # Example::
 #
@@ -69,10 +81,12 @@
 #   )
 #
 # Will export ``Mdt_Led`` as ``Mdt0::Led`` import target.
+# The ``INTERFACE_FIND_PACKAGE_NAME`` will be set to ``Mdt0Led`` .
 #
 # The ``INSTALL_NAMESPACE`` argument will be used for..... example: lib${InstallNameSpace}LibraryName.so.${VERSION??}.${VERSION??}.${VERSION??}
 #
 # Despite MDT_INSTALL_PACKAGE_NAME and INSTALL_NAMESPACE argument are both set to Mdt0 (which is recomended for coherence), their usage are different....
+#  TODO Also document: name clashes on system wide install on Linux
 #
 # Several components will be created:
 #  - Mdt_Led_Runtime: lib, cmake, ..................
@@ -113,4 +127,6 @@
 #
 # Will export ``Target`` as ``Mdt${PROJECT_VERSION_MAJOR}::LibraryName`` import target.
 # The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been set by mdt_add_mdt_library() .
+#
+#
 #
