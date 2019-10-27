@@ -15,7 +15,7 @@
 #     [COMPONENT component]
 #   )
 #
-# Currently CMake can generate a package config file using the couple of
+# CMake can generate a package config file using the couple of
 # ``install(TARGETS target EXPORT export-name)`` and ``install(EXPORT export-name)`` .
 # Currently, CMake does not generate ``find_dependency()`` for the dependencies of the targets.
 # This file must be written by the author, for example ``MyPackageConfig.cmake``::
@@ -99,13 +99,43 @@
 #   mdt_get_target_package_name(out_var target)
 #
 # If the given ``target`` has a property named ``INTERFACE_FIND_PACKAGE_NAME`` it will be used
-# to set the package name to ``out_var`` .
+# to set the package name to ``out_var`` , which can be passed as argument to find_package().
+# If the given ``target`` also has a property named ``INTERFACE_FIND_PACKAGE_VERSION``, it will be appended to ``out_var``.
+# If the given ``target`` also has a property named ``INTERFACE_FIND_PACKAGE_EXACT``, ``EXACT`` will be appended to ``out_var``.
+# If the given ``target`` also has a property named ``INTERFACE_FIND_PACKAGE_PATHS``, ``PATHS ${CMAKE_CURRENT_LIST_DIR}/<path1> ${CMAKE_CURRENT_LIST_DIR}/<path2> ...`` will be appended to ``out_var``.
+# If the given ``target`` also has a property named ``INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH``, ``NO_DEFAULT_PATH`` will be appended to ``out_var``.
 #
 # Set the package name property to a target if not allready set::
 #
 #   mdt_set_target_package_name_if_not(
 #     TARGET target
 #     PACKAGE_NAME package-name
+#     [PACKAGE_VERSION version]
+#     [PACKAGE_VERSION_EXACT]
+#     [PATHS <list of relative paths>]
+#     [NO_DEFAULT_PATH]
+#   )
+#
+# Example to set a target package name for a project that allways distributes
+# theire modules together, like Qt5::
+#
+#   mdt_set_target_package_name_if_not(
+#     TARGET Mdt_Led
+#     PACKAGE_NAME Mdt0Led
+#     PATHS ..
+#     NO_DEFAULT_PATH
+#   )
+#
+# Example for a package that can be installed in its own directory,
+# for example by using a package manager like Conan,
+# or also together, for example as system wide Linux installation::
+#
+#   mdt_set_target_package_name_if_not(
+#     TARGET Mdt_Led
+#     PACKAGE_NAME Mdt0Led
+#     PACKAGE_VERSION ${PROJECT_VERSION}
+#     PACKAGE_VERSION_EXACT
+#     PATHS ..
 #   )
 #
 
@@ -116,6 +146,27 @@ function(mdt_get_target_package_name out_var target)
   endif()
 
   get_target_property(targetPackageName ${target} INTERFACE_FIND_PACKAGE_NAME)
+  if(targetPackageName)
+    get_target_property(targetPackageVersion ${target} INTERFACE_FIND_PACKAGE_VERSION)
+    if(targetPackageVersion)
+      string(APPEND targetPackageName " ${targetPackageVersion}")
+      get_target_property(targetPackageVersionExact ${target} INTERFACE_FIND_PACKAGE_EXACT)
+      if(targetPackageVersionExact)
+        string(APPEND targetPackageName " EXACT")
+      endif()
+    endif()
+    get_target_property(targetPackagePaths ${target} INTERFACE_FIND_PACKAGE_PATHS)
+    if(targetPackagePaths)
+      string(APPEND targetPackageName " PATHS")
+      foreach(path ${targetPackagePaths})
+        string(APPEND targetPackageName " \"\${CMAKE_CURRENT_LIST_DIR}/${path}\"")
+      endforeach()
+    endif()
+    get_target_property(noDefaultPath ${target} INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH)
+    if(noDefaultPath)
+      string(APPEND targetPackageName " NO_DEFAULT_PATH")
+    endif()
+  endif()
 
   set(${out_var} ${targetPackageName} PARENT_SCOPE)
 
@@ -123,9 +174,9 @@ endfunction()
 
 function(mdt_set_target_package_name_if_not)
 
-  set(options)
-  set(oneValueArgs TARGET PACKAGE_NAME)
-  set(multiValueArgs)
+  set(options PACKAGE_VERSION_EXACT NO_DEFAULT_PATH)
+  set(oneValueArgs TARGET PACKAGE_NAME PACKAGE_VERSION)
+  set(multiValueArgs PATHS)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT ARG_TARGET)
@@ -144,6 +195,77 @@ function(mdt_set_target_package_name_if_not)
   mdt_get_target_package_name(target_package_name ${ARG_TARGET})
   if(NOT target_package_name)
     set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_NAME ${ARG_PACKAGE_NAME})
+    if(ARG_PACKAGE_VERSION)
+      set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_VERSION ${ARG_PACKAGE_VERSION})
+      if(ARG_PACKAGE_VERSION_EXACT)
+        set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_EXACT TRUE)
+      endif()
+    endif()
+    if(ARG_PATHS)
+      set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_PATHS "${ARG_PATHS}")
+    endif()
+    if(ARG_NO_DEFAULT_PATH)
+      set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH TRUE)
+    endif()
+  endif()
+
+endfunction()
+
+
+function(mdt_install_package_config_file)
+
+  set(options)
+  set(oneValueArgs TARGETS_EXPORT_FILE FILE DESTINATION COMPONENT)
+  set(multiValueArgs TARGETS)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_TARGETS)
+    message(FATAL_ERROR "mdt_install_package_config_file(): no target provided")
+  endif()
+  if(NOT ARG_TARGETS_EXPORT_FILE)
+    message(FATAL_ERROR "mdt_install_package_config_file(): mandatory argument TARGETS_EXPORT_FILE missing")
+  endif()
+  if(NOT ARG_FILE)
+    message(FATAL_ERROR "mdt_install_package_config_file(): mandatory argument FILE missing")
+  endif()
+  if(NOT ARG_DESTINATION)
+    message(FATAL_ERROR "mdt_install_package_config_file(): mandatory argument DESTINATION missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(packageConfigFileContent "")
+  foreach(target ${ARG_TARGETS})
+    if(NOT TARGET ${target})
+      message(FATAL_ERROR "mdt_install_package_config_file(): ${target} is not a valid target")
+    endif()
+    get_target_property(targetDependencies ${target} INTERFACE_LINK_LIBRARIES)
+    foreach(dependency ${targetDependencies})
+      if(TARGET ${dependency})
+        mdt_get_target_package_name(dependencyPackageName ${dependency})
+        if(dependencyPackageName)
+          string(APPEND packageConfigFileContent "find_package(${dependencyPackageName} QUIET REQUIRED)\n")
+        endif()
+      endif()
+    endforeach()
+  endforeach()
+  string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n")
+
+  set(packageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_FILE}")
+  file(WRITE "${packageConfigFile}" "${packageConfigFileContent}")
+
+  if(ARG_COMPONENT)
+    install(
+      FILES "${packageConfigFile}"
+      DESTINATION ${ARG_DESTINATION}
+      COMPONENT "${ARG_COMPONENT}"
+    )
+  else()
+    install(
+      FILES "${packageConfigFile}"
+      DESTINATION ${ARG_DESTINATION}
+    )
   endif()
 
 endfunction()
