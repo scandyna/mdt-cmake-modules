@@ -12,3 +12,4 @@ All Modules
    MdtInstallDirs.rst
    MdtInstallNamespacePackageConfigFile.rst
    MdtPackageConfigHelpers.rst
+   MdtTargetPackageProperties.rst

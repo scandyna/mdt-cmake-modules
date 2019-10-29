@@ -8,8 +8,6 @@
 # These commands are available:
 #  - :command:`mdt_install_package_config_file()`
 #  - :command:`mdt_install_package_config_version_file()`
-#  - :command:`mdt_set_target_package_name_if_not()`
-#  - :command:`mdt_get_target_package_name()`
 #  - :command:`mdt_install_namespace_package_config_file()`
 #  - :command:`mdt_install_namespace_package_config_version_file()`
 #
@@ -113,61 +111,6 @@
 #
 # The rules to install the generated file are also set calling a install() command.
 #
-# Package name property of a target
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#
-# .. command:: mdt_get_target_package_name
-#
-# Internally, this function is also used::
-#
-#   mdt_get_target_package_name(out_var target)
-#
-# If the given ``target`` has a property named ``INTERFACE_FIND_PACKAGE_NAME`` it will be used
-# to set the package name to ``out_var`` , which can be passed as argument to find_package().
-# If the given ``target`` also has a property named ``INTERFACE_FIND_PACKAGE_VERSION``, it will be appended to ``out_var``.
-# If the given ``target`` also has a property named ``INTERFACE_FIND_PACKAGE_EXACT``, ``EXACT`` will be appended to ``out_var``.
-# If the given ``target`` also has a property named ``INTERFACE_FIND_PACKAGE_PATHS``, ``PATHS ${CMAKE_CURRENT_LIST_DIR}/<path1> ${CMAKE_CURRENT_LIST_DIR}/<path2> ...`` will be appended to ``out_var``.
-# If the given ``target`` also has a property named ``INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH``, ``NO_DEFAULT_PATH`` will be appended to ``out_var``.
-#
-# .. command:: mdt_set_target_package_name_if_not
-#
-# Set the package name property to a target if not allready set::
-#
-#   mdt_set_target_package_name_if_not(
-#     TARGET target
-#     PACKAGE_NAME package-name
-#     [PACKAGE_VERSION version]
-#     [PACKAGE_VERSION_EXACT]
-#     [PATHS <list of relative paths>]
-#     [NO_DEFAULT_PATH]
-#   )
-#
-# Example to set a target package name for a project that allways distributes
-# theire modules together, like Qt5:
-#
-# .. code-block:: cmake
-#
-#   mdt_set_target_package_name_if_not(
-#     TARGET Mdt_Led
-#     PACKAGE_NAME Mdt0Led
-#     PATHS ..
-#     NO_DEFAULT_PATH
-#   )
-#
-# Example for a package that can be installed in its own directory,
-# for example by using a package manager like Conan,
-# or also together, for example as system wide Linux installation:
-#
-# .. code-block:: cmake
-#
-#   mdt_set_target_package_name_if_not(
-#     TARGET Mdt_Led
-#     PACKAGE_NAME Mdt0Led
-#     PACKAGE_VERSION ${PROJECT_VERSION}
-#     PACKAGE_VERSION_EXACT
-#     PATHS ..
-#   )
-#
 # Generate package version file
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
@@ -269,80 +212,7 @@
 #   ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0/Mdt0ConfigVersion.cmake
 #
 
-
-
-function(mdt_get_target_package_name out_var target)
-
-  if(NOT TARGET ${target})
-    message(FATAL_ERROR "mdt_get_target_package_name(): ${target} is not a valid target")
-  endif()
-
-  get_target_property(targetPackageName ${target} INTERFACE_FIND_PACKAGE_NAME)
-  if(targetPackageName)
-    get_target_property(targetPackageVersion ${target} INTERFACE_FIND_PACKAGE_VERSION)
-    if(targetPackageVersion)
-      string(APPEND targetPackageName " ${targetPackageVersion}")
-      get_target_property(targetPackageVersionExact ${target} INTERFACE_FIND_PACKAGE_EXACT)
-      if(targetPackageVersionExact)
-        string(APPEND targetPackageName " EXACT")
-      endif()
-    endif()
-    get_target_property(targetPackagePaths ${target} INTERFACE_FIND_PACKAGE_PATHS)
-    if(targetPackagePaths)
-      string(APPEND targetPackageName " PATHS")
-      foreach(path ${targetPackagePaths})
-        string(APPEND targetPackageName " \"\${CMAKE_CURRENT_LIST_DIR}/${path}\"")
-      endforeach()
-    endif()
-    get_target_property(noDefaultPath ${target} INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH)
-    if(noDefaultPath)
-      string(APPEND targetPackageName " NO_DEFAULT_PATH")
-    endif()
-  endif()
-
-  set(${out_var} ${targetPackageName} PARENT_SCOPE)
-
-endfunction()
-
-function(mdt_set_target_package_name_if_not)
-
-  set(options PACKAGE_VERSION_EXACT NO_DEFAULT_PATH)
-  set(oneValueArgs TARGET PACKAGE_NAME PACKAGE_VERSION)
-  set(multiValueArgs PATHS)
-  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-  if(NOT ARG_TARGET)
-    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): mandatory argument TARGET missing")
-  endif()
-  if(NOT TARGET ${ARG_TARGET})
-    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): ${ARG_TARGET} is not a valid target")
-  endif()
-  if(NOT ARG_PACKAGE_NAME)
-    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): mandatory argument PACKAGE_NAME missing")
-  endif()
-  if(ARG_UNPARSED_ARGUMENTS)
-    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
-  endif()
-
-  mdt_get_target_package_name(target_package_name ${ARG_TARGET})
-  if(NOT target_package_name)
-    set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_NAME ${ARG_PACKAGE_NAME})
-    if(ARG_PACKAGE_VERSION)
-      set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_VERSION ${ARG_PACKAGE_VERSION})
-      if(ARG_PACKAGE_VERSION_EXACT)
-        set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_EXACT TRUE)
-      endif()
-    endif()
-    if(ARG_PATHS)
-      set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_PATHS "${ARG_PATHS}")
-    endif()
-    if(ARG_NO_DEFAULT_PATH)
-      set_target_properties(${ARG_TARGET} PROPERTIES INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH TRUE)
-    endif()
-  endif()
-
-endfunction()
-
+include(MdtTargetPackageProperties)
 
 function(mdt_install_package_config_file)
 
@@ -368,6 +238,7 @@ function(mdt_install_package_config_file)
   endif()
 
   set(packageConfigFileContent "")
+  # Generate commands to find the dependencies of each target of this package
   foreach(target ${ARG_TARGETS})
     if(NOT TARGET ${target})
       message(FATAL_ERROR "mdt_install_package_config_file(): ${target} is not a valid target")
@@ -383,7 +254,10 @@ function(mdt_install_package_config_file)
       endif()
     endforeach()
   endforeach()
+  # Generate the statements to include the targets export file + additionnal needed module
   string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n")
+  string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/MdtTargetPackageProperties.cmake\")\n")
+  # Generate commands to set the package name for each target of this package
   foreach(target ${ARG_TARGETS})
     string(APPEND packageConfigFileContent "# Set package name for target ${target}")
     
@@ -392,9 +266,19 @@ function(mdt_install_package_config_file)
   set(packageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_FILE}")
   file(WRITE "${packageConfigFile}" "${packageConfigFileContent}")
 
+  # Find the module containig mdt_set_target_package_name_if_not()
+  find_file(
+    MdtTargetPackagePropertiesFilePath
+    NAMES MdtTargetPackageProperties.cmake
+    PATHS ${CMAKE_MODULE_PATH}
+  )
+  if(NOT MdtTargetPackagePropertiesFilePath)
+    message(FATAL_ERROR "mdt_install_package_config_file(): unable to locate MdtTargetPackageProperties.cmake")
+  endif()
+
   if(ARG_COMPONENT)
     install(
-      FILES "${packageConfigFile}"
+      FILES "${packageConfigFile}" "${MdtTargetPackagePropertiesFilePath}"
       DESTINATION ${ARG_DESTINATION}
       COMPONENT "${ARG_COMPONENT}"
     )
