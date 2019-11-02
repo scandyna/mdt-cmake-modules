@@ -6,10 +6,60 @@
 # ---------------------------
 #
 # These commands are available:
+#  - :command:`mdt_get_target_export_name()`
 #  - :command:`mdt_install_package_config_file()`
 #  - :command:`mdt_install_package_config_version_file()`
 #  - :command:`mdt_install_namespace_package_config_file()`
 #  - :command:`mdt_install_namespace_package_config_version_file()`
+#
+# Get the export name of a target
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_get_target_export_name
+#
+# Get the export name of a target::
+#
+#   mdt_get_target_export_name(out_var target)
+#
+# Example of a target that does not define any export property:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt_Led led.cpp)
+#
+#   mdt_get_target_export_name(exportName Mdt_Led)
+#   # exportName will contain Mdt_Led
+#
+# Example of a target that define the ``EXPORT_NAME`` property:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt_Led led.cpp)
+#   set_target_properties(Mdt_Led
+#     PROPERTIES
+#       EXPORT_NAME Led
+#   )
+#
+#   mdt_get_target_export_name(exportName Mdt_Led)
+#   # exportName will contain Led
+#
+# Example of a target that define the ``EXPORT_NAME`` and ``INSTALL_NAMESPACE`` properties:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt_Led led.cpp)
+#   set_target_properties(Mdt_Led
+#     PROPERTIES
+#       EXPORT_NAME Led
+#       INSTALL_NAMESPACE Mdt0
+#   )
+#
+#   mdt_get_target_export_name(exportName Mdt_Led)
+#   # exportName will contain Mdt0::Led
+#
+# Notice that the ``INSTALL_NAMESPACE`` property was set without passing the ``::``.
+#
+# TODO This is confusing !! The property should be renamed EXPORT_NAMESPACE !
 #
 # Generate package configuration file
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -33,6 +83,7 @@
 #
 # .. code-block:: cmake
 #
+#   # Content of MyPackageConfig.cmake
 #   find_dependency(DependencyA)
 #   find_dependency(DependencyB)
 #   include("${CMAKE_CURRENT_LIST_DIR}/MyPackageTargets.cmake")
@@ -46,17 +97,28 @@
 #
 # This solution is inpired from the BCMExport module: https://github.com/boost-cmake/bcm/blob/master/share/bcm/cmake/BCMExport.cmake
 #
-# Example (see also :command:`mdt_set_target_package_name_if_not()` and :command:`mdt_get_target_package_name()`):
+# Example (see also :command:`mdt_set_target_package_properties_if_not()` and :command:`mdt_get_target_package_name()`):
 #
 # .. code-block:: cmake
 #
 #   add_library(Mdt_ItemEditor_Widgets sourc1.cpp sourc2.cpp ...)
 #   target_link_libraries(Mdt_ItemEditor_Widgets PUBLIC Mdt::ItemModel Qt5::Widgets)
 #
-#   set_target_properties(Mdt_ItemEditor_Widgets PROPERTIES EXPORT_NAME ItemEditor_Widgets)
+#   set_target_properties(Mdt_ItemEditor_Widgets
+#     PROPERTIES
+#       EXPORT_NAME ItemEditor_Widgets
+#       INSTALL_NAMESPACE Mdt0::
+#   )
 #
 #   # This was allready set if Mdt_ItemModel have been installed using mdt_install_library()
-#   mdt_set_target_package_name_if_not(
+#   set_target_properties(Mdt_ItemModel
+#     PROPERTIES
+#       EXPORT_NAME ItemModel
+#       INSTALL_NAMESPACE Mdt0::
+#   )
+#
+#   # This was allready set if Mdt_ItemModel have been installed using mdt_install_library()
+#   mdt_set_target_package_properties_if_not(
 #     TARGET Mdt_ItemModel
 #     PACKAGE_NAME Mdt0ItemModel
 #   )
@@ -66,14 +128,14 @@
 #   # the package name of the used Qt5 libraries could be defined.
 #   # This should be done in the top level CMakeLists.txt.
 #   # See also if this is a good practice or not (maybe finding Qt5 should be explicit in the user project).
-#   mdt_set_target_package_name_if_not(
+#   mdt_set_target_package_properties_if_not(
 #     TARGET Qt5::Widgets
 #     PACKAGE_NAME Qt5Widgets
 #   )
 #
 #   install(
 #     TARGETS Mdt_ItemEditor_Widgets
-#     EXPORT Mdt0ItemEditor_WidgetsTargets
+#     EXPORT MdtItemEditor_WidgetsTargets
 #     RUNTIME
 #       DESTINATION ${CMAKE_INSTALL_BINDIR}
 #       COMPONENT Mdt_ItemEditor_Widgets_Runtime
@@ -86,7 +148,7 @@
 #   )
 #
 #   install(
-#     EXPORT Mdt0ItemEditor_WidgetsTargets
+#     EXPORT MdtItemEditor_WidgetsTargets
 #     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0ItemEditor_Widgets
 #     NAMESPACE Mdt0::
 #     FILE Mdt0ItemEditor_WidgetsTargets.cmake
@@ -128,6 +190,19 @@
 #
 # Internally, :command:`write_basic_package_version_file()` from the ``CMakePackageConfigHelpers``
 # module is used to generate the version file. A :command:`install()` will then add the install rules.
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   include(GNUInstallDirs)
+#   mdt_install_package_config_version_file(
+#     VERSION ${PROJECT_VERSION}
+#     COMPATIBILITY ExactVersion
+#     FILE "${CMAKE_CURRENT_BINARY_DIR}/Mdt0LedConfigVersion.cmake"
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0Led
+#     COMPONENT Mdt_Led_Dev
+#   )
 #
 # Generate namespace package configuration file
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -213,6 +288,26 @@
 #
 
 include(MdtTargetPackageProperties)
+include(CMakePackageConfigHelpers)
+
+
+function(mdt_get_target_export_name out_var target)
+
+  if(NOT TARGET ${target})
+    message(FATAL_ERROR "mdt_get_target_export_name(): ${target} is not a valid target")
+  endif()
+
+  get_target_property(exportName ${target} EXPORT_NAME)
+  get_target_property(installNamespace ${target} INSTALL_NAMESPACE)
+
+  if(installNamespace)
+    set(${out_var} ${installNamespace}${exportName} PARENT_SCOPE)
+  else()
+    set(${out_var} ${exportName} PARENT_SCOPE)
+  endif()
+
+endfunction()
+
 
 function(mdt_install_package_config_file)
 
@@ -247,38 +342,45 @@ function(mdt_install_package_config_file)
     get_target_property(targetDependencies ${target} INTERFACE_LINK_LIBRARIES)
     foreach(dependency ${targetDependencies})
       if(TARGET ${dependency})
-        mdt_get_target_package_name(dependencyPackageName ${dependency})
-        if(dependencyPackageName)
-          string(APPEND packageConfigFileContent "find_package(${dependencyPackageName} QUIET REQUIRED)\n")
+        mdt_target_package_properties_to_find_package_arguments(dependencyFindPackageArguments ${dependency})
+        if(dependencyFindPackageArguments)
+          string(APPEND packageConfigFileContent "find_package(${dependencyFindPackageArguments} QUIET REQUIRED)\n")
         endif()
       endif()
     endforeach()
   endforeach()
   # Generate the statements to include the targets export file + additionnal needed module
   string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n")
-  string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/MdtTargetPackageProperties.cmake\")\n")
-  # Generate commands to set the package name for each target of this package
+#   string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/MdtTargetPackageProperties.cmake\")\n")
+  # Generate commands to set the package properties for each target of this package
   foreach(target ${ARG_TARGETS})
-    string(APPEND packageConfigFileContent "# Set package name for target ${target}")
-    
+    mdt_get_target_export_name(importTarget ${target})
+    string(APPEND packageConfigFileContent "# Set package properties for target ${importTarget}\n")
+    mdt_target_package_properties_to_set_target_properties_arguments(targetPackageProperties ${target})
+    if(targetPackageProperties)
+      string(APPEND packageConfigFileContent "get_target_property(targetPackageName ${importTarget} INTERFACE_FIND_PACKAGE_NAME)\n")
+      string(APPEND packageConfigFileContent "if(NOT targetPackageName)\n")
+      string(APPEND packageConfigFileContent "  set_target_properties(${importTarget} ${targetPackageProperties})\n")
+      string(APPEND packageConfigFileContent "endif()\n")
+    endif()
   endforeach()
 
   set(packageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_FILE}")
   file(WRITE "${packageConfigFile}" "${packageConfigFileContent}")
 
   # Find the module containig mdt_set_target_package_name_if_not()
-  find_file(
-    MdtTargetPackagePropertiesFilePath
-    NAMES MdtTargetPackageProperties.cmake
-    PATHS ${CMAKE_MODULE_PATH}
-  )
-  if(NOT MdtTargetPackagePropertiesFilePath)
-    message(FATAL_ERROR "mdt_install_package_config_file(): unable to locate MdtTargetPackageProperties.cmake")
-  endif()
+#   find_file(
+#     MdtTargetPackagePropertiesFilePath
+#     NAMES MdtTargetPackageProperties.cmake
+#     PATHS ${CMAKE_MODULE_PATH}
+#   )
+#   if(NOT MdtTargetPackagePropertiesFilePath)
+#     message(FATAL_ERROR "mdt_install_package_config_file(): unable to locate MdtTargetPackageProperties.cmake")
+#   endif()
 
   if(ARG_COMPONENT)
     install(
-      FILES "${packageConfigFile}" "${MdtTargetPackagePropertiesFilePath}"
+      FILES "${packageConfigFile}"
       DESTINATION ${ARG_DESTINATION}
       COMPONENT "${ARG_COMPONENT}"
     )
@@ -292,8 +394,51 @@ function(mdt_install_package_config_file)
 endfunction()
 
 
+function(mdt_install_package_config_version_file)
+
+  set(options)
+  set(oneValueArgs VERSION COMPATIBILITY FILE DESTINATION COMPONENT)
+  set(multiValueArgs)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_VERSION)
+    message(FATAL_ERROR "mdt_install_package_config_version_file(): mandatory argument VERSION missing")
+  endif()
+  if(NOT ARG_COMPATIBILITY)
+    message(FATAL_ERROR "mdt_install_package_config_version_file(): mandatory argument COMPATIBILITY missing")
+  endif()
+  if(NOT ARG_FILE)
+    message(FATAL_ERROR "mdt_install_package_config_version_file(): mandatory argument FILE missing")
+  endif()
+  if(NOT ARG_DESTINATION)
+    message(FATAL_ERROR "mdt_install_package_config_version_file(): mandatory argument DESTINATION missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_install_package_config_version_file(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  write_basic_package_version_file("${ARG_FILE}"
+    VERSION ${ARG_VERSION}
+    COMPATIBILITY ${ARG_COMPATIBILITY}
+  )
+
+  set(componentArgument)
+  if(ARG_COMPONENT)
+    set(componentArgument COMPONENT ${ARG_COMPONENT})
+  endif()
+
+  install(
+    FILES "${ARG_FILE}"
+    DESTINATION "${ARG_DESTINATION}"
+    ${componentArgument}
+  )
+
+endfunction()
+
 
 function(mdt_install_namespace_package_config_file)
+
+  # TODO Review !
   set(options)
   set(oneValueArgs INSTALL_NAMESPACE DESTINATION COMPONENT VERSION VERSION_COMPATIBILITY)
   set(multiValueArgs)
@@ -316,7 +461,6 @@ function(mdt_install_namespace_package_config_file)
   message("DESTINATION: ${ARG_DESTINATION}")
   message("ARG_COMPONENT: ${ARG_COMPONENT}")
 
-  # TODO shoud be aware not to find other installed components. See find_package() option (No module, no system paths)
   set(config_file "${CMAKE_CURRENT_BINARY_DIR}/${ARG_INSTALL_NAMESPACE}Config.cmake")
   file(WRITE "${config_file}" "if(NOT ${ARG_INSTALL_NAMESPACE}_FIND_COMPONENTS)\n")
   file(APPEND "${config_file}" "  set(${ARG_INSTALL_NAMESPACE}_NOT_FOUND_MESSAGE \"The ${ARG_INSTALL_NAMESPACE} package requires at least one component\")\n")

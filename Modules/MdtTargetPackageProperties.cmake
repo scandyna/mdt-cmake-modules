@@ -5,10 +5,12 @@
 # MdtTargetPackageProperties
 # --------------------------
 #
-# These commands are available:
-#  - :command:`mdt_set_target_package_properties_if_not()`
+# Those commands are available:
 #  - :command:`mdt_get_target_package_name()`
 #  - :command:`mdt_target_package_properties_to_find_package_arguments()`
+#  - :command:`mdt_target_package_properties_to_set_target_properties_arguments()`
+#  - :command:`mdt_set_target_package_properties_if_not()`
+#
 #
 # .. command:: mdt_get_target_package_name
 #
@@ -35,14 +37,13 @@
 #
 # .. command:: mdt_target_package_properties_to_set_target_properties_arguments
 #
-# Generate arguemnts for :command:`set_target_properties()`::
+# Generate arguments for :command:`set_target_properties()`::
 #
 #   mdt_target_package_properties_to_set_target_properties_arguments(out_var target)
 #
 # If given ``target`` has no property named ``INTERFACE_FIND_PACKAGE_NAME``, ``out_var`` will be empty.
-# Otherwise, ``out_var`` will contain arguemnts of the form::
+# Otherwise, ``out_var`` will contain arguments of the form::
 #
-#   target
 #     PROPERTIES
 #       INTERFACE_FIND_PACKAGE_NAME package-name
 #       INTERFACE_FIND_PACKAGE_VERSION version
@@ -50,11 +51,11 @@
 #       INTERFACE_FIND_PACKAGE_PATHS paths
 #       INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH TRUE
 #
-# The properties other than ``INTERFACE_FIND_PACKAGE_NAME`` are only generated if they exists in ``target`` .
+# The properties other than ``INTERFACE_FIND_PACKAGE_NAME`` are only generated if they exist in ``target`` .
 #
 # .. command:: mdt_set_target_package_properties_if_not
 #
-# Set the package name property to a target if not allready set::
+# Set the package properties to a target if not allready set::
 #
 #   mdt_set_target_package_properties_if_not(
 #     TARGET target
@@ -65,7 +66,9 @@
 #     [NO_DEFAULT_PATH]
 #   )
 #
-# Example to set a target package name for a project that allways distributes
+# If ``target`` allready has the ``INTERFACE_FIND_PACKAGE_NAME`` nothing will be set at all.
+#
+# Example to set a target package properties for a project that allways distributes
 # theire modules together, like Qt5:
 #
 # .. code-block:: cmake
@@ -91,6 +94,7 @@
 #     PATHS ..
 #   )
 
+
 function(mdt_get_target_package_name out_var target)
 
   if(NOT TARGET ${target})
@@ -98,33 +102,81 @@ function(mdt_get_target_package_name out_var target)
   endif()
 
   get_target_property(targetPackageName ${target} INTERFACE_FIND_PACKAGE_NAME)
-  if(targetPackageName)
-    get_target_property(targetPackageVersion ${target} INTERFACE_FIND_PACKAGE_VERSION)
-    if(targetPackageVersion)
-      string(APPEND targetPackageName " ${targetPackageVersion}")
-      get_target_property(targetPackageVersionExact ${target} INTERFACE_FIND_PACKAGE_EXACT)
-      if(targetPackageVersionExact)
-        string(APPEND targetPackageName " EXACT")
-      endif()
-    endif()
-    get_target_property(targetPackagePaths ${target} INTERFACE_FIND_PACKAGE_PATHS)
-    if(targetPackagePaths)
-      string(APPEND targetPackageName " PATHS")
-      foreach(path ${targetPackagePaths})
-        string(APPEND targetPackageName " \"\${CMAKE_CURRENT_LIST_DIR}/${path}\"")
-      endforeach()
-    endif()
-    get_target_property(noDefaultPath ${target} INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH)
-    if(noDefaultPath)
-      string(APPEND targetPackageName " NO_DEFAULT_PATH")
-    endif()
-  endif()
 
   set(${out_var} ${targetPackageName} PARENT_SCOPE)
 
 endfunction()
 
-function(mdt_set_target_package_name_if_not)
+
+function(mdt_target_package_properties_to_find_package_arguments out_var target)
+
+  if(NOT TARGET ${target})
+    message(FATAL_ERROR "mdt_target_package_properties_to_find_package_arguments(): ${target} is not a valid target")
+  endif()
+
+  set(findPackageArguments)
+  get_target_property(targetPackageName ${target} INTERFACE_FIND_PACKAGE_NAME)
+  if(targetPackageName)
+    string(APPEND findPackageArguments ${targetPackageName})
+    get_target_property(targetPackageVersion ${target} INTERFACE_FIND_PACKAGE_VERSION)
+    if(targetPackageVersion)
+      string(APPEND findPackageArguments " ${targetPackageVersion}")
+      get_target_property(targetPackageVersionExact ${target} INTERFACE_FIND_PACKAGE_EXACT)
+      if(targetPackageVersionExact)
+        string(APPEND findPackageArguments " EXACT")
+      endif()
+    endif()
+    get_target_property(targetPackagePaths ${target} INTERFACE_FIND_PACKAGE_PATHS)
+    if(targetPackagePaths)
+      string(APPEND findPackageArguments " PATHS")
+      foreach(path ${targetPackagePaths})
+        string(APPEND findPackageArguments " \"\${CMAKE_CURRENT_LIST_DIR}/${path}\"")
+      endforeach()
+    endif()
+    get_target_property(noDefaultPath ${target} INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH)
+    if(noDefaultPath)
+      string(APPEND findPackageArguments " NO_DEFAULT_PATH")
+    endif()
+  endif()
+
+  set(${out_var} ${findPackageArguments} PARENT_SCOPE)
+
+endfunction()
+
+function(mdt_target_package_properties_to_set_target_properties_arguments out_var target)
+
+  if(NOT TARGET ${target})
+    message(FATAL_ERROR "mdt_target_package_properties_to_set_target_properties_arguments(): ${target} is not a valid target")
+  endif()
+
+  set(setTargetPropertiesArguments)
+  get_target_property(targetPackageName ${target} INTERFACE_FIND_PACKAGE_NAME)
+  if(targetPackageName)
+    string(APPEND setTargetPropertiesArguments " PROPERTIES INTERFACE_FIND_PACKAGE_NAME ${targetPackageName}")
+    get_target_property(targetPackageVersion ${target} INTERFACE_FIND_PACKAGE_VERSION)
+    if(targetPackageVersion)
+      string(APPEND setTargetPropertiesArguments " INTERFACE_FIND_PACKAGE_VERSION ${targetPackageVersion}")
+      get_target_property(targetPackageVersionExact ${target} INTERFACE_FIND_PACKAGE_EXACT)
+      if(targetPackageVersionExact)
+        string(APPEND setTargetPropertiesArguments " INTERFACE_FIND_PACKAGE_EXACT TRUE")
+      endif()
+    endif()
+    get_target_property(targetPackagePaths ${target} INTERFACE_FIND_PACKAGE_PATHS)
+    if(targetPackagePaths)
+      string(APPEND setTargetPropertiesArguments " INTERFACE_FIND_PACKAGE_PATHS \"${targetPackagePaths}\"")
+    endif()
+    get_target_property(noDefaultPath ${target} INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH)
+    if(noDefaultPath)
+      string(APPEND setTargetPropertiesArguments " INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH TRUE")
+    endif()
+  endif()
+
+  set(${out_var} ${setTargetPropertiesArguments} PARENT_SCOPE)
+
+endfunction()
+
+
+function(mdt_set_target_package_properties_if_not)
 
   set(options PACKAGE_VERSION_EXACT NO_DEFAULT_PATH)
   set(oneValueArgs TARGET PACKAGE_NAME PACKAGE_VERSION)
@@ -132,16 +184,16 @@ function(mdt_set_target_package_name_if_not)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT ARG_TARGET)
-    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): mandatory argument TARGET missing")
+    message(FATAL_ERROR "mdt_set_target_package_properties_if_not(): mandatory argument TARGET missing")
   endif()
   if(NOT TARGET ${ARG_TARGET})
-    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): ${ARG_TARGET} is not a valid target")
+    message(FATAL_ERROR "mdt_set_target_package_properties_if_not(): ${ARG_TARGET} is not a valid target")
   endif()
   if(NOT ARG_PACKAGE_NAME)
-    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): mandatory argument PACKAGE_NAME missing")
+    message(FATAL_ERROR "mdt_set_target_package_properties_if_not(): mandatory argument PACKAGE_NAME missing")
   endif()
   if(ARG_UNPARSED_ARGUMENTS)
-    message(FATAL_ERROR "mdt_set_target_package_name_if_not(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+    message(FATAL_ERROR "mdt_set_target_package_properties_if_not(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
   mdt_get_target_package_name(target_package_name ${ARG_TARGET})
