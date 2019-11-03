@@ -175,7 +175,9 @@
 #     EXPORT_NAME <export-name>
 #     EXPORT_NAMESPACE <export-namespace>
 #     INSTALL_NAMESPACE <install-namespace>
+#     [IS_UNIX_SYSTEM_WIDE <true>]
 #     [VERSION <version>]
+#     [SOVERSION <version>]
 #     [VERSION_COMPATIBILITY <AnyNewerVersion|SameMajorVersion|ExactVersion>]
 #     [RUNTIME_COMPONENT <component-name>]
 #     [DEVELOPMENT_COMPONENT <component-name>]
@@ -188,19 +190,106 @@
 # By default, à pattern matching ``*.h`` and ``*.hpp`` is used to filter which files must be copied.
 # An alternate pattern can be passed as ``INCLUDES_FILES_MATCHING_PATTERN`` argument.
 #
+# The ``EXPORT_NAME`` and ``EXPORT_NAMESPACE`` will be set as properties to ``target``:
+#
+# .. code-block:: cmake
+#
+#   set_target_properties(${target} PROPERTIES EXPORT_NAME ${EXPORT_NAME} EXPORT_NAMESPACE ${EXPORT_NAMESPACE})
+#
 # Package config files will also be generated using :command:`install(TARGETS ... EXPORT ...)`.
 # Those files will contain the definition of the imported target, named ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
-# Those files will also be intsalled using :command:`install(EXPORT)`.
+# Those files will also be installed using :command:`install(EXPORT)`.
 #
 # A package config file named ``${INSTALL_NAMESPACE}${EXPORT_NAME}Config.cmake`` is also generated
-# and installed using :command:`mdt_install_package_config_file()` to ``${LIBRARY_DESTINATION}/cmake/${INSTALL_NAMESPACE}${EXPORT_NAME}``,
-# which is a standard location for :command:`find_package()`.
+# and installed using :command:`mdt_install_package_config_file()`.
+#
+# If a VERSION, and maybe a SOVERSION, is specified, it will be set as properties to ``target``:
+#
+# .. code-block:: cmake
+#
+#   # Only called if the VERSION argument is set
+#   set_target_properties(${target} PROPERTIES VERSION ${VERSION})
+#
+#   # Only called if the SOVERSION argument is set
+#   set_target_properties(${target} PROPERTIES SOVERSION ${SOVERSION})
 #
 # If a VERSION is specified, a package config version file named ``${INSTALL_NAMESPACE}${EXPORT_NAME}ConfigVersion.cmake``
-# is also generated and installed using :command:`mdt_install_package_config_version_file()`
-# to ``${LIBRARY_DESTINATION}/cmake/${INSTALL_NAMESPACE}${EXPORT_NAME}``.
+# is also generated and installed using :command:`mdt_install_package_config_version_file()`.
 #
-# TODO document library versionning.
+# All generated package configuration files will be installed to ``${LIBRARY_DESTINATION}/cmake/${INSTALL_NAMESPACE}${EXPORT_NAME}``,
+# which is a standard location for :command:`find_package()`.
+#
+# Some package informations will also be attached as properties of ``target``.
+# Those properties will be reused when a other target, that depends on ``target``, is installed.
+# For more informations of package properties, see :command:`mdt_set_target_package_properties_if_not()`.
+# The following package properties are defined:
+#  - ``INTERFACE_FIND_PACKAGE_NAME``: set to ``${INSTALL_NAMESPACE}${EXPORT_NAME}``
+#  - ``INTERFACE_FIND_PACKAGE_VERSION``: set to ``${VERSION}`` if ``VERSION`` argument was specified, otherwise it is not defined
+#  - ``INTERFACE_FIND_PACKAGE_EXACT``: set to ``TRUE`` if ``VERSION_COMPATIBILITY`` argument is ``ExactVersion``, otherwise it is not defined
+#  - ``INTERFACE_FIND_PACKAGE_PATHS``: set to ``..`` if ``IS_UNIX_SYSTEM_WIDE`` argument was not specified, or passed ``FALSE``,
+#    otherwise it is not defined
+#  - ``INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH``: set to ``TRUE`` if ``IS_UNIX_SYSTEM_WIDE`` argument was not specified, or passed ``FALSE``, otherwise it is not defined
+#
+#
+# TODO: review above
+#
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt_ItemEditor_Widgets
+#     sourc1.cpp sourc2.cpp ...
+#   )
+#
+#   target_link_libraries(Mdt_ItemEditor_Widgets
+#     PUBLIC Mdt::ItemModel Qt5::Widgets
+#   )
+#
+#   target_include_directories(Mdt_ItemEditor_Widgets
+#     PUBLIC
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#     PRIVATE
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Private>
+#   )
+#
+#   # This should be set at the top level CMakeLists.txt
+#   set(MDT_INSTALL_PACKAGE_NAME Mdt0)
+#   include(GNUInstallDirs)
+#   include(MdtInstallDirs)
+#
+#   mdt_install_library(
+#     TARGET Mdt_ItemEditor_Widgets
+#     RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR}
+#     LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     ARCHIVE_DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     INCLUDES_DESTINATION ${MDT_INSTALL_INCLUDEDIR}
+#     EXPORT_NAME ItemEditor_Widgets
+#     EXPORT_NAMESPACE Mdt0::
+#     INSTALL_NAMESPACE Mdt0
+#     IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
+#     VERSION ${PROJECT_VERSION}
+#     SOVERSION ${PROJECT_VERSION_MAJOR}
+#     VERSION_COMPATIBILITY ExactVersion
+#     RUNTIME_COMPONENT Mdt_ItemEditor_Widgets_Runtime
+#     DEVELOPMENT_COMPONENT Mdt_ItemEditor_Widgets_Dev
+#   )
+#
+# Notice the usage of ``MDT_INSTALL_PACKAGE_NAME`` and ``MDT_INSTALL_INCLUDEDIR``.
+# Those variable are used and provided by the :module:`MdtInstallDirs`
+# and will help install the includes in a appropriate subdirectory.
+#
+# On a non system wide Linux installation, the result will be::
+#
+#   ${CMAKE_INSTALL_PREFIX}/include/Mdt/ItemEditor/TableEditor.h
+#   ${CMAKE_INSTALL_PREFIX}/include/Mdt/ItemEditor/ItemEditor_WidgetsExport.h
+#   ${CMAKE_INSTALL_PREFIX}/lib/libMdt0ItemEditor_Widgets.so
+#   ${CMAKE_INSTALL_PREFIX}/lib/libMdt0ItemEditor_Widgets.so.0
+#   ${CMAKE_INSTALL_PREFIX}/lib/libMdt0ItemEditor_Widgets.so.0.1.2
+#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsTargets.cmake
+#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
+#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfigVersion.cmake
 #
 #
 # The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been set by mdt_add_library() .

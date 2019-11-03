@@ -43,7 +43,7 @@
 #   mdt_get_target_export_name(exportName Mdt_Led)
 #   # exportName will contain Led
 #
-# Example of a target that define the ``EXPORT_NAME`` and ``INSTALL_NAMESPACE`` properties:
+# Example of a target that define the ``EXPORT_NAME`` and ``EXPORT_NAMESPACE`` properties:
 #
 # .. code-block:: cmake
 #
@@ -51,15 +51,12 @@
 #   set_target_properties(Mdt_Led
 #     PROPERTIES
 #       EXPORT_NAME Led
-#       INSTALL_NAMESPACE Mdt0
+#       EXPORT_NAMESPACE Mdt0::
 #   )
 #
 #   mdt_get_target_export_name(exportName Mdt_Led)
 #   # exportName will contain Mdt0::Led
 #
-# Notice that the ``INSTALL_NAMESPACE`` property was set without passing the ``::``.
-#
-# TODO This is confusing !! The property should be renamed EXPORT_NAMESPACE !
 #
 # Generate package configuration file
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -169,6 +166,21 @@
 #
 #   find_dependency(Mdt0ItemModel)
 #   find_dependency(Qt5Widgets)
+#   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemEditor_WidgetsTargets.cmake")
+#
+# TODO check this variant:
+#
+# .. code-block:: cmake
+#
+#   find_package(Mdt0ItemModel QUIET PATHS .. NO_DEFAULT_PATH)
+#   if(NOT Mdt0ItemModel_FOUND)
+#     find_package(Mdt0ItemModel QUIET REQUIRED)
+#   endif()
+#   find_package(Qt5Widgets QUIET PATHS .. NO_DEFAULT_PATH)
+#   if(NOT Qt5Widgets_FOUND)
+#     find_package(Qt5Widgets QUIET REQUIRED)
+#   endif()
+#
 #   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemEditor_WidgetsTargets.cmake")
 #
 # The rules to install the generated file are also set calling a install() command.
@@ -298,10 +310,10 @@ function(mdt_get_target_export_name out_var target)
   endif()
 
   get_target_property(exportName ${target} EXPORT_NAME)
-  get_target_property(installNamespace ${target} INSTALL_NAMESPACE)
+  get_target_property(exportNamespace ${target} EXPORT_NAMESPACE)
 
-  if(installNamespace)
-    set(${out_var} ${installNamespace}${exportName} PARENT_SCOPE)
+  if(exportNamespace)
+    set(${out_var} ${exportNamespace}${exportName} PARENT_SCOPE)
   else()
     set(${out_var} ${exportName} PARENT_SCOPE)
   endif()
@@ -338,7 +350,7 @@ function(mdt_install_package_config_file)
     if(NOT TARGET ${target})
       message(FATAL_ERROR "mdt_install_package_config_file(): ${target} is not a valid target")
     endif()
-    string(APPEND packageConfigFileContent "# Find dependencies for target ${target} (may be empty)")
+    string(APPEND packageConfigFileContent "# Find dependencies for target ${target} (may be empty)\n")
     get_target_property(targetDependencies ${target} INTERFACE_LINK_LIBRARIES)
     foreach(dependency ${targetDependencies})
       if(TARGET ${dependency})
@@ -350,7 +362,7 @@ function(mdt_install_package_config_file)
     endforeach()
   endforeach()
   # Generate the statements to include the targets export file + additionnal needed module
-  string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n")
+  string(APPEND packageConfigFileContent "\ninclude(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n")
 #   string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/MdtTargetPackageProperties.cmake\")\n")
   # Generate commands to set the package properties for each target of this package
   foreach(target ${ARG_TARGETS})
