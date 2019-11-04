@@ -5,6 +5,8 @@
 # MdtAddLibrary
 # ---------------------
 #
+# TODO should create a page that explains the various target properties used in Mdt modules.
+#
 # Target various names
 # ^^^^^^^^^^^^^^^^^^^^
 #
@@ -232,6 +234,12 @@
 #
 #
 # TODO: review above
+#
+# NOTE: for RPATH, simply add ``.`` to origin if not ``IS_UNIX_SYSTEM_WIDE``.
+#
+# NOTE: for find_package() also simply add first search to ``PATHS ..`` as proposed in :command:`mdt_install_package_config_file()` (not dependent of ``IS_UNIX_SYSTEM_WIDE``).
+# This should fit 95% of use cases !
+# Later, with experience, a good name could be found for some argument..
 #
 #
 # Example:

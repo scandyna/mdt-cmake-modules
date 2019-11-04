@@ -104,14 +104,14 @@
 #   set_target_properties(Mdt_ItemEditor_Widgets
 #     PROPERTIES
 #       EXPORT_NAME ItemEditor_Widgets
-#       INSTALL_NAMESPACE Mdt0::
+#       EXPORT_NAMESPACE Mdt0::
 #   )
 #
 #   # This was allready set if Mdt_ItemModel have been installed using mdt_install_library()
 #   set_target_properties(Mdt_ItemModel
 #     PROPERTIES
 #       EXPORT_NAME ItemModel
-#       INSTALL_NAMESPACE Mdt0::
+#       EXPORT_NAMESPACE Mdt0::
 #   )
 #
 #   # This was allready set if Mdt_ItemModel have been installed using mdt_install_library()
@@ -168,7 +168,41 @@
 #   find_dependency(Qt5Widgets)
 #   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemEditor_WidgetsTargets.cmake")
 #
-# TODO check this variant:
+# The rules to install the generated file are also set calling a install() command.
+#
+# A package can be installed in several ways,
+# but mostly the CMake configuration files will be located in the lib subdirectory::
+#
+#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/<package>/
+#
+# Example::
+#
+#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemModel/Mdt0ItemModelConfig.cmake
+#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
+#
+# A consumer of the package will search in.......... :
+#
+# .. code-block:: cmake
+#
+#   find_package(Mdt0 COMPONENTS ItemEditor_Widgets REQUIRED)
+#
+# Packages will be searched in::
+#
+#   ${CMAKE_PREFIX_PATH}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
+#
+# Later in::
+#
+#   ${CMAKE_SYSTEM_PREFIX_PATH}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
+#
+# NOTE true ? Then Mdt0ItemEditor_WidgetsConfig.cmake will call find_package(Mdt0ItemModel), which will search in::
+#
+#   ${CMAKE_PREFIX_PATH}/lib/cmake/Mdt0ItemModel/Mdt0ItemModelConfig.cmake
+#
+# Later in::
+#
+#   ${CMAKE_SYSTEM_PREFIX_PATH}/lib/cmake/Mdt0ItemModel/Mdt0ItemModelConfig.cmake
+#
+# TODO check this variant NOTE; check priority of searches, maybe the good solution !:
 #
 # .. code-block:: cmake
 #
@@ -183,7 +217,8 @@
 #
 #   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemEditor_WidgetsTargets.cmake")
 #
-# The rules to install the generated file are also set calling a install() command.
+# TODO add example with allmost all properties set..
+#
 #
 # Generate package version file
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
