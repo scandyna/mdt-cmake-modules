@@ -3,7 +3,7 @@
 
 #.rst:
 # MdtPackageConfigHelpers
-# ---------------------------
+# -----------------------
 #
 # These commands are available:
 #  - :command:`mdt_get_target_export_name()`
@@ -94,7 +94,267 @@
 #
 # This solution is inpired from the BCMExport module: https://github.com/boost-cmake/bcm/blob/master/share/bcm/cmake/BCMExport.cmake
 #
-# Example (see also :command:`mdt_set_target_package_properties_if_not()` and :command:`mdt_get_target_package_name()`):
+# Examples
+# """"""""
+#
+# As example, define a target which will later become a depdency:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt_ItemModel sourc1.cpp sourc2.cpp ...)
+#
+#   set_target_properties(Mdt_ItemModel
+#     PROPERTIES
+#       EXPORT_NAME ItemModel
+#       EXPORT_NAMESPACE Mdt0::
+#       INTERFACE_FIND_PACKAGE_NAME Mdt0ItemModel
+#       INTERFACE_FIND_PACKAGE_VERSION ${PROJECT_VERSION}
+#       INTERFACE_FIND_PACKAGE_EXACT TRUE
+#       INTERFACE_FIND_PACKAGE_PATHS ..
+#   )
+#
+#   include(GNUInstallDirs)
+#
+#   install(
+#     TARGETS Mdt_ItemModel
+#     EXPORT Mdt_ItemModelTargets
+#     RUNTIME
+#       DESTINATION ${CMAKE_INSTALL_BINDIR}
+#       COMPONENT Mdt_ItemModel_Runtime
+#     LIBRARY
+#       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#       COMPONENT Mdt_ItemModel_Runtime
+#     ARCHIVE
+#       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#       COMPONENT Mdt_ItemModel_Dev
+#   )
+#
+#   install(
+#     EXPORT Mdt_ItemModelTargets
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0ItemModel
+#     NAMESPACE Mdt0::
+#     FILE Mdt0ItemModelTargets.cmake
+#     COMPONENT Mdt_ItemModel_Dev
+#   )
+#
+#   mdt_install_package_config_file(
+#     TARGETS Mdt_ItemModel
+#     TARGETS_EXPORT_FILE Mdt0ItemModelTargets.cmake
+#     FILE Mdt0ItemModelConfig.cmake
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0ItemModel
+#     COMPONENT Mdt_ItemModel_Dev
+#   )
+#
+# For above example, CMake will generate ``Mdt0ItemModelTargets.cmake``.
+# The extract of some key parts looks like:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt0::ItemModel SHARED IMPORTED)
+#
+# :command:`mdt_install_package_config_file()` will generate ``Mdt0ItemModelConfig.cmake`` with a content similar to:
+#
+# .. code-block:: cmake
+#
+#   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemModelTargets.cmake")
+#
+#   # Set package properties for target Mdt0::ItemModel
+#   set_target_properties(Mdt0::ItemModel
+#     PROPERTIES
+#       INTERFACE_FIND_PACKAGE_NAME Mdt0ItemModel
+#       INTERFACE_FIND_PACKAGE_VERSION 0.1.2
+#       INTERFACE_FIND_PACKAGE_EXACT TRUE
+#       INTERFACE_FIND_PACKAGE_PATHS ..
+#   )
+#
+# In a other subdirectory of the same project, a other target is defined, which will depend on ``Mdt_ItemModel``:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt_ItemEditor sourc1.cpp sourc2.cpp ...)
+#
+#   target_link_libraries(Mdt_ItemEditor
+#     PUBLIC Mdt_ItemModel
+#   )
+#
+#   set_target_properties(Mdt_ItemEditor
+#     PROPERTIES
+#       EXPORT_NAME ItemEditor
+#       EXPORT_NAMESPACE Mdt0::
+#       INTERFACE_FIND_PACKAGE_NAME Mdt0ItemEditor
+#       INTERFACE_FIND_PACKAGE_VERSION ${PROJECT_VERSION}
+#       INTERFACE_FIND_PACKAGE_EXACT TRUE
+#       INTERFACE_FIND_PACKAGE_PATHS ..
+#   )
+#
+#   include(GNUInstallDirs)
+#
+#   install(
+#     TARGETS Mdt_ItemEditor
+#     EXPORT Mdt_ItemEditorTargets
+#     RUNTIME
+#       DESTINATION ${CMAKE_INSTALL_BINDIR}
+#       COMPONENT Mdt_ItemEditor_Runtime
+#     LIBRARY
+#       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#       COMPONENT Mdt_ItemEditor_Runtime
+#     ARCHIVE
+#       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#       COMPONENT Mdt_ItemEditor_Dev
+#   )
+#
+#   install(
+#     EXPORT Mdt_ItemEditorTargets
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0ItemEditor
+#     NAMESPACE Mdt0::
+#     FILE Mdt0ItemEditorTargets.cmake
+#     COMPONENT Mdt_ItemEditor_Dev
+#   )
+#
+#   mdt_install_package_config_file(
+#     TARGETS Mdt_ItemEditor
+#     TARGETS_EXPORT_FILE Mdt0ItemEditorTargets.cmake
+#     FILE Mdt0ItemEditorConfig.cmake
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0ItemEditor
+#     COMPONENT Mdt_ItemEditor_Dev
+#   )
+#
+# TODO Check if INTERFACE_LINK_LIBRARIES defines Mdt0::ItemModel, not Mdt_ItemModel (should)
+# For above example, CMake will generate ``Mdt0ItemEditorTargets.cmake``.
+# The extract of some key parts looks like:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt0::ItemEditor SHARED IMPORTED)
+#
+#   set_target_properties(Mdt0::ItemEditor PROPERTIES
+#     INTERFACE_LINK_LIBRARIES "Mdt0::ItemModel"
+#   )
+#
+# :command:`mdt_install_package_config_file()` will generate ``Mdt0ItemEditorConfig.cmake`` with a content similar to:
+#
+# .. code-block:: cmake
+#
+#   # Find dependencies for target Mdt0::ItemEditor
+#   find_package(Mdt0ItemModel 0.1.2 EXACT QUIET PATHS .. NO_DEFAULT_PATH)
+#   if(NOT Mdt0ItemModel_FOUND)
+#     find_package(Mdt0ItemModel 0.1.2 EXACT QUIET REQUIRED)
+#   endif()
+#
+#   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemEditorTargets.cmake")
+#   # Set package properties for target Mdt0::ItemEditor
+#   set_target_properties(Mdt0::ItemEditor
+#     PROPERTIES
+#       INTERFACE_FIND_PACKAGE_NAME Mdt0ItemEditor
+#       INTERFACE_FIND_PACKAGE_VERSION 0.1.2
+#       INTERFACE_FIND_PACKAGE_EXACT TRUE
+#       INTERFACE_FIND_PACKAGE_PATHS ..
+#   )
+#
+#
+# In a other project, a library depending on ``Mdt0::ItemEditor`` is created:
+#
+# .. code-block:: cmake
+#
+#   find_package(Mdt0 COMPONENTS ItemEditor REQUIRED)
+#
+#   add_library(Abc_MyWidget sourc1.cpp sourc2.cpp ...)
+#
+#   target_link_libraries(Abc_MyWidget
+#     PUBLIC Mdt0::ItemEditor
+#   )
+#
+#   set_target_properties(Abc_MyWidget
+#     PROPERTIES
+#       EXPORT_NAME MyWidget
+#       EXPORT_NAMESPACE Abc::
+#       INTERFACE_FIND_PACKAGE_NAME AbcMyWidget
+#       INTERFACE_FIND_PACKAGE_VERSION ${PROJECT_VERSION}
+#       INTERFACE_FIND_PACKAGE_EXACT TRUE
+#   )
+#
+#   include(GNUInstallDirs)
+#
+#   install(
+#     TARGETS Abc_MyWidget
+#     EXPORT Abc_MyWidgetTargets
+#     RUNTIME
+#       DESTINATION ${CMAKE_INSTALL_BINDIR}
+#       COMPONENT Abc_MyWidget_Runtime
+#     LIBRARY
+#       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#       COMPONENT Abc_MyWidget_Runtime
+#     ARCHIVE
+#       DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#       COMPONENT Abc_MyWidget_Dev
+#   )
+#
+#   install(
+#     EXPORT Abc_MyWidgetTargets
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/AbcMyWidget
+#     NAMESPACE Abc::
+#     FILE AbcMyWidgetTargets.cmake
+#     COMPONENT Abc_MyWidget_Dev
+#   )
+#
+#   mdt_install_package_config_file(
+#     TARGETS Abc_MyWidget
+#     TARGETS_EXPORT_FILE AbcMyWidgetTargets.cmake
+#     FILE AbcMyWidgetConfig.cmake
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/AbcMyWidget
+#     COMPONENT Abc_MyWidget_Dev
+#   )
+#
+# For above example, CMake will generate ``AbcMyWidgetTargets.cmake``.
+# The extract of some key parts looks like:
+#
+# .. code-block:: cmake
+#
+#   add_library(Abc::MyWidget SHARED IMPORTED)
+#
+#   set_target_properties(Abc::MyWidget PROPERTIES
+#     INTERFACE_LINK_LIBRARIES "Mdt0::ItemEditor"
+#   )
+#
+# :command:`mdt_install_package_config_file()` will generate ``AbcMyWidgetConfig.cmake`` with a content similar to:
+#
+# .. code-block:: cmake
+#
+#   # Find dependencies for target Abc::MyWidget
+#   find_package(Mdt0ItemEditor 0.1.2 EXACT QUIET PATHS .. NO_DEFAULT_PATH)
+#   if(NOT Mdt0ItemEditor_FOUND)
+#     find_package(Mdt0ItemEditor 0.1.2 EXACT QUIET REQUIRED)
+#   endif()
+#
+#   include("${CMAKE_CURRENT_LIST_DIR}/AbcMyWidgetTargets.cmake")
+#   # Set package properties for target Abc::MyWidget
+#   set_target_properties(Abc::MyWidget
+#     PROPERTIES
+#       INTERFACE_FIND_PACKAGE_NAME AbcMyWidget
+#       INTERFACE_FIND_PACKAGE_VERSION 0.3.4
+#       INTERFACE_FIND_PACKAGE_EXACT TRUE
+#   )
+#
+# Technical explanations
+# """"""""""""""""""""""
+#
+# OLD Stuff
+# """""""""
+#
+# Now imagine that ``Mdt_ItemModel`` and ``Mdt_ItemEditor`` are installed as completely separate packages.
+# We want to build a application that uses ``Mdt_ItemEditor``:
+#
+# .. code-block:: cmake
+#
+#   find_package(Mdt0::ItemEditor REQUIRED)
+#   add_executable(myApp)
+#   target_link_libraries(myApp Mdt0::ItemEditor)
+#
+# TODO document more... Dependencies must be resolved transitively..
+# Must create a library that imports Mdt0ItemEditor.
+# That library also must be exported, and generate a package config file which have all infos from Mdt0ItemEditor.
+#
+# Example (see also :command:`mdt_set_target_package_properties_if_not()`):
 #
 # .. code-block:: cmake
 #
@@ -170,37 +430,8 @@
 #
 # The rules to install the generated file are also set calling a install() command.
 #
-# A package can be installed in several ways,
-# but mostly the CMake configuration files will be located in the lib subdirectory::
 #
-#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/<package>/
-#
-# Example::
-#
-#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemModel/Mdt0ItemModelConfig.cmake
-#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
-#
-# A consumer of the package will search in.......... :
-#
-# .. code-block:: cmake
-#
-#   find_package(Mdt0 COMPONENTS ItemEditor_Widgets REQUIRED)
-#
-# Packages will be searched in::
-#
-#   ${CMAKE_PREFIX_PATH}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
-#
-# Later in::
-#
-#   ${CMAKE_SYSTEM_PREFIX_PATH}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
-#
-# NOTE true ? Then Mdt0ItemEditor_WidgetsConfig.cmake will call find_package(Mdt0ItemModel), which will search in::
-#
-#   ${CMAKE_PREFIX_PATH}/lib/cmake/Mdt0ItemModel/Mdt0ItemModelConfig.cmake
-#
-# Later in::
-#
-#   ${CMAKE_SYSTEM_PREFIX_PATH}/lib/cmake/Mdt0ItemModel/Mdt0ItemModelConfig.cmake
+# TODO Maybe suppress ``INTERFACE_FIND_PACKAGE_PATHS`` and ``INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH`` ?
 #
 # TODO check this variant NOTE; check priority of searches, maybe the good solution !:
 #
@@ -211,11 +442,10 @@
 #     find_package(Mdt0ItemModel QUIET REQUIRED)
 #   endif()
 #   find_package(Qt5Widgets QUIET PATHS .. NO_DEFAULT_PATH)
-#   if(NOT Qt5Widgets_FOUND)
-#     find_package(Qt5Widgets QUIET REQUIRED)
-#   endif()
+#   find_package(Qt5Widgets QUIET REQUIRED)
 #
 #   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemEditor_WidgetsTargets.cmake")
+#   # Set package properties for target Mdt0::ItemEditor_Widgets
 #
 # TODO add example with allmost all properties set..
 #

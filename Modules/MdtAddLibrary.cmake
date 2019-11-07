@@ -237,6 +237,10 @@
 #
 # NOTE: for RPATH, simply add ``.`` to origin if not ``IS_UNIX_SYSTEM_WIDE``.
 #
+# NOTE: for executables (installed in bin), set origin to ``..``. Not the purpose of mdt_install_library()..
+#
+# NOTE: see RPATH doc from CMAke: maybe global variables to set project-wise !
+#
 # NOTE: for find_package() also simply add first search to ``PATHS ..`` as proposed in :command:`mdt_install_package_config_file()` (not dependent of ``IS_UNIX_SYSTEM_WIDE``).
 # This should fit 95% of use cases !
 # Later, with experience, a good name could be found for some argument..
