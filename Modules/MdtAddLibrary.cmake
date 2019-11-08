@@ -303,6 +303,24 @@
 #   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
 #   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfigVersion.cmake
 #
+# Tree mode::
+#
+#   ${CMAKE_INSTALL_PREFIX}
+#     |-include
+#     |   |-Mdt
+#     |   |-ItemEditor
+#     |     |-TableEditor.h
+#     |     |-ItemEditor_WidgetsExport.h
+#     |-lib
+#       |-libMdt0ItemEditor_Widgets.so
+#       |-libMdt0ItemEditor_Widgets.so.0
+#       |-libMdt0ItemEditor_Widgets.so.0.1.2
+#       |-cmake
+#         |-Mdt0ItemEditor_Widgets
+#           |-Mdt0ItemEditor_WidgetsTargets.cmake
+#           |-Mdt0ItemEditor_WidgetsConfig.cmake
+#           |-Mdt0ItemEditor_WidgetsConfigVersion.cmake
+#
 #
 # The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been set by mdt_add_library() .
 # Will export ``Target`` as ``InstallNameSpace::LibraryName`` import target.

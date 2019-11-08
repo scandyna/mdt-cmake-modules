@@ -504,8 +504,6 @@
 #   mdt_install_namespace_package_config_file(
 #     INSTALL_NAMESPACE Mdt0
 #     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0
-#     VERSION ${PROJECT_VERSION}
-#     VERSION_COMPATIBILITY ExactVersion
 #   )
 #
 # This will generate a package config file and install it in::
@@ -615,20 +613,22 @@ function(mdt_install_package_config_file)
     if(NOT TARGET ${target})
       message(FATAL_ERROR "mdt_install_package_config_file(): ${target} is not a valid target")
     endif()
-    string(APPEND packageConfigFileContent "# Find dependencies for target ${target} (may be empty)\n")
     get_target_property(targetDependencies ${target} INTERFACE_LINK_LIBRARIES)
+    if(targetDependencies)
+      mdt_get_target_export_name(importTarget ${target})
+      string(APPEND packageConfigFileContent "# Find dependencies for target ${importTarget}\n")
+    endif()
     foreach(dependency ${targetDependencies})
       if(TARGET ${dependency})
-        mdt_target_package_properties_to_find_package_arguments(dependencyFindPackageArguments ${dependency})
-        if(dependencyFindPackageArguments)
-          string(APPEND packageConfigFileContent "find_package(${dependencyFindPackageArguments} QUIET REQUIRED)\n")
+        mdt_target_package_properties_to_find_package_commands(dependencyFindPackageCommands ${dependency})
+        if(dependencyFindPackageCommands)
+          string(APPEND packageConfigFileContent "${dependencyFindPackageCommands}\n")
         endif()
       endif()
     endforeach()
   endforeach()
-  # Generate the statements to include the targets export file + additionnal needed module
-  string(APPEND packageConfigFileContent "\ninclude(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n")
-#   string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/MdtTargetPackageProperties.cmake\")\n")
+  # Generate the statements to include the targets export file
+  string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n\n")
   # Generate commands to set the package properties for each target of this package
   foreach(target ${ARG_TARGETS})
     mdt_get_target_export_name(importTarget ${target})
@@ -642,6 +642,7 @@ function(mdt_install_package_config_file)
     endif()
   endforeach()
 
+  # Write the package onfig file
   set(packageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_FILE}")
   file(WRITE "${packageConfigFile}" "${packageConfigFileContent}")
 
@@ -655,18 +656,17 @@ function(mdt_install_package_config_file)
 #     message(FATAL_ERROR "mdt_install_package_config_file(): unable to locate MdtTargetPackageProperties.cmake")
 #   endif()
 
+  # Install the package config file
+  set(componentArguments)
   if(ARG_COMPONENT)
-    install(
-      FILES "${packageConfigFile}"
-      DESTINATION ${ARG_DESTINATION}
-      COMPONENT "${ARG_COMPONENT}"
-    )
-  else()
-    install(
-      FILES "${packageConfigFile}"
-      DESTINATION ${ARG_DESTINATION}
-    )
+    set(componentArguments COMPONENT "${ARG_COMPONENT}")
   endif()
+
+  install(
+    FILES "${packageConfigFile}"
+    DESTINATION ${ARG_DESTINATION}
+    ${componentArguments}
+  )
 
 endfunction()
 
@@ -717,7 +717,7 @@ function(mdt_install_namespace_package_config_file)
 
   # TODO Review !
   set(options)
-  set(oneValueArgs INSTALL_NAMESPACE DESTINATION COMPONENT VERSION VERSION_COMPATIBILITY)
+  set(oneValueArgs INSTALL_NAMESPACE DESTINATION COMPONENT)
   set(multiValueArgs)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -727,9 +727,9 @@ function(mdt_install_namespace_package_config_file)
   if(NOT ARG_DESTINATION)
     message(FATAL_ERROR "mdt_install_namespace_package_config_file(): mandatory argument DESTINATION missing")
   endif()
-  if(ARG_VERSION AND NOT ARG_VERSION_COMPATIBILITY)
-    message(FATAL_ERROR "mdt_install_namespace_package_config_file(): a VERSION is present, but VERSION_COMPATIBILITY is missing")
-  endif()
+#   if(ARG_VERSION AND NOT ARG_VERSION_COMPATIBILITY)
+#     message(FATAL_ERROR "mdt_install_namespace_package_config_file(): a VERSION is present, but VERSION_COMPATIBILITY is missing")
+#   endif()
   if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_install_namespace_package_config_file(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
@@ -761,18 +761,72 @@ function(mdt_install_namespace_package_config_file)
   file(APPEND "${config_file}" "  endif()\n")
   file(APPEND "${config_file}" "endforeach()\n")
 
+  set(componentArgument)
   if(ARG_COMPONENT)
-    message("Component install")
-    install(
-      FILES "${config_file}"
-      DESTINATION "${ARG_DESTINATION}"
-      COMPONENT "${ARG_COMPONENT}"
-    )
-  else()
-    install(
-      FILES "${config_file}"
-      DESTINATION "${ARG_DESTINATION}"
-    )
+    set(componentArgument COMPONENT ${ARG_COMPONENT})
   endif()
+
+  install(
+    FILES "${config_file}"
+    DESTINATION "${ARG_DESTINATION}"
+    ${componentArgument}
+  )
+
+#   if(ARG_COMPONENT)
+#     message("Component install")
+#     install(
+#       FILES "${config_file}"
+#       DESTINATION "${ARG_DESTINATION}"
+#       COMPONENT "${ARG_COMPONENT}"
+#     )
+#   else()
+#     install(
+#       FILES "${config_file}"
+#       DESTINATION "${ARG_DESTINATION}"
+#     )
+#   endif()
+
+endfunction()
+
+
+function(mdt_install_namespace_package_config_version_file)
+
+  set(options)
+  set(oneValueArgs INSTALL_NAMESPACE VERSION COMPATIBILITY DESTINATION COMPONENT)
+  set(multiValueArgs)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_INSTALL_NAMESPACE)
+    message(FATAL_ERROR "mdt_install_namespace_package_config_version_file(): mandatory argument INSTALL_NAMESPACE missing")
+  endif()
+  if(NOT ARG_VERSION)
+    message(FATAL_ERROR "mdt_install_namespace_package_config_version_file(): mandatory argument VERSION missing")
+  endif()
+  if(NOT ARG_COMPATIBILITY)
+    message(FATAL_ERROR "mdt_install_namespace_package_config_version_file(): mandatory argument COMPATIBILITY missing")
+  endif()
+  if(NOT ARG_DESTINATION)
+    message(FATAL_ERROR "mdt_install_namespace_package_config_version_file(): mandatory argument DESTINATION missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_install_namespace_package_config_version_file(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(configVersionFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_INSTALL_NAMESPACE}ConfigVersion.cmake")
+  write_basic_package_version_file("${configVersionFile}"
+    VERSION ${ARG_VERSION}
+    COMPATIBILITY ${ARG_COMPATIBILITY}
+  )
+
+  set(componentArgument)
+  if(ARG_COMPONENT)
+    set(componentArgument COMPONENT ${ARG_COMPONENT})
+  endif()
+
+  install(
+    FILES "${configVersionFile}"
+    DESTINATION "${ARG_DESTINATION}"
+    ${componentArgument}
+  )
 
 endfunction()

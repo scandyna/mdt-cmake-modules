@@ -7,7 +7,9 @@
 #
 # Those commands are available:
 #  - :command:`mdt_get_target_package_name()`
+#  - :command:`mdt_target_package_properties_to_find_package_paths_arguments()`
 #  - :command:`mdt_target_package_properties_to_find_package_arguments()`
+#  - :command:`mdt_target_package_properties_to_find_package_commands()`
 #  - :command:`mdt_target_package_properties_to_set_target_properties_arguments()`
 #  - :command:`mdt_set_target_package_properties_if_not()`
 #
@@ -256,6 +258,7 @@ function(mdt_target_package_properties_to_find_package_arguments out_var target)
       endif()
     endif()
     string(APPEND findPackageArguments " QUIET REQUIRED")
+  endif()
 
 #     get_target_property(targetPackagePaths ${target} INTERFACE_FIND_PACKAGE_PATHS)
 #     if(targetPackagePaths)
