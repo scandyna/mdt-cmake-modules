@@ -113,12 +113,57 @@
 #   add_library(Mdt0::Led SHARED IMPORTED)
 #
 #
+# Set RPATH properties
+# ^^^^^^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_set_target_install_rpath_property
+#
+# Set a ``INSTALL_RPATH`` property to a target::
+#
+#   mdt_set_target_install_rpath_property(
+#     TARGET <target>
+#     PATHS path1 [path2 ...]
+#   )
+#
+# Assumes that each given path is relative.
+# Will create a path of the form ``$ORIGIN/path``.
+# If the path is ``.``, the resulting path will be ``$ORIGIN``.
+#
+# Examples:
+#
+# .. code-block:: cmake
+#
+#   mdt_set_target_install_rpath_property(
+#     TARGET myLib
+#     PATHS .
+#   )
+#   # myLib will have the INSTALL_RPATH property set to $ORIGIN
+#
+#   mdt_set_target_install_rpath_property(
+#     TARGET myLib
+#     PATHS . ../lib
+#   )
+#   # myLib will have the INSTALL_RPATH property set to $ORIGIN;$ORIGIN/../lib
+#
+#
+# .. command:: mdt_set_target_default_library_rpath_property
+#
+# Set the RPATH property to a tagret reagrding some environment::
+#
+#   mdt_set_target_default_library_install_rpath_property(
+#     TARGET <target>
+#     [INSTALL_IS_UNIX_SYSTEM_WIDE <true>]
+#   )
+#
+# NOTE: currently only UNIX is supported.
+#
 # Add a library
 # ^^^^^^^^^^^^^
 #
 # Add a library::
 #
 #   mdt_add_library(
+#     TARGET_NAME ?
 #     NAMESPACE NameSpace
 #     LIBRARY_NAME LibraryName
 #     [PUBLIC_DEPENDENCIES <dependencies>]
@@ -132,9 +177,20 @@
 # To define other properties to the target, use ``NameSpace_LibraryName``
 # (CMake will trow errors if ``NameSpace::LibraryName`` is used).
 #
-# Note: each dependency passed to PUBLIC_DEPENDENCIES and PRIVATE_DEPENDENCIES must be a target.
+# TODO: add export headers.
 #
-# Example::
+# TODO: add includes
+#
+# Note: each dependency passed to ``PUBLIC_DEPENDENCIES`` and ``PRIVATE_DEPENDENCIES`` must be a target.
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   # This should be set at the top level CMakeLists.txt
+#   include(GenerateExportHeader)
+#   set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+#   set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 #
 #   mdt_add_library(
 #     NAMESPACE Mdt
@@ -160,9 +216,6 @@
 # Install a library
 # ^^^^^^^^^^^^^^^^^
 #
-# TODO for install, do not include GNUInstallDirs and MdtInstallDirs, but document that they are required
-#      this allows the user to do some setup before..
-#
 # TODO Public and Private dependencies
 #
 # Install a library::
@@ -177,7 +230,8 @@
 #     EXPORT_NAME <export-name>
 #     EXPORT_NAMESPACE <export-namespace>
 #     INSTALL_NAMESPACE <install-namespace>
-#     [IS_UNIX_SYSTEM_WIDE <true>]
+#     [FIND_PACKAGE_PATHS path1 [path2 ...]]
+#     [INSTALL_IS_UNIX_SYSTEM_WIDE <true>]
 #     [VERSION <version>]
 #     [SOVERSION <version>]
 #     [VERSION_COMPATIBILITY <AnyNewerVersion|SameMajorVersion|ExactVersion>]
@@ -197,6 +251,9 @@
 # .. code-block:: cmake
 #
 #   set_target_properties(${target} PROPERTIES EXPORT_NAME ${EXPORT_NAME} EXPORT_NAMESPACE ${EXPORT_NAMESPACE})
+#
+# As result, the export name of ``target`` (which will be the name of the IMPORTED target for the consumer of the package)
+# will be ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
 #
 # Package config files will also be generated using :command:`install(TARGETS ... EXPORT ...)`.
 # Those files will contain the definition of the imported target, named ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
@@ -223,47 +280,36 @@
 #
 # Some package informations will also be attached as properties of ``target``.
 # Those properties will be reused when a other target, that depends on ``target``, is installed.
-# For more informations of package properties, see :command:`mdt_set_target_package_properties_if_not()`.
+# For more informations of package properties, see :command:`mdt_install_package_config_file()`.
 # The following package properties are defined:
+#
 #  - ``INTERFACE_FIND_PACKAGE_NAME``: set to ``${INSTALL_NAMESPACE}${EXPORT_NAME}``
 #  - ``INTERFACE_FIND_PACKAGE_VERSION``: set to ``${VERSION}`` if ``VERSION`` argument was specified, otherwise it is not defined
-#  - ``INTERFACE_FIND_PACKAGE_EXACT``: set to ``TRUE`` if ``VERSION_COMPATIBILITY`` argument is ``ExactVersion``, otherwise it is not defined
-#  - ``INTERFACE_FIND_PACKAGE_PATHS``: set to ``..`` if ``IS_UNIX_SYSTEM_WIDE`` argument was not specified, or passed ``FALSE``,
-#    otherwise it is not defined
-#  - ``INTERFACE_FIND_PACKAGE_NO_DEFAULT_PATH``: set to ``TRUE`` if ``IS_UNIX_SYSTEM_WIDE`` argument was not specified, or passed ``FALSE``, otherwise it is not defined
+#  - ``INTERFACE_FIND_PACKAGE_PATHS``: set to ``${FIND_PACKAGE_PATHS}`` if ``FIND_PACKAGE_PATHS`` argument was specified, otherwise it is not defined
 #
-#
-# TODO: review above
-#
-# NOTE: for RPATH, simply add ``.`` to origin if not ``IS_UNIX_SYSTEM_WIDE``.
-#
-# NOTE: for executables (installed in bin), set origin to ``..``. Not the purpose of mdt_install_library()..
-#
-# NOTE: see RPATH doc from CMAke: maybe global variables to set project-wise !
-#
-# NOTE: for find_package() also simply add first search to ``PATHS ..`` as proposed in :command:`mdt_install_package_config_file()` (not dependent of ``IS_UNIX_SYSTEM_WIDE``).
-# This should fit 95% of use cases !
-# Later, with experience, a good name could be found for some argument..
+# If ``INSTALL_IS_UNIX_SYSTEM_WIDE`` is not set, or set to ``FALSE``,
+# the ``INSTALL_RPATH`` property will be attached to ``target`` using :command:`mdt_set_target_install_rpath_property()`.
+# On UNIX, the ``INSTALL_RPATH`` value will be set to ``$ORIGIN``.
 #
 #
 # Example:
 #
 # .. code-block:: cmake
 #
-#   add_library(Mdt_ItemEditor_Widgets
+#   add_library(Mdt_ItemEditor
 #     sourc1.cpp sourc2.cpp ...
 #   )
 #
-#   target_link_libraries(Mdt_ItemEditor_Widgets
-#     PUBLIC Mdt::ItemModel Qt5::Widgets
+#   target_link_libraries(Mdt_ItemEditor
+#     PUBLIC Mdt_ItemModel Qt5::Widgets
 #   )
 #
-#   target_include_directories(Mdt_ItemEditor_Widgets
+#   target_include_directories(Mdt_ItemEditor
 #     PUBLIC
 #       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 #       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 #     PRIVATE
-#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Private>
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Impl>
 #   )
 #
 #   # This should be set at the top level CMakeLists.txt
@@ -272,20 +318,21 @@
 #   include(MdtInstallDirs)
 #
 #   mdt_install_library(
-#     TARGET Mdt_ItemEditor_Widgets
+#     TARGET Mdt_ItemEditor
 #     RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR}
 #     LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
 #     ARCHIVE_DESTINATION ${CMAKE_INSTALL_LIBDIR}
 #     INCLUDES_DESTINATION ${MDT_INSTALL_INCLUDEDIR}
-#     EXPORT_NAME ItemEditor_Widgets
+#     EXPORT_NAME ItemEditor
 #     EXPORT_NAMESPACE Mdt0::
-#     INSTALL_NAMESPACE Mdt0
-#     IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
+#     INSTALL_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
+#     FIND_PACKAGE_PATHS ..
+#     INSTALL_IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
 #     VERSION ${PROJECT_VERSION}
 #     SOVERSION ${PROJECT_VERSION_MAJOR}
 #     VERSION_COMPATIBILITY ExactVersion
-#     RUNTIME_COMPONENT Mdt_ItemEditor_Widgets_Runtime
-#     DEVELOPMENT_COMPONENT Mdt_ItemEditor_Widgets_Dev
+#     RUNTIME_COMPONENT Mdt_ItemEditor_Runtime
+#     DEVELOPMENT_COMPONENT Mdt_ItemEditor_Dev
 #   )
 #
 # Notice the usage of ``MDT_INSTALL_PACKAGE_NAME`` and ``MDT_INSTALL_INCLUDEDIR``.
@@ -294,77 +341,64 @@
 #
 # On a non system wide Linux installation, the result will be::
 #
-#   ${CMAKE_INSTALL_PREFIX}/include/Mdt/ItemEditor/TableEditor.h
-#   ${CMAKE_INSTALL_PREFIX}/include/Mdt/ItemEditor/ItemEditor_WidgetsExport.h
-#   ${CMAKE_INSTALL_PREFIX}/lib/libMdt0ItemEditor_Widgets.so
-#   ${CMAKE_INSTALL_PREFIX}/lib/libMdt0ItemEditor_Widgets.so.0
-#   ${CMAKE_INSTALL_PREFIX}/lib/libMdt0ItemEditor_Widgets.so.0.1.2
-#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsTargets.cmake
-#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfig.cmake
-#   ${CMAKE_INSTALL_PREFIX}/lib/cmake/Mdt0ItemEditor_Widgets/Mdt0ItemEditor_WidgetsConfigVersion.cmake
-#
-# Tree mode::
-#
 #   ${CMAKE_INSTALL_PREFIX}
 #     |-include
 #     |   |-Mdt
-#     |   |-ItemEditor
-#     |     |-TableEditor.h
-#     |     |-ItemEditor_WidgetsExport.h
+#     |     |-ItemEditor
+#     |       |-TableEditor.h
+#     |       |-ItemEditorExport.h
 #     |-lib
-#       |-libMdt0ItemEditor_Widgets.so
-#       |-libMdt0ItemEditor_Widgets.so.0
-#       |-libMdt0ItemEditor_Widgets.so.0.1.2
+#       |-libMdt0ItemEditor.so
+#       |-libMdt0ItemEditor.so.0
+#       |-libMdt0ItemEditor.so.0.1.2
 #       |-cmake
-#         |-Mdt0ItemEditor_Widgets
-#           |-Mdt0ItemEditor_WidgetsTargets.cmake
-#           |-Mdt0ItemEditor_WidgetsConfig.cmake
-#           |-Mdt0ItemEditor_WidgetsConfigVersion.cmake
+#         |-Mdt0ItemEditor
+#           |-Mdt0ItemEditorTargets.cmake
+#           |-Mdt0ItemEditorConfig.cmake
+#           |-Mdt0ItemEditorConfigVersion.cmake
 #
 #
-# The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been set by mdt_add_library() .
-# Will export ``Target`` as ``InstallNameSpace::LibraryName`` import target.
+# Example of a system wide install on a Debian MultiArch (``CMAKE_INSTALL_PREFIX=/usr``)::
 #
-# A property ``INTERFACE_FIND_PACKAGE_NAME`` with a value ``${INSTALL_NAMESPACE}${LIBRARY_NAME}`` will also be added to the target if not allready set.
-# This property will then be used to generate a package config file to find it later by the user of the installed library.
-# See also this discussion: https://gitlab.kitware.com/cmake/cmake/issues/17006
-# This idea comes from the BCM modules: https://bcm.readthedocs.io/en/latest/index.html
+#   /usr
+#     |-include
+#     | |-x86_64-linux-gnu
+#     |   |-Mdt0
+#     |     |-Mdt
+#     |       |-ItemEditor
+#     |         |-TableEditor.h
+#     |         |-ItemEditorExport.h
+#     |-lib
+#       |-x86_64-linux-gnu
+#         |-libMdt0ItemEditor.so
+#         |-libMdt0ItemEditor.so.0
+#         |-libMdt0ItemEditor.so.0.1.2
+#         |-cmake
+#           |-Mdt0ItemEditor
+#             |-Mdt0ItemEditorTargets.cmake
+#             |-Mdt0ItemEditorConfig.cmake
+#             |-Mdt0ItemEditorConfigVersion.cmake
 #
-# Example::
 #
-#   # This should be set at the top level CMakeLists.txt
-#   set(MDT_INSTALL_PACKAGE_NAME Mdt0)  # TODO should be avoided
-#   include(GNUInstallDirs)
-#   include(MdtInstallDirs)
 #
-#   mdt_install_library(
-#     TARGET Mdt_Led
-#     EXPORT_NAME Led
-#     EXPORT_NAMESPACE Mdt0::
-#     INSTALL_NAMESPACE Mdt0
-#     VERSION ${PROJECT_VERSION}
-#     VERSION_COMPATIBILITY ExactVersion
-#     RUNTIME_COMPONENT Mdt_Led_Runtime
-#     DEVELOPMENT_COMPONENT Mdt_Led_Dev
-#   )
+# Once the library is installed, the user should be able to find it using CMake ``find_package()`` in its ``CMakeLists.txt``:
 #
-# Will export ``Mdt_Led`` as ``Mdt0::Led`` import target.
-# The ``INTERFACE_FIND_PACKAGE_NAME`` will be set to ``Mdt0Led`` .
+# .. code-block:: cmake
 #
-# The ``INSTALL_NAMESPACE`` argument will be used for..... example: lib${InstallNameSpace}LibraryName.so.${VERSION??}.${VERSION??}.${VERSION??}
+#   find_package(Mdt0ItemEditor 0.1.2 REQUIRED)
+#   add_executable(myApp source.cpp)
+#   target_link_libraries(myApp Mdt0::ItemEditor)
 #
-# Despite MDT_INSTALL_PACKAGE_NAME and INSTALL_NAMESPACE argument are both set to Mdt0 (which is recomended for coherence), their usage are different....
-#  TODO Also document: name clashes on system wide install on Linux
+# To support the component syntax of :command:`find_package()`
+# see :command:`mdt_install_namespace_package_config_file()`
+# and :command:`mdt_install_namespace_package_config_version_file()`.
 #
-# Several components will be created:
+#
+#
+# TODO Several components will be created:
 #  - Mdt_Led_Runtime: lib, cmake, ..................
 #  - Mdt_Led_Dev: headers, cmake ?? ................
 #
-# Once the library is installed, the user should be able to find it using CMake ``find_package()`` in its ``CMakeLists.txt``::
-#
-#   find_package(Mdt0 COMPONENTS Led REQUIRED)
-#   add_executable(myApp source.cpp)
-#   target_link_libraries(myApp Mdt0::Led)
 #
 # Example of a system wide install of MdtLed on a Debian MultiArch (`CMAKE_INSTALL_PREFIX=/usr`)::
 #
@@ -387,14 +421,65 @@
 # Here, ``~/opt/MdtLed/lib/cmake/Mdt0/Mdt0Config.cmake`` will be generated automatically,
 # allowing the usage of the component syntax of ``find_package()`` .
 #
-# Install a "Multi-Dev-Tools" library::
+# Install a "Multi-Dev-Tools" library
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# Usage::
 #
 #   mdt_install_mdt_library(
-#     TARGET Target
+#     TARGET <target>
 #   )
 #
-# Will export ``Target`` as ``Mdt${PROJECT_VERSION_MAJOR}::LibraryName`` import target.
+# Will export ``target`` as ``Mdt${PROJECT_VERSION_MAJOR}::LibraryName`` import target.
 # The ``LibraryName`` is the target property ``LIBRARY_NAME`` that have been set by mdt_add_mdt_library() .
 #
 #
+# Install a executable
+# ^^^^^^^^^^^^^^^^^^^^
 #
+# Usage::
+#
+#   mdt_install_executable(
+#     TARGET <target>
+#     [INSTALL_IS_UNIX_SYSTEM_WIDE <true>]
+#   )
+#
+# TODO copy dependencies ?
+#
+# TODO RPATH to $ORIGIN/../lib  if not INSTALL_IS_UNIX_SYSTEM_WIDE
+#
+
+function(mdt_set_target_install_rpath_property)
+
+  set(options)
+  set(oneValueArgs TARGET)
+  set(multiValueArgs PATHS)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_TARGET)
+    message(FATAL_ERROR "mdt_set_target_install_rpath_property(): mandatory argument TARGET missing")
+  endif()
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_set_target_install_rpath_property(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(NOT ARG_PATHS)
+    message(FATAL_ERROR "mdt_set_target_install_rpath_property(): PATHS argument requires at least 1 path")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_set_target_install_rpath_property(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(rpathPathList)
+  foreach(path ${ARG_PATHS})
+    set(rpathPath)
+    if("${path}" STREQUAL ".")
+      set(rpathPath "$ORIGIN")
+    else()
+      set(rpathPath "$ORIGIN/${path}")
+    endif()
+    list(APPEND rpathPathList "${rpathPath}")
+  endforeach()
+
+  set_target_properties(${ARG_TARGET} PROPERTIES INSTALL_RPATH "${rpathPathList}")
+
+endfunction()

@@ -437,6 +437,7 @@
 #   mdt_install_namespace_package_config_file(
 #     INSTALL_NAMESPACE Mdt0
 #     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0
+#     COMPONENT Mdt_Dev
 #   )
 #
 # This will generate a package config file and install it in::
