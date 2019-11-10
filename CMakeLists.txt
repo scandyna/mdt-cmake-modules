@@ -60,11 +60,15 @@ set(MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR "${MDT_INSTALL_DATADIR}/cmake")
 
 install(
   FILES
-    "Modules/FindSphinx.cmake"
     "Modules/AddQt5ToCMakePrefixPath.cmake"
+    "Modules/FindSphinx.cmake"
+    "Modules/MdtAddLibrary.cmake"
     "Modules/MdtInstallDirs.cmake"
-    "Modules/MdtTargetPackageProperties.cmake"
+    "Modules/MdtInstallLibrary.cmake"
+    "Modules/MdtInstallMdtLibrary.cmake"
     "Modules/MdtPackageConfigHelpers.cmake"
+    "Modules/MdtTargetPackageProperties.cmake"
+    "Modules/MdtTargetProperties.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
 )
 
