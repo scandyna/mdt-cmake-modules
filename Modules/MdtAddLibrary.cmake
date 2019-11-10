@@ -8,6 +8,8 @@
 # Add a library
 # ^^^^^^^^^^^^^
 #
+# .. command:: mdt_add_library
+#
 # Add a library::
 #
 #   mdt_add_library(
@@ -49,6 +51,11 @@
 #   )
 #
 # This will create a target ``Mdt_Led`` and a alias target ``Mdt::Led`` .
+#
+# Add a "Multi-Dev-Tools" library
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_add_mdt_library
 #
 # Add a "Multi-Dev-Tools" library::
 #

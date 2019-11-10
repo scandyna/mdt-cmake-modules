@@ -5,6 +5,24 @@
 # MdtInstallLibrary
 # -----------------
 #
+# Install include directories
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_install_interface_include_directories
+#
+# Install the headers for each directory listed in the ``INTERFACE_INCLUDE_DIRECTORIES`` property of a target::
+#
+#   mdt_install_interface_include_directories(
+#     TARGET <target>
+#     DESTINATION <dir>
+#     [FILES_MATCHING <pattern|regex>]
+#   )
+#
+# The headers of all directories specified in the ``INTERFACE_INCLUDE_DIRECTORIES`` property of ``target`` will be installed.
+# By default, à regex matching ``*.h``, ``*.hpp``, ``*.hh`` and files with no extension is used to filter which files must be copied.
+# An alternate filter can be passed as ``FILES_MATCHING`` argument,
+# which will be passed to the ``FILES_MATCHING`` argument of :command:`install(DIRECTORY)`.
+#
 # Install a library
 # ^^^^^^^^^^^^^^^^^
 #
@@ -20,7 +38,7 @@
 #     LIBRARY_DESTINATION <dir>
 #     ARCHIVE_DESTINATION <dir>
 #     INCLUDES_DESTINATION <dir>
-#     [INCLUDES_FILES_MATCHING_PATTERN <pattern>]
+#     [INCLUDES_FILES_MATCHING <pattern|regex>]
 #     EXPORT_NAME <export-name>
 #     EXPORT_NAMESPACE <export-namespace>
 #     INSTALL_NAMESPACE <install-namespace>
@@ -35,10 +53,10 @@
 #
 # Install ``target`` using :command:`install(TARGETS)` to the various given destinations.
 #
-# Will also install the headers to the destination specified by ``INCLUDES_DESTINATION`` using :command:`install(DIRECTORY)`.
-# The headers of all directories specified in the ``INTERFACE_INCLUDE_DIRECTORIES`` property of ``target`` will be installed.
-# By default, à pattern matching ``*.h`` and ``*.hpp`` is used to filter which files must be copied.
-# An alternate pattern can be passed as ``INCLUDES_FILES_MATCHING_PATTERN`` argument.
+# Will also install the headers to the destination specified by ``INCLUDES_DESTINATION`` using :command:`mdt_install_interface_include_directories()`.
+# A default filter is used to match common header files.
+# A alternate filter can be passed as ``INCLUDES_FILES_MATCHING``,
+# which will be passed to the ``FILES_MATCHING`` argument of :command:`install(DIRECTORY)`.
 #
 # The ``EXPORT_NAME`` and ``EXPORT_NAMESPACE`` will be set as properties to ``target``:
 #
@@ -193,3 +211,112 @@
 #  - Mdt_Led_Runtime: lib, cmake, ..................
 #  - Mdt_Led_Dev: headers, cmake ?? ................
 #
+
+include(MdtTargetProperties)
+include(MdtPackageConfigHelpers)
+
+function(mdt_install_library)
+
+  set(options INSTALL_IS_UNIX_SYSTEM_WIDE)
+  set(oneValueArgs TARGET RUNTIME_DESTINATION LIBRARY_DESTINATION ARCHIVE_DESTINATION INCLUDES_DESTINATION INCLUDES_FILES_MATCHING_PATTERN EXPORT_NAME EXPORT_NAMESPACE INSTALL_NAMESPACE VERSION SOVERSION VERSION_COMPATIBILITY RUNTIME_COMPONENT DEVELOPMENT_COMPONENT)
+  set(multiValueArgs FIND_PACKAGE_PATHS)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_TARGET)
+    message(FATAL_ERROR "mdt_install_library(): no target provided")
+  endif()
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_install_library(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(NOT ARG_RUNTIME_DESTINATION)
+    message(FATAL_ERROR "mdt_install_library(): mandatory argument RUNTIME_DESTINATION missing")
+  endif()
+  if(NOT ARG_LIBRARY_DESTINATION)
+    message(FATAL_ERROR "mdt_install_library(): mandatory argument LIBRARY_DESTINATION missing")
+  endif()
+  if(NOT ARG_ARCHIVE_DESTINATION)
+    message(FATAL_ERROR "mdt_install_library(): mandatory argument ARCHIVE_DESTINATION missing")
+  endif()
+  if(NOT ARG_INCLUDES_DESTINATION)
+    message(FATAL_ERROR "mdt_install_library(): mandatory argument INCLUDES_DESTINATION missing")
+  endif()
+  if(NOT ARG_EXPORT_NAME)
+    message(FATAL_ERROR "mdt_install_library(): mandatory argument EXPORT_NAME missing")
+  endif()
+  if(NOT ARG_EXPORT_NAMESPACE)
+    message(FATAL_ERROR "mdt_install_library(): mandatory argument EXPORT_NAMESPACE missing")
+  endif()
+  if(NOT ARG_INSTALL_NAMESPACE)
+    message(FATAL_ERROR "mdt_install_library(): mandatory argument INSTALL_NAMESPACE missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_install_library(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set_target_properties(${ARG_TARGET}
+    PROPERTIES
+      EXPORT_NAME ${ARG_EXPORT_NAME}
+      EXPORT_NAMESPACE ${ARG_EXPORT_NAMESPACE}
+      INTERFACE_FIND_PACKAGE_NAME ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
+  )
+
+  if(${ARG_VERSION})
+    set_target_properties(${ARG_TARGET}
+      PROPERTIES
+        VERSION ${ARG_VERSION}
+        INTERFACE_FIND_PACKAGE_VERSION ${ARG_VERSION}
+    )
+  endif()
+
+  if(${ARG_SOVERSION})
+    set_target_properties(${ARG_TARGET}
+      PROPERTIES
+        SOVERSION ${ARG_SOVERSION}
+    )
+  endif()
+
+  if(${ARG_FIND_PACKAGE_PATHS})
+    set_target_properties(${ARG_TARGET}
+      PROPERTIES
+        INTERFACE_FIND_PACKAGE_PATHS "${ARG_FIND_PACKAGE_PATHS}"
+    )
+  endif()
+
+  if(NOT ARG_INSTALL_IS_UNIX_SYSTEM_WIDE)
+    mdt_set_target_install_rpath_property(
+      TARGET ${ARG_TARGET}
+      PATHS .
+    )
+  endif()
+
+  set(targetExportName ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}Targets)
+
+  set(runtimeComponentArguments)
+  if(ARG_RUNTIME_COMPONENT)
+    set(runtimeComponentArguments COMPONENT ${ARG_RUNTIME_COMPONENT})
+  endif()
+
+  set(developmentComponentArguments)
+  if(ARG_DEVELOPMENT_COMPONENT)
+    set(developmentComponentArguments COMPONENT ${ARG_DEVELOPMENT_COMPONENT})
+  endif()
+
+
+  # TODO review COMPONENT distribution
+  install(
+    TARGETS ${ARG_TARGET}
+    EXPORT ${targetExportName}
+    RUNTIME
+      DESTINATION "${ARG_RUNTIME_DESTINATION}"
+      ${runtimeComponentArguments}
+    LIBRARY
+      DESTINATION "${ARG_LIBRARY_DESTINATION}"
+      ${runtimeComponentArguments}
+    ARCHIVE
+      DESTINATION "${ARG_ARCHIVE_DESTINATION}"
+      ${developmentComponentArguments}
+    INCLUDES
+      DESTINATION "${ARG_INCLUDES_DESTINATION}"
+  )
+
+endfunction()
