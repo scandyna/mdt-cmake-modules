@@ -58,7 +58,7 @@
 #
 # .. code-block:: cmake
 #
-#   <package> [version] [EXACT] QUIET PATHS "${CMAKE_CURRENT_LIST_DIR}/<path1>" ["${CMAKE_CURRENT_LIST_DIR}/<path2>" ...] NO_DEFAULT_PATH
+#   <package> [version] [EXACT] QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/<path1>" ["${CMAKE_CURRENT_LIST_DIR}/<path2>" ...] NO_DEFAULT_PATH
 #
 # otherwise ``out_var`` will be empty.
 #
@@ -72,7 +72,7 @@
 #
 # .. code-block:: cmake
 #
-#   Mdt0ItemModel 0.1.2 EXACT QUIET PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH
+#   Mdt0ItemModel 0.1.2 EXACT QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH
 #
 #
 # .. command:: mdt_target_package_properties_to_find_package_arguments
@@ -86,7 +86,7 @@
 #
 # .. code-block:: cmake
 #
-#   <package> [version] [EXACT] QUIET REQUIRED
+#   <package> [version] [EXACT] QUIET REQUIRED CONFIG
 #
 # otherwise ``out_var`` will be empty.
 #
@@ -100,7 +100,7 @@
 #
 # .. code-block:: cmake
 #
-#   Mdt0ItemModel 0.1.2 EXACT QUIET REQUIRED
+#   Mdt0ItemModel 0.1.2 EXACT QUIET REQUIRED CONFIG
 #
 #
 # .. command:: mdt_target_package_properties_to_find_package_commands
@@ -117,9 +117,9 @@
 #
 # .. code-block:: cmake
 #
-#   find_package(<package> [version] [EXACT] QUIET PATHS "${CMAKE_CURRENT_LIST_DIR}/<path1>" ["${CMAKE_CURRENT_LIST_DIR}/<path2>" ...] NO_DEFAULT_PATH)
+#   find_package(<package> [version] [EXACT] QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/<path1>" ["${CMAKE_CURRENT_LIST_DIR}/<path2>" ...] NO_DEFAULT_PATH)
 #   if(NOT <package>_FOUND)
-#     find_package(<package> [version] [EXACT] QUIET REQUIRED)
+#     find_package(<package> [version] [EXACT] QUIET REQUIRED CONFIG)
 #   endif()
 #
 # If given ``target`` has no property ``INTERFACE_FIND_PACKAGE_PATHS`` set,
@@ -127,7 +127,7 @@
 #
 # .. code-block:: cmake
 #
-#   find_package(<package> [version] [EXACT] QUIET REQUIRED)
+#   find_package(<package> [version] [EXACT] QUIET REQUIRED CONFIG)
 #
 #
 #
@@ -229,7 +229,7 @@ function(mdt_target_package_properties_to_find_package_paths_arguments out_var t
     if(targetPackageVersionExact)
       string(APPEND findPackageArguments " EXACT")
     endif()
-    string(APPEND findPackageArguments " PATHS")
+    string(APPEND findPackageArguments " QUIET CONFIG PATHS")
     foreach(path ${targetPackagePaths})
       string(APPEND findPackageArguments " \"\${CMAKE_CURRENT_LIST_DIR}/${path}\"")
     endforeach()
@@ -259,7 +259,7 @@ function(mdt_target_package_properties_to_find_package_arguments out_var target)
         string(APPEND findPackageArguments " EXACT")
       endif()
     endif()
-    string(APPEND findPackageArguments " QUIET REQUIRED")
+    string(APPEND findPackageArguments " QUIET REQUIRED CONFIG")
   endif()
 
 #     get_target_property(targetPackagePaths ${target} INTERFACE_FIND_PACKAGE_PATHS)

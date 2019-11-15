@@ -63,6 +63,7 @@
 #
 # .. command:: mdt_install_package_config_file
 #
+#
 # Context
 # """""""
 #
@@ -286,9 +287,9 @@
 # .. code-block:: cmake
 #
 #   # Find dependencies for target Mdt0::ItemEditor
-#   find_package(Mdt0ItemModel 0.1.2 QUIET PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH)
+#   find_package(Mdt0ItemModel 0.1.2 QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH)
 #   if(NOT Mdt0ItemModel_FOUND)
-#     find_package(Mdt0ItemModel 0.1.2 QUIET REQUIRED)
+#     find_package(Mdt0ItemModel 0.1.2 QUIET REQUIRED CONFIG)
 #   endif()
 #
 #   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemEditorTargets.cmake")
@@ -369,9 +370,9 @@
 # .. code-block:: cmake
 #
 #   # Find dependencies for target Abc::MyWidget
-#   find_package(Mdt0ItemEditor 0.1.2 QUIET PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH)
+#   find_package(Mdt0ItemEditor 0.1.2 QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH)
 #   if(NOT Mdt0ItemEditor_FOUND)
-#     find_package(Mdt0ItemEditor 0.1.2 QUIET REQUIRED)
+#     find_package(Mdt0ItemEditor 0.1.2 QUIET REQUIRED CONFIG)
 #   endif()
 #
 #   include("${CMAKE_CURRENT_LIST_DIR}/AbcMyWidgetTargets.cmake")
