@@ -340,8 +340,6 @@
 #     [INCLUDES_FILE_WITHOUT_EXTENSION]
 #     [ADDITIONAL_INCLUDES_FILES file1 [file2 ...]]
 #     [INCLUDES_DESTINATION <dir>]
-#     [BINARY_DIR_INCLUDES_DESTINATION <dir>]
-#     [BINARY_DIR_INCLUDES_FILE_EXTENSIONS ext1 [ext2 ...]]
 #     EXPORT_NAME <export-name>
 #     EXPORT_NAMESPACE <export-namespace>
 #     INSTALL_NAMESPACE <install-namespace>

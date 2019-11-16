@@ -6,7 +6,8 @@ class MdtCMakeModulesConan(ConanFile):
   license = "BSD 3-Clause"
   url = "https://github.com/scandyna/mdt-cmake-modules"
   description = "Some CMake modules used in Mdt projects"
-  generators = "cmake"
+  settings = "os"
+  generators = "cmake_paths"
   exports_sources="*" # Conan seems to be smart enough to not copy test_package/build
 
   def build(self):

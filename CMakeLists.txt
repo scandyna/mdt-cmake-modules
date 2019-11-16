@@ -1,17 +1,23 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.10)
 
 project(MdtCMakeModules VERSION 0.0.1)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules/")
 
-
 option(BUILD_TESTS "Build the tests" OFF)
 if(BUILD_TESTS)
   enable_testing()
-  add_subdirectory("tests")
+#   add_subdirectory("tests")
+  add_test(NAME MdtCMakeModulesTest
+    COMMAND ${CMAKE_CTEST_COMMAND}
+      --build-and-test "${CMAKE_SOURCE_DIR}/tests" "${CMAKE_BINARY_DIR}/buildAndTest"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-options --output-on-failure
+      --test-command ${CMAKE_TEST_COMMAND}
+  )
 endif()
 
 option(BUILD_DOCS "Build the documentations" OFF)
@@ -87,6 +93,7 @@ install(
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
 )
 
+include(MdtPackageConfigHelpers)
 if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
   mdt_install_namespace_package_config_file(
     INSTALL_NAMESPACE Mdt0
