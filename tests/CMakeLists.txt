@@ -51,6 +51,8 @@ add_test(NAME InstallMdtCMakeModules
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModules/cmake_install.cmake"
 )
 
+set_tests_properties(InstallMdtCMakeModules PROPERTIES DEPENDS BuildMdtCMakeModules)
+
 ########################################
 # Test installing in different locations
 ########################################
@@ -74,6 +76,8 @@ add_test(NAME InstallMdtItemModel
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModel/cmake_install.cmake"
 )
 
+set_tests_properties(BuildMdtItemModel PROPERTIES DEPENDS InstallMdtCMakeModules)
+set_tests_properties(InstallMdtItemModel PROPERTIES DEPENDS BuildMdtItemModel)
 
 # Build + install MdtItemEditor
 
@@ -92,6 +96,9 @@ add_test(NAME InstallMdtItemEditor
   COMMAND "${CMAKE_COMMAND}"
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditor/cmake_install.cmake"
 )
+
+set_tests_properties(BuildMdtItemEditor PROPERTIES DEPENDS InstallMdtItemModel)
+set_tests_properties(InstallMdtItemEditor PROPERTIES DEPENDS BuildMdtItemEditor)
 
 
 # Build + run MyApp with:

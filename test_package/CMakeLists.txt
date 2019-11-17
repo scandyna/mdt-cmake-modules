@@ -8,3 +8,6 @@ message("CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 find_package(MdtCMakeModules)
 include(MdtInstallDirs)
 include(MdtPackageConfigHelpers)
+
+
+# TODO this file is maybe obselete
