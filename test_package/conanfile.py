@@ -1,6 +1,8 @@
 from conans import ConanFile, CMake, tools
 import os
 
+# TODO shared libraries !!
+
 class MdtCMakeModulesTestConan(ConanFile):
   settings = "os"
   generators = "cmake_paths"
@@ -8,7 +10,7 @@ class MdtCMakeModulesTestConan(ConanFile):
   def build(self):
     cmake = CMake(self)
     cmake.definitions["CMAKE_TOOLCHAIN_FILE"] = "%s/conan_paths.cmake" % (self.build_folder)
-    cmake.configure(source_folder="../tests")
+    cmake.configure()
 
   def imports(self):
     self.copy("*.dll", dst="bin", src="bin")
