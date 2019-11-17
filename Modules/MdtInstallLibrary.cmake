@@ -257,7 +257,7 @@
 #
 # The headers in ``DIRECTORY`` will be installed.
 #
-# By default, files with extensions ``.h``, ``.hpp``, ``.hh`` will be installed.
+# By default, files with extensions ``.h``, ``.hh``, ``.h++``, ``.hpp`` will be installed.
 # A alternate list of file extensions can be passed as ``FILE_EXTENSIONS``.
 # If the ``FILE_WITHOUT_EXTENSION`` option is set, files without extensions will also be installed.
 #
@@ -580,7 +580,7 @@ function(mdt_install_include_directory)
   if(ARG_FILE_EXTENSIONS)
     set(fileExtensions ${ARG_FILE_EXTENSIONS})
   else()
-    set(fileExtensions ".h" ".hpp" ".hh")
+    set(fileExtensions ".h" ".hh" ".h++" ".hpp")
   endif()
 
   list(GET fileExtensions 0 firstExtension)
