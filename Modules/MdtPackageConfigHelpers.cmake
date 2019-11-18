@@ -629,7 +629,7 @@ function(mdt_install_package_config_version_file)
     message(FATAL_ERROR "mdt_install_package_config_version_file(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  write_basic_package_version_file("${ARG_FILE}"
+  write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/${ARG_FILE}"
     VERSION ${ARG_VERSION}
     COMPATIBILITY ${ARG_COMPATIBILITY}
   )
@@ -640,7 +640,7 @@ function(mdt_install_package_config_version_file)
   endif()
 
   install(
-    FILES "${ARG_FILE}"
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/${ARG_FILE}"
     DESTINATION "${ARG_DESTINATION}"
     ${componentArgument}
   )
