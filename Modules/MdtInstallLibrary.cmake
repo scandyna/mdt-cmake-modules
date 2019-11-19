@@ -240,7 +240,7 @@
 # so that the :variable:`INTERFACE_INCLUDE_DIRECTORIES` is defined in the IMPORTED target.
 # Notice also that we not specify the ``Mdt`` subdirectory to ``INCLUDES DESTINATION``.
 #
-# Helper functions to install hedares
+# Helper functions to install headers
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # .. command:: mdt_install_include_directory
@@ -335,16 +335,16 @@
 #     RUNTIME_DESTINATION <dir>
 #     LIBRARY_DESTINATION <dir>
 #     ARCHIVE_DESTINATION <dir>
-#     [INCLUDES_DIRECTORY <dir>]
+#     INCLUDES_DIRECTORY <dir>
 #     [INCLUDES_FILE_EXTENSIONS ext1 [ext2 ...]]
 #     [INCLUDES_FILE_WITHOUT_EXTENSION]
 #     [ADDITIONAL_INCLUDES_FILES file1 [file2 ...]]
-#     [INCLUDES_DESTINATION <dir>]
+#     INCLUDES_DESTINATION <dir>
 #     EXPORT_NAME <export-name>
 #     EXPORT_NAMESPACE <export-namespace>
 #     INSTALL_NAMESPACE <install-namespace>
 #     [FIND_PACKAGE_PATHS path1 [path2 ...]]
-#     [INSTALL_IS_UNIX_SYSTEM_WIDE <true>]
+#     [INSTALL_IS_UNIX_SYSTEM_WIDE <TRUE|FALSE>]
 #     [VERSION <version>]
 #     [SOVERSION <version>]
 #     [VERSION_COMPATIBILITY <AnyNewerVersion|SameMajorVersion|ExactVersion>]
@@ -565,7 +565,7 @@ include(MdtPackageConfigHelpers)
 function(mdt_install_include_directory)
 
   set(options FILE_WITHOUT_EXTENSION)
-  set(oneValueArgs DIRECTORY DESTINATION)
+  set(oneValueArgs DIRECTORY DESTINATION COMPONENT)
   set(multiValueArgs FILE_EXTENSIONS)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -575,12 +575,15 @@ function(mdt_install_include_directory)
   if(NOT ARG_DESTINATION)
     message(FATAL_ERROR "mdt_install_include_directory(): mandatory argument DESTINATION missing")
   endif()
+    if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_install_include_directory(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
 
   set(fileExtensions)
   if(ARG_FILE_EXTENSIONS)
     set(fileExtensions ${ARG_FILE_EXTENSIONS})
   else()
-    set(fileExtensions ".h" ".hh" ".h++" ".hpp")
+    set(fileExtensions ".h" ".hh" ".h\\+\\+" ".hpp")
   endif()
 
   list(GET fileExtensions 0 firstExtension)
@@ -593,8 +596,6 @@ function(mdt_install_include_directory)
   if(ARG_FILE_WITHOUT_EXTENSION)
     string(APPEND regex "|/[^.]+$")
   endif()
-
-  message("REGEX: ${regex}")
 
   set(componentArguments)
   if(ARG_COMPONENT)
@@ -612,16 +613,15 @@ function(mdt_install_include_directory)
 endfunction()
 
 
-function(mdt_install_include_directory)
-
-endfunction()
-
-
 function(mdt_install_library)
 
-  set(options INSTALL_IS_UNIX_SYSTEM_WIDE)
-  set(oneValueArgs TARGET RUNTIME_DESTINATION LIBRARY_DESTINATION ARCHIVE_DESTINATION INCLUDES_DESTINATION INCLUDES_FILES_MATCHING_PATTERN EXPORT_NAME EXPORT_NAMESPACE INSTALL_NAMESPACE VERSION SOVERSION VERSION_COMPATIBILITY RUNTIME_COMPONENT DEVELOPMENT_COMPONENT)
-  set(multiValueArgs FIND_PACKAGE_PATHS)
+  set(options INCLUDES_FILE_WITHOUT_EXTENSION)
+  set(oneValueArgs TARGET RUNTIME_DESTINATION LIBRARY_DESTINATION ARCHIVE_DESTINATION
+                  INCLUDES_DIRECTORY INCLUDES_DESTINATION INCLUDES_FILES_MATCHING_PATTERN
+                  EXPORT_NAME EXPORT_NAMESPACE INSTALL_NAMESPACE INSTALL_IS_UNIX_SYSTEM_WIDE
+                  VERSION SOVERSION VERSION_COMPATIBILITY
+                  RUNTIME_COMPONENT DEVELOPMENT_COMPONENT)
+  set(multiValueArgs INCLUDES_FILE_EXTENSIONS ADDITIONAL_INCLUDES_FILES FIND_PACKAGE_PATHS)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT ARG_TARGET)
@@ -639,6 +639,9 @@ function(mdt_install_library)
   if(NOT ARG_ARCHIVE_DESTINATION)
     message(FATAL_ERROR "mdt_install_library(): mandatory argument ARCHIVE_DESTINATION missing")
   endif()
+  if(NOT ARG_INCLUDES_DIRECTORY)
+    message(FATAL_ERROR "mdt_install_library(): mandatory argument INCLUDES_DIRECTORY missing")
+  endif()
   if(NOT ARG_INCLUDES_DESTINATION)
     message(FATAL_ERROR "mdt_install_library(): mandatory argument INCLUDES_DESTINATION missing")
   endif()
@@ -655,6 +658,10 @@ function(mdt_install_library)
     message(FATAL_ERROR "mdt_install_library(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
+  if(ARG_VERSION AND NOT ARG_VERSION_COMPATIBILITY)
+    message(FATAL_ERROR "mdt_install_library(): provided a VERSION argument, but no VERSION_COMPATIBILITY")
+  endif()
+
   set_target_properties(${ARG_TARGET}
     PROPERTIES
       EXPORT_NAME ${ARG_EXPORT_NAME}
@@ -662,7 +669,7 @@ function(mdt_install_library)
       INTERFACE_FIND_PACKAGE_NAME ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
   )
 
-  if(${ARG_VERSION})
+  if(ARG_VERSION)
     set_target_properties(${ARG_TARGET}
       PROPERTIES
         VERSION ${ARG_VERSION}
@@ -670,7 +677,7 @@ function(mdt_install_library)
     )
   endif()
 
-  if(${ARG_SOVERSION})
+  if(DEFINED ARG_SOVERSION)
     set_target_properties(${ARG_TARGET}
       PROPERTIES
         SOVERSION ${ARG_SOVERSION}
@@ -720,5 +727,44 @@ function(mdt_install_library)
     INCLUDES
       DESTINATION "${ARG_INCLUDES_DESTINATION}"
   )
+
+  set(fileWithoutExtensionArgument)
+  if(ARG_INCLUDES_FILE_WITHOUT_EXTENSION)
+    set(fileWithoutExtensionArgument FILE_WITHOUT_EXTENSION)
+  endif()
+
+  mdt_install_include_directory(
+    DIRECTORY "${ARG_INCLUDES_DIRECTORY}"
+    DESTINATION "${ARG_INCLUDES_DESTINATION}"
+    FILE_EXTENSIONS ${ARG_INCLUDES_FILE_EXTENSIONS}
+    ${fileWithoutExtensionArgument}
+    ${developmentComponentArguments}
+  )
+
+  install(
+    EXPORT ${targetExportName}
+    DESTINATION ${ARG_LIBRARY_DESTINATION}/cmake/${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
+    NAMESPACE ${ARG_EXPORT_NAMESPACE}
+    FILE ${targetExportName}.cmake
+    ${developmentComponentArguments}
+  )
+
+  mdt_install_package_config_file(
+    TARGETS ${ARG_TARGET}
+    TARGETS_EXPORT_FILE ${targetExportName}.cmake
+    FILE ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}Config.cmake
+    DESTINATION ${ARG_LIBRARY_DESTINATION}/cmake/${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
+    ${developmentComponentArguments}
+  )
+
+  if(ARG_VERSION)
+    mdt_install_package_config_version_file(
+      VERSION ${ARG_VERSION}
+      COMPATIBILITY ${ARG_VERSION_COMPATIBILITY}
+      FILE ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}ConfigVersion.cmake
+      DESTINATION ${ARG_LIBRARY_DESTINATION}/cmake/${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
+      ${developmentComponentArguments}
+    )
+  endif()
 
 endfunction()
