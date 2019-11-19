@@ -1,1 +1,2 @@
- 
+
+#include <Mdt/ItemModel/SortProxyModel>

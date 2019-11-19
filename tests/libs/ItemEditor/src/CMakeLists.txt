@@ -8,7 +8,7 @@ add_library(Mdt_ItemEditor
 
 target_link_libraries(Mdt_ItemEditor
   PUBLIC
-    Mdt_ItemModel
+    Mdt0::ItemModel
 )
 
 generate_export_header(Mdt_ItemEditor)

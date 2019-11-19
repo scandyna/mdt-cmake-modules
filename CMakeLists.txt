@@ -25,6 +25,7 @@ endif()
 # Install directories
 #
 
+set(MDT_INSTALL_PACKAGE_NAME Mdt0)
 include(GNUInstallDirs)
 include(MdtInstallDirs)
 

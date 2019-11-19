@@ -7,7 +7,7 @@
 # The top level CMakeLists.txt will call use with CMAKE_PREFIX_PATH pointing to the Modules of this source code
 # Conan test package will call use with CMAKE_PREFIX_PATH pointing to the Modules of its installed package
 
-find_package(MdtCMakeModules REQUIRED)
+# find_package(MdtCMakeModules REQUIRED)
 
 include(AddQt5ToCMakePrefixPath)
 include(MdtPackageConfigHelpers)
@@ -20,7 +20,6 @@ find_package(Qt5 COMPONENTS Core REQUIRED)
 add_executable(hello "src/hello.cpp")
 target_link_libraries(hello Qt5::Core)
 add_test(NAME helloTest COMMAND hello)
-
 
 
 # add_test(NAME MdtCMakeModulesTest
