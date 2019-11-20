@@ -754,6 +754,14 @@ function(mdt_install_library)
     ${developmentComponentArguments}
   )
 
+  if(ARG_ADDITIONAL_INCLUDES_FILES)
+    install(
+      FILES "${ARG_ADDITIONAL_INCLUDES_FILES}"
+      DESTINATION "${ARG_INCLUDES_DESTINATION}"
+      ${developmentComponentArguments}
+    )
+  endif()
+
   install(
     EXPORT ${targetExportName}
     DESTINATION ${ARG_LIBRARY_DESTINATION}/cmake/${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
