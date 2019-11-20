@@ -1,6 +1,12 @@
-
 #include "mdt_itemmodel_export.h"
 
-class MDT_ITEMMODEL_EXPORT SortProxyModel
-{
-};
+namespace Mdt{ namespace ItemModel{
+
+  class MDT_ITEMMODEL_EXPORT SortProxyModel
+  {
+  public:
+
+    void sort();
+  };
+
+}} // namespace Mdt{ namespace ItemModel{

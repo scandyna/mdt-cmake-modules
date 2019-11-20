@@ -19,3 +19,4 @@ target_include_directories(Mdt_ItemEditor
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
+# TODO use mdt_install_mdt_library()
