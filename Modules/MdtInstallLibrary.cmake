@@ -412,6 +412,17 @@
 # the ``INSTALL_RPATH`` property will be attached to ``target`` using :command:`mdt_set_target_install_rpath_property()`.
 # On UNIX, the ``INSTALL_RPATH`` value will be set to ``$ORIGIN``.
 #
+# If specified, the following parts will be associated to ``RUNTIME_COMPONENT``:
+#
+#  - ``RUNTIME_DESTINATION`` : shared libraries on DLL platorms (Windows, Cygwin).
+#  - ``LIBRARY_DESTINATION`` : shared libraries on UNIX platforms.
+#
+# If specified, the following parts will be associated to ``DEVELOPMENT_COMPONENT``:
+#
+#  - ``LIBRARY_DESTINATION`` : cmake subfolder with the genarated package config files and the namelink of a versionned library.
+#  - ``ARCHIVE_DESTINATION`` : static libraries. On DLL platforms, also contains import library.
+#  - ``INCLUDES_DESTINATION`` : the header files.
+#
 #
 # Example:
 #
@@ -551,11 +562,6 @@
 # see :command:`mdt_install_namespace_package_config_file()`
 # and :command:`mdt_install_namespace_package_config_version_file()`.
 #
-#
-#
-# TODO Several components will be created:
-#  - Mdt_Led_Runtime: lib, cmake, ..................
-#  - Mdt_Led_Dev: headers, cmake ?? ................
 #
 
 include(MdtTargetProperties)
@@ -710,8 +716,6 @@ function(mdt_install_library)
     set(developmentComponentArguments COMPONENT ${ARG_DEVELOPMENT_COMPONENT})
   endif()
 
-
-  # TODO review COMPONENT distribution
   install(
     TARGETS ${ARG_TARGET}
     EXPORT ${targetExportName}
@@ -720,12 +724,21 @@ function(mdt_install_library)
       ${runtimeComponentArguments}
     LIBRARY
       DESTINATION "${ARG_LIBRARY_DESTINATION}"
+      NAMELINK_SKIP
       ${runtimeComponentArguments}
     ARCHIVE
       DESTINATION "${ARG_ARCHIVE_DESTINATION}"
       ${developmentComponentArguments}
     INCLUDES
       DESTINATION "${ARG_INCLUDES_DESTINATION}"
+  )
+
+  install(
+    TARGETS ${ARG_TARGET}
+    LIBRARY
+      DESTINATION "${ARG_LIBRARY_DESTINATION}"
+      NAMELINK_ONLY
+      ${developmentComponentArguments}
   )
 
   set(fileWithoutExtensionArgument)
