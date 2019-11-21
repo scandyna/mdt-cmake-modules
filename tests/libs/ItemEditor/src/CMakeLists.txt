@@ -27,6 +27,6 @@ set_target_properties(Mdt_ItemEditor
 )
 
 mdt_install_mdt_library(
-  TARGET Mdt_ItemModel
+  TARGET Mdt_ItemEditor
   VERSION_COMPATIBILITY ExactVersion
 )

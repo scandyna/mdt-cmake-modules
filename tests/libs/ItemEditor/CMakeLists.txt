@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-project(MdtItemEditor VERSION 0.0.2)
+project(MdtItemEditor VERSION 0.0.1)
 
 message("tests MdtItemEditor CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 
@@ -19,3 +19,18 @@ add_subdirectory(src)
 
 enable_testing()
 add_subdirectory(tests)
+
+if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
+  mdt_install_namespace_package_config_file(
+    INSTALL_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MDT_INSTALL_PACKAGE_NAME}
+    COMPONENT Mdt_Dev
+  )
+  mdt_install_namespace_package_config_version_file(
+    INSTALL_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY ExactVersion
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MDT_INSTALL_PACKAGE_NAME}
+    COMPONENT Mdt_Dev
+  )
+endif()
