@@ -6,6 +6,8 @@ add_library(Mdt_ItemModel
   Mdt/ItemModel/SortProxyModel.cpp
 )
 
+add_library(Mdt::ItemModel ALIAS Mdt_ItemModel)
+
 generate_export_header(Mdt_ItemModel)
 
 target_include_directories(Mdt_ItemModel

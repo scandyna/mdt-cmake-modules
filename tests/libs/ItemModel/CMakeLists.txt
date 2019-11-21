@@ -17,6 +17,9 @@ include(MdtPackageConfigHelpers)
 
 add_subdirectory(src)
 
+enable_testing()
+add_subdirectory(tests)
+
 if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
   mdt_install_namespace_package_config_file(
     INSTALL_NAMESPACE Mdt0

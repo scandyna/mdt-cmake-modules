@@ -6,6 +6,8 @@ add_library(Mdt_ItemEditor
   Mdt/ItemEditor/SortSetupWidget.cpp
 )
 
+add_library(Mdt::ItemEditor ALIAS Mdt_ItemEditor)
+
 target_link_libraries(Mdt_ItemEditor
   PUBLIC
     Mdt0::ItemModel

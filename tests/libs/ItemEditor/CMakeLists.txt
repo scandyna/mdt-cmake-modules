@@ -13,3 +13,5 @@ find_package(Mdt0 0.0.1 COMPONENTS ItemModel REQUIRED NO_SYSTEM_ENVIRONMENT_PATH
 
 add_subdirectory(src)
 
+enable_testing()
+add_subdirectory(tests)
