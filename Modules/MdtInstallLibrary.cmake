@@ -675,6 +675,13 @@ function(mdt_install_library)
       INTERFACE_FIND_PACKAGE_NAME ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
   )
 
+  if(ARG_FIND_PACKAGE_PATHS)
+    set_target_properties(${ARG_TARGET}
+      PROPERTIES
+        INTERFACE_FIND_PACKAGE_PATHS "${ARG_FIND_PACKAGE_PATHS}"
+    )
+  endif()
+
   if(ARG_VERSION)
     set_target_properties(${ARG_TARGET}
       PROPERTIES
