@@ -100,10 +100,22 @@ set_tests_properties(BuildMdtItemEditor PROPERTIES DEPENDS InstallMdtItemModel)
 set_tests_properties(InstallMdtItemEditor PROPERTIES DEPENDS BuildMdtItemEditor)
 
 
-# Build + run MyApp with:
-# - CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/MdtItemModel;${CMAKE_CURRENT_BINARY_DIR}/MdtItemEditor"
+# Build + run TableEditor app
 
+add_test(NAME BuildTableEditor
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildTableEditor"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemEditor"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/TableEditor"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
 
+set_tests_properties(BuildTableEditor PROPERTIES DEPENDS BuildMdtItemEditor)
+
+# TODO: later, should install TableEditor and run from the install location
 
 ####################################
 # Test installing in common location

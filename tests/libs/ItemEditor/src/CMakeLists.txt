@@ -1,6 +1,6 @@
 
 include(GenerateExportHeader)
-include(MdtInstallLibrary)
+include(MdtInstallMdtLibrary)
 
 add_library(Mdt_ItemEditor
   Mdt/ItemEditor/SortSetupWidget.cpp
@@ -21,4 +21,12 @@ target_include_directories(Mdt_ItemEditor
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
-# TODO use mdt_install_mdt_library()
+set_target_properties(Mdt_ItemEditor
+  PROPERTIES
+    LIBRARY_NAME ItemEditor
+)
+
+mdt_install_mdt_library(
+  TARGET Mdt_ItemModel
+  VERSION_COMPATIBILITY ExactVersion
+)
