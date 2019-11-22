@@ -562,7 +562,6 @@
 # see :command:`mdt_install_namespace_package_config_file()`
 # and :command:`mdt_install_namespace_package_config_version_file()`.
 #
-#
 
 include(MdtTargetProperties)
 include(MdtPackageConfigHelpers)

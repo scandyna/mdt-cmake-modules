@@ -61,6 +61,8 @@
 #
 #   mdt_add_mdt_library(
 #     LIBRARY_NAME LibraryName
+#     [PUBLIC_DEPENDENCIES <dependencies>]
+#     [PRIVATE_DEPENDENCIES <dependencies>]
 #     SOURCE_FILES
 #       file1.cpp
 #       file2.cpp
@@ -68,7 +70,29 @@
 #
 # This will create a target ``Mdt_LibraryName`` and a alias target ``Mdt::LibraryName`` .
 #
+# Will also set the ``LIBRARY_NAME`` target property to the value ``${LIBRARY_NAME}``.
 #
+# TODO: document export headers.
+#
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   # This should be set at the top level CMakeLists.txt
+#   include(GenerateExportHeader)
+#   set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+#   set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
+#
+#   mdt_add_mdt_library(
+#     LIBRARY_NAME ItemEditor
+#     PUBLIC_DEPENDENCIES
+#       Mdt::ItemModel Qt5::Widgets
+#     SOURCE_FILES
+#       Mdt/ItemEditor/SortSetupWidget.cpp
+#   )
+#
+# This will create a target ``Mdt_ItemEditor`` and a alias target ``Mdt::ItemEditor`` .
 #
 # Install a executable
 # ^^^^^^^^^^^^^^^^^^^^

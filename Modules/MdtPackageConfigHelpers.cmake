@@ -428,7 +428,7 @@
 #     [COMPONENT <component>]
 #   )
 #
-# The optional ``COMPONENT`` argument will be passed to the install() command called internally.
+# The optional ``COMPONENT`` argument will be passed to the :command:`install()` command called internally.
 #
 # Example:
 #
@@ -445,7 +445,7 @@
 #
 #   ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0/Mdt0Config.cmake
 #
-# This file will allow the usage of the component syntax of find_package().
+# This file will allow the usage of the component syntax of :command:`find_package()`.
 # Example of a consumer CMakeLists.txt:
 #
 # .. code-block:: cmake
@@ -460,7 +460,23 @@
 #
 #   ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0Led/Mdt0LedConfig.cmake
 #
-# To also support a version at install namespace level, also see :command:`mdt_install_namespace_package_config_version_file()`
+# To also support a version at install namespace level, also see :command:`mdt_install_namespace_package_config_version_file()`.
+#
+# The component syntax of :command:`find_package()` works fine for projects, like Qt5,
+# that installs their packages in the same location.
+# The version argument of :command:`find_package()` refers to a package, not its component:
+#
+# .. code-block:: cmake
+#
+#   find_package(Mdt0 0.1.2 COMPONENTS ItemModel ItemEditor REQUIRED)
+#
+# If different versions are required, each package must be found individually:
+#
+# .. code-block:: cmake
+#
+#   find_package(Mdt0ItemModel 0.1.2 REQUIRED)
+#   find_package(Mdt0ItemEditor 0.1.5 REQUIRED)
+#
 #
 # Generate namespace package version file
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -650,7 +666,6 @@ endfunction()
 
 function(mdt_install_namespace_package_config_file)
 
-  # TODO Review !
   set(options)
   set(oneValueArgs INSTALL_NAMESPACE DESTINATION COMPONENT)
   set(multiValueArgs)
@@ -669,32 +684,39 @@ function(mdt_install_namespace_package_config_file)
     message(FATAL_ERROR "mdt_install_namespace_package_config_file(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  message("INSTALL_NAMESPACE: ${ARG_INSTALL_NAMESPACE}")
-  message("DESTINATION: ${ARG_DESTINATION}")
-  message("ARG_COMPONENT: ${ARG_COMPONENT}")
+  set(localFindPackageCommand "find_package(\n")
+  string(APPEND localFindPackageCommand "    ${ARG_INSTALL_NAMESPACE}\${component}\n")
+  string(APPEND localFindPackageCommand "    \${${ARG_INSTALL_NAMESPACE}_FIND_VERSION}\n")
+  string(APPEND localFindPackageCommand "    QUIET CONFIG\n")
+  string(APPEND localFindPackageCommand "    PATHS \"\${CMAKE_CURRENT_LIST_DIR}/..\" NO_DEFAULT_PATH\n")
+  string(APPEND localFindPackageCommand "  )")
 
-  set(config_file "${CMAKE_CURRENT_BINARY_DIR}/${ARG_INSTALL_NAMESPACE}Config.cmake")
-  file(WRITE "${config_file}" "if(NOT ${ARG_INSTALL_NAMESPACE}_FIND_COMPONENTS)\n")
-  file(APPEND "${config_file}" "  set(${ARG_INSTALL_NAMESPACE}_NOT_FOUND_MESSAGE \"The ${ARG_INSTALL_NAMESPACE} package requires at least one component\")\n")
-  file(APPEND "${config_file}" "  set(${ARG_INSTALL_NAMESPACE}_FOUND False)\n")
-  file(APPEND "${config_file}" "  return()\n")
-  file(APPEND "${config_file}" "else()\n")
-  file(APPEND "${config_file}" "  set(${ARG_INSTALL_NAMESPACE}_FOUND TRUE)\n")
-  file(APPEND "${config_file}" "endif()\n")
-  file(APPEND "${config_file}" "\n")
-  file(APPEND "${config_file}" "foreach(component \${${ARG_INSTALL_NAMESPACE}_FIND_COMPONENTS})\n")
-  file(APPEND "${config_file}" "  find_package(\n")
-  file(APPEND "${config_file}" "    ${ARG_INSTALL_NAMESPACE}\${component}\n")
-  file(APPEND "${config_file}" "    QUIET\n")
-  file(APPEND "${config_file}" "    CONFIG\n")
-  file(APPEND "${config_file}" "    PATHS \"\${CMAKE_CURRENT_LIST_DIR}/..\" NO_DEFAULT_PATH\n")
-  file(APPEND "${config_file}" "  )\n")
-  file(APPEND "${config_file}" "  if(NOT ${ARG_INSTALL_NAMESPACE}\${component}_FOUND AND \${${ARG_INSTALL_NAMESPACE}_FIND_REQUIRED_\${component}})\n")
-  file(APPEND "${config_file}" "    set(${ARG_INSTALL_NAMESPACE}_NOT_FOUND_MESSAGE \"Failed to find ${ARG_INSTALL_NAMESPACE}::\${component}\")\n")
-  file(APPEND "${config_file}" "    set(${ARG_INSTALL_NAMESPACE}_FOUND False)\n")
-  file(APPEND "${config_file}" "    break()\n")
-  file(APPEND "${config_file}" "  endif()\n")
-  file(APPEND "${config_file}" "endforeach()\n")
+  set(globalFindPackageCommand "find_package(\n")
+  string(APPEND globalFindPackageCommand "      ${ARG_INSTALL_NAMESPACE}\${component}\n")
+  string(APPEND globalFindPackageCommand "      \${${ARG_INSTALL_NAMESPACE}_FIND_VERSION}\n")
+  string(APPEND globalFindPackageCommand "      QUIET CONFIG\n")
+  string(APPEND globalFindPackageCommand "    )")
+
+  set(packageConfigFileContent "if(NOT ${ARG_INSTALL_NAMESPACE}_FIND_COMPONENTS)\n")
+  string(APPEND packageConfigFileContent "  set(${ARG_INSTALL_NAMESPACE}_NOT_FOUND_MESSAGE \"The ${ARG_INSTALL_NAMESPACE} package requires at least one component\")\n")
+  string(APPEND packageConfigFileContent "  set(${ARG_INSTALL_NAMESPACE}_FOUND False)\n")
+  string(APPEND packageConfigFileContent "  return()\n")
+  string(APPEND packageConfigFileContent "endif()\n")
+  string(APPEND packageConfigFileContent "\n")
+  string(APPEND packageConfigFileContent "foreach(component \${${ARG_INSTALL_NAMESPACE}_FIND_COMPONENTS})\n")
+  string(APPEND packageConfigFileContent "  ${localFindPackageCommand}\n")
+  string(APPEND packageConfigFileContent "  if(NOT ${ARG_INSTALL_NAMESPACE}\${component}_FOUND AND \${${ARG_INSTALL_NAMESPACE}_FIND_REQUIRED_\${component}})\n")
+  string(APPEND packageConfigFileContent "    ${globalFindPackageCommand}\n")
+  string(APPEND packageConfigFileContent "    if(NOT ${ARG_INSTALL_NAMESPACE}\${component}_FOUND AND \${${ARG_INSTALL_NAMESPACE}_FIND_REQUIRED_\${component}})\n")
+  string(APPEND packageConfigFileContent "      set(${ARG_INSTALL_NAMESPACE}_NOT_FOUND_MESSAGE \"Failed to find ${ARG_INSTALL_NAMESPACE}::\${component}\")\n")
+  string(APPEND packageConfigFileContent "      set(${ARG_INSTALL_NAMESPACE}_FOUND False)\n")
+  string(APPEND packageConfigFileContent "      break()\n")
+  string(APPEND packageConfigFileContent "    endif()\n")
+  string(APPEND packageConfigFileContent "  endif()\n")
+  string(APPEND packageConfigFileContent "endforeach()\n")
+
+  set(packageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_INSTALL_NAMESPACE}Config.cmake")
+  file(WRITE "${packageConfigFile}" "${packageConfigFileContent}")
 
   set(componentArgument)
   if(ARG_COMPONENT)
@@ -702,24 +724,10 @@ function(mdt_install_namespace_package_config_file)
   endif()
 
   install(
-    FILES "${config_file}"
+    FILES "${packageConfigFile}"
     DESTINATION "${ARG_DESTINATION}"
     ${componentArgument}
   )
-
-#   if(ARG_COMPONENT)
-#     message("Component install")
-#     install(
-#       FILES "${config_file}"
-#       DESTINATION "${ARG_DESTINATION}"
-#       COMPONENT "${ARG_COMPONENT}"
-#     )
-#   else()
-#     install(
-#       FILES "${config_file}"
-#       DESTINATION "${ARG_DESTINATION}"
-#     )
-#   endif()
 
 endfunction()
 
