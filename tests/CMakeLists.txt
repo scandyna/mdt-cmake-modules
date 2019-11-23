@@ -56,6 +56,7 @@ set_tests_properties(InstallMdtCMakeModules PROPERTIES DEPENDS BuildMdtCMakeModu
 # Test installing in different locations
 ########################################
 
+# TODO: won't work for app
 
 # Build + install MdtItemModel
 
@@ -133,3 +134,34 @@ set_tests_properties(BuildAndRunTableEditor PROPERTIES DEPENDS BuildMdtItemEdito
 
 # Build + run MyApp with:
 # - CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/CommonInstall"
+
+####################################
+# Test installing with Conan
+####################################
+
+if(BUILD_CONAN_TESTS)
+
+  # Build TableEditor with Conan + run the app
+
+  add_test(NAME Conan_Install_TableEditor_dependecies
+    COMMAND "${CONAN_COMMAND}"
+      install "${CMAKE_CURRENT_SOURCE_DIR}/apps/TableEditor"
+      --generator cmake_paths
+      --install-folder "${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor"
+      --build=missing
+      --options *:shared=True
+  )
+
+  add_test(NAME Conan_BuildAndRun_TableEditor
+    COMMAND "${CMAKE_CTEST_COMMAND}"
+      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-options
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor/conan_paths.cmake"
+        "-DBUILD_SHARED_LIBS=ON"
+      --test-command "${CMAKE_CTEST_COMMAND}"
+  )
+
+  set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
+
+endif()

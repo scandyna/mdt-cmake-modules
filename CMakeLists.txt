@@ -10,6 +10,12 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules/")
 # TODO shared libraries !!
 
 option(BUILD_TESTS "Build the tests" OFF)
+option(BUILD_CONAN_TESTS "Build packaging with Conan tests" OFF)
+
+if(BUILD_CONAN_TESTS)
+  find_program(CONAN_COMMAND NAMES conan)
+endif()
+
 if(BUILD_TESTS)
   enable_testing()
   add_subdirectory("tests")
