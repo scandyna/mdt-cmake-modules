@@ -102,7 +102,7 @@ set_tests_properties(InstallMdtItemEditor PROPERTIES DEPENDS BuildMdtItemEditor)
 
 # Build + run TableEditor app
 
-add_test(NAME BuildTableEditor
+add_test(NAME BuildAndRunTableEditor
   COMMAND "${CMAKE_CTEST_COMMAND}"
     --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildTableEditor"
     --build-generator "${CMAKE_GENERATOR}"
@@ -113,7 +113,7 @@ add_test(NAME BuildTableEditor
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 
-set_tests_properties(BuildTableEditor PROPERTIES DEPENDS BuildMdtItemEditor)
+set_tests_properties(BuildAndRunTableEditor PROPERTIES DEPENDS BuildMdtItemEditor)
 
 # TODO: later, should install TableEditor and run from the install location
 
