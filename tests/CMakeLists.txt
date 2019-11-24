@@ -141,8 +141,25 @@ set_tests_properties(BuildAndRunTableEditor PROPERTIES DEPENDS BuildMdtItemEdito
 
 if(BUILD_CONAN_TESTS)
 
+  # Build and install MdtCMakeModules
+  add_test(NAME Conan_Create_MdtCMakeModules
+    COMMAND "${CONAN_COMMAND}"
+      create "${CMAKE_SOURCE_DIR}" "MdtCMakeModules_tests/testing"
+      --build
+  )
+
+  # Build and install MdtItemModel
+  add_test(NAME Conan_Create_MdtItemModel
+    COMMAND "${CONAN_COMMAND}"
+      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemModel" "0.1@MdtCMakeModules_tests/testing"
+      --build
+  )
+
+  set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
+
   # Build TableEditor with Conan + run the app
 
+  # TODO --build ?
   add_test(NAME Conan_Install_TableEditor_dependecies
     COMMAND "${CONAN_COMMAND}"
       install "${CMAKE_CURRENT_SOURCE_DIR}/apps/TableEditor"
