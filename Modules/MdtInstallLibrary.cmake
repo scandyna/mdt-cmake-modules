@@ -651,7 +651,7 @@
 #   target_link_libraries(myApp Mdt0::ItemEditor)
 #
 # The dependencies are resolved transitively,
-# so we don't care about finding MdtItemModel
+# so we don't care about finding ``MdtItemModel``
 # (and its own dependencies) ourselve.
 #
 # On Linux, CMake will generate a build system that can build ``myApp``.
