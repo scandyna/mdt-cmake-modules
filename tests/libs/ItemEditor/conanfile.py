@@ -1,8 +1,8 @@
 from conans import ConanFile, CMake, tools
 import os
 
-class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
-  name = "MdtCmakeModulesTests_MdtItemModel"
+class MdtCmakeModulesTestMdtItemEditorConan(ConanFile):
+  name = "MdtCmakeModulesTests_MdtItemEditor"
   #version = "0.5"
   license = "BSD 3-Clause"
   url = "https://github.com/scandyna/mdt-cmake-modules"
@@ -10,7 +10,8 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
   settings = "os", "compiler", "build_type", "arch"
   options = {"shared": [True, False]}
   default_options = {"shared": True}
-  requires = "MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing"
+  requires = ["MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing",
+              "MdtCmakeModulesTests_MdtItemModel/0.1@MdtCMakeModules_tests/testing"]
   generators = "cmake_paths"
   exports_sources="*" # Conan seems to be smart enough to not copy test_package/build
 

@@ -19,5 +19,6 @@ class MdtCMakeModulesConan(ConanFile):
     cmake = CMake(self)
     cmake.install()
 
+# TODO See Conan doc about instantiation (build() / package() ) When build() and package() are run in isolation, we could have problems !
   #def package_info(self):
     #self.

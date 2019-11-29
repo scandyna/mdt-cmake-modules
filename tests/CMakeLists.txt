@@ -157,17 +157,32 @@ if(BUILD_CONAN_TESTS)
 
   set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
 
-  # Build TableEditor with Conan + run the app
+  # Build and install MdtItemEditor
+  add_test(NAME Conan_Create_MdtItemEditor
+    COMMAND "${CONAN_COMMAND}"
+      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemEditor" "0.1@MdtCMakeModules_tests/testing"
+#       --build
+  )
 
-  # TODO --build ?
+  set_tests_properties(Conan_Create_MdtItemEditor PROPERTIES DEPENDS Conan_Create_MdtItemModel)
+
+  # Build TableEditor with Conan + run the app
   add_test(NAME Conan_Install_TableEditor_dependecies
     COMMAND "${CONAN_COMMAND}"
       install "${CMAKE_CURRENT_SOURCE_DIR}/apps/TableEditor"
       --generator cmake_paths
       --install-folder "${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor"
-      --build=missing
+#       --build
       --options *:shared=True
   )
+  set_tests_properties(Conan_Install_TableEditor_dependecies PROPERTIES DEPENDS Conan_Create_MdtItemEditor)
+
+  # NOTE: s.a. WINEPATH
+
+#   add_test(NAME Conan_ActivateLibraryPath_TableEditor
+#     COMMAND "bash source activate.sh"
+#   )
+#   set_tests_properties(Conan_ActivateLibraryPath_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
 
   add_test(NAME Conan_BuildAndRun_TableEditor
     COMMAND "${CMAKE_CTEST_COMMAND}"
@@ -178,7 +193,7 @@ if(BUILD_CONAN_TESTS)
         "-DBUILD_SHARED_LIBS=ON"
       --test-command "${CMAKE_CTEST_COMMAND}"
   )
-
   set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
+#   set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=/home/philippe/.conan/data/MdtCmakeModulesTests_MdtItemEditor/0.1/MdtCMakeModules_tests/testing/package/14f9178991b181e5bfd3b9a54132f44e166108b4/lib:/home/philippe/.conan/data/MdtCmakeModulesTests_MdtItemModel/0.1/MdtCMakeModules_tests/testing/package/7c273bee01a1a5a75e59bc7cc6379e5f9fc6bb70/lib")
 
 endif()

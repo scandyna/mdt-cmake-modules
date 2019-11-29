@@ -1,5 +1,7 @@
 [requires]
 MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing
+MdtCmakeModulesTests_MdtItemEditor/0.1@MdtCMakeModules_tests/testing
 
 [generators]
 cmake_paths
+virtualenv

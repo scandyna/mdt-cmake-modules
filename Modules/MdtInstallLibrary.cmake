@@ -573,6 +573,9 @@
 # Using installed shared libraries in your development
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
+# Introduction
+# """"""""""""
+#
 # On Linux, only using system wide installed libraries
 # will not cause any problem.
 #
@@ -666,9 +669,146 @@
 #
 # For example, see `Conan env_info <https://docs.conan.io/en/latest/reference/conanfile/methods.html#method-package-info-env-info>`_ .
 #
+#
+# Using environment path as CMake property
+# """"""""""""""""""""""""""""""""""""""""
+#
+# .. command:: mdt_target_libraries_to_library_env_path
+#
+# Get a list of full path to the directory for each dependency of a target::
+#
+#   mdt_target_libraries_to_library_env_path(<out_var> TARGET <target>)
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   add_executable(myApp main.cpp)
+#
+#   target_link_libraries(myApp
+#     PRIVATE Mdt0::ItemEditor
+#   )
+#
+#   set(myAppEnv)
+#   mdt_target_libraries_to_library_env_path(myAppEnv TARGET myApp)
+#
+# ``myAppEnv`` will contain a generator expression to build a environment path.
+#
+# On Linux::
+#
+#   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}
+#
+#
+# On Windows::
+#
+#   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{PATH}
+#
+#
+# .. command:: mdt_set_test_library_env_path
+#
+# Set the ``ENVIRONMENT`` property to a test with paths
+# to the libraries the test links to::
+#
+#   mdt_set_test_library_env_path(NAME <test-name> TARGET <test-target>)
+#
+# Will get the libraries defined in the ``LINK_LIBRARIES`` property of ``test-target``,
+# then the ``INTERFACE_LINK_LIBRARIES`` for each dependency.
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   add_executable(myApp main.cpp)
+#
+#   target_link_libraries(myApp
+#     PRIVATE Mdt0::ItemEditor
+#   )
+#
+#   add_test(NAME RunMyApp COMMAND myApp)
+#   mdt_set_test_library_env_path(NAME RunMyApp TARGET myApp)
+#
+# This will set the ``ENVIRONMENT`` property to the test like this:
+#
+# .. code-block:: cmake
+#
+#   set_tests_properties(RunMyApp
+#     PROPERTIES
+#       ENVIRONMENT
+#         "LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}"
+#   )
+#
+# Using environment path in the terminal
+# """"""""""""""""""""""""""""""""""""""
+#
+# TODO: describe Conan generator + document usage of launching a executable without CTest
+#
 
 include(MdtTargetProperties)
 include(MdtPackageConfigHelpers)
+
+###########################
+# ENV part - # TODO Move
+############################
+
+function(mdt_target_libraries_to_library_env_path out_var)
+
+  set(options "")
+  set(oneValueArgs TARGET)
+  set(multiValueArgs "")
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_target_libraries_to_library_env_path(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_target_libraries_to_library_env_path(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(pathList)
+  set(directDependencies)
+  get_target_property(directDependencies ${ARG_TARGET} LINK_LIBRARIES)
+  foreach(directDependency ${directDependencies})
+    if(TARGET ${directDependency})
+      string(APPEND pathList ":\$<TARGET_FILE_DIR:${directDependency}>")
+    else()
+      message(WARNING "mdt_target_libraries_to_library_env_path(): library ${directDependency} will be ignored because it is not a TARGET")
+    endif()
+    set(interfaceLinkDependencies)
+    get_target_property(interfaceLinkDependencies ${directDependency} INTERFACE_LINK_LIBRARIES)
+    foreach(interfaceLinkDependency ${interfaceLinkDependencies})
+      if(TARGET ${interfaceLinkDependency})
+        string(APPEND pathList ":\$<TARGET_FILE_DIR:${interfaceLinkDependency}>")
+      else()
+        message(WARNING "mdt_target_libraries_to_library_env_path(): library ${interfaceLinkDependency} will be ignored because it is not a TARGET")
+      endif()
+    endforeach()
+  endforeach()
+
+  set(pathName)
+  if(APPLE)
+    set(pathName "DYLD_LIBRARY_PATH")
+  elseif(UNIX)
+    set(pathName "LD_LIBRARY_PATH")
+  elseif(WIN32)
+    set(pathName "PATH")
+  else()
+    message(FATAL_ERROR "mdt_target_libraries_to_library_env_path(): unknown operating system")
+  endif()
+
+  if(pathList)
+    set(envPath "${pathName}=$<SHELL_PATH${pathList}>:$ENV{${pathName}}")
+  else()
+    set(envPath "${pathName}=$ENV{${pathName}}")
+  endif()
+
+  set(${out_var} ${envPath} PARENT_SCOPE)
+
+endfunction()
+
+
+###########################
+# Includes part - # TODO Move
+############################
 
 
 function(mdt_install_include_directory)
@@ -684,7 +824,7 @@ function(mdt_install_include_directory)
   if(NOT ARG_DESTINATION)
     message(FATAL_ERROR "mdt_install_include_directory(): mandatory argument DESTINATION missing")
   endif()
-    if(ARG_UNPARSED_ARGUMENTS)
+  if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_install_include_directory(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
