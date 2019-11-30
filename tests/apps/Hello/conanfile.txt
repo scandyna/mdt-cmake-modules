@@ -1,0 +1,8 @@
+[requires]
+MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing
+
+[generators]
+cmake_paths
+
+[options]
+shared:True
