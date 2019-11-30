@@ -1,14 +1,6 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-# cmake_minimum_required(VERSION 3.10)
-# project(MdtCMakeModulesTest)
-
-# The top level CMakeLists.txt will call use with CMAKE_PREFIX_PATH pointing to the Modules of this source code
-# Conan test package will call use with CMAKE_PREFIX_PATH pointing to the Modules of its installed package
-
-# find_package(MdtCMakeModules REQUIRED)
-
 include(AddQt5ToCMakePrefixPath)
 include(MdtPackageConfigHelpers)
 
@@ -22,22 +14,13 @@ target_link_libraries(hello Qt5::Core)
 add_test(NAME helloTest COMMAND hello)
 
 
-# add_test(NAME MdtCMakeModulesTest
-#   COMMAND ${CMAKE_CTEST_COMMAND}
-#     --build-and-test "${CMAKE_SOURCE_DIR}/tests" "${CMAKE_BINARY_DIR}/buildAndTest"
-#     --build-generator "${CMAKE_GENERATOR}"
-#     --build-makeprogram ${CMAKE_MAKE_PROGRAM}
-#     --build-options -D CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
-#     --test-command ${CMAKE_TEST_COMMAND}
-# )
-
-message("TESTS CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
-
 ########################################
+# Test installing in different locations
+########################################
+
 # Build and install MdtCMakeModules
-########################################
 
-add_test(NAME BuildMdtCMakeModules
+add_test(NAME Build_MdtCMakeModules
   COMMAND "${CMAKE_CTEST_COMMAND}"
     --build-and-test "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModules"
     --build-generator "${CMAKE_GENERATOR}"
@@ -45,36 +28,29 @@ add_test(NAME BuildMdtCMakeModules
       "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
 )
 
-add_test(NAME InstallMdtCMakeModules
+add_test(NAME Install_MdtCMakeModules
   COMMAND "${CMAKE_COMMAND}"
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModules/cmake_install.cmake"
 )
 
-set_tests_properties(InstallMdtCMakeModules PROPERTIES DEPENDS BuildMdtCMakeModules)
+set_tests_properties(Install_MdtCMakeModules PROPERTIES DEPENDS Build_MdtCMakeModules)
 
-#################################################
 # Simple app that only depends on MdtCMakeModules
-#################################################
 
-  add_test(NAME BuildAndRun_Hello
-    COMMAND "${CMAKE_CTEST_COMMAND}"
-      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/Hello" "${CMAKE_CURRENT_BINARY_DIR}/buildHello"
-      --build-generator "${CMAKE_GENERATOR}"
-      --build-options
-        "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
-      --test-command "${CMAKE_CTEST_COMMAND}"
-  )
-  set_tests_properties(BuildAndRun_Hello PROPERTIES DEPENDS InstallMdtCMakeModules)
+add_test(NAME BuildAndRun_Hello
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/Hello" "${CMAKE_CURRENT_BINARY_DIR}/buildHello"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
 
-########################################
-# Test installing in different locations
-########################################
-
-# TODO: won't work for app
+set_tests_properties(BuildAndRun_Hello PROPERTIES DEPENDS Install_MdtCMakeModules)
 
 # Build + install MdtItemModel
 
-add_test(NAME BuildMdtItemModel
+add_test(NAME Build_MdtItemModel
   COMMAND "${CMAKE_CTEST_COMMAND}"
     --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemModel" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModel"
     --build-generator "${CMAKE_GENERATOR}"
@@ -85,17 +61,17 @@ add_test(NAME BuildMdtItemModel
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 
-add_test(NAME InstallMdtItemModel
+add_test(NAME Install_MdtItemModel
   COMMAND "${CMAKE_COMMAND}"
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModel/cmake_install.cmake"
 )
 
-set_tests_properties(BuildMdtItemModel PROPERTIES DEPENDS InstallMdtCMakeModules)
-set_tests_properties(InstallMdtItemModel PROPERTIES DEPENDS BuildMdtItemModel)
+set_tests_properties(Build_MdtItemModel PROPERTIES DEPENDS Install_MdtCMakeModules)
+set_tests_properties(Install_MdtItemModel PROPERTIES DEPENDS Build_MdtItemModel)
 
 # Build + install MdtItemEditor
 
-add_test(NAME BuildMdtItemEditor
+add_test(NAME Build_MdtItemEditor
   COMMAND "${CMAKE_CTEST_COMMAND}"
     --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditor"
     --build-generator "${CMAKE_GENERATOR}"
@@ -106,18 +82,18 @@ add_test(NAME BuildMdtItemEditor
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 
-add_test(NAME InstallMdtItemEditor
+add_test(NAME Install_MdtItemEditor
   COMMAND "${CMAKE_COMMAND}"
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditor/cmake_install.cmake"
 )
 
-set_tests_properties(BuildMdtItemEditor PROPERTIES DEPENDS InstallMdtItemModel)
-set_tests_properties(InstallMdtItemEditor PROPERTIES DEPENDS BuildMdtItemEditor)
+set_tests_properties(Build_MdtItemEditor PROPERTIES DEPENDS Install_MdtItemModel)
+set_tests_properties(Install_MdtItemEditor PROPERTIES DEPENDS Build_MdtItemEditor)
 
 
 # Build + run TableEditor app
 
-add_test(NAME BuildAndRunTableEditor
+add_test(NAME BuildAndRun_TableEditor
   COMMAND "${CMAKE_CTEST_COMMAND}"
     --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildTableEditor"
     --build-generator "${CMAKE_GENERATOR}"
@@ -128,7 +104,7 @@ add_test(NAME BuildAndRunTableEditor
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 
-set_tests_properties(BuildAndRunTableEditor PROPERTIES DEPENDS BuildMdtItemEditor)
+set_tests_properties(BuildAndRun_TableEditor PROPERTIES DEPENDS Build_MdtItemEditor)
 
 # TODO: later, should install TableEditor and run from the install location
 
@@ -137,6 +113,53 @@ set_tests_properties(BuildAndRunTableEditor PROPERTIES DEPENDS BuildMdtItemEdito
 ####################################
 
 # TODO: better: simulate a unix system wide install with DESTDIR
+
+# Build and install MdtCMakeModules
+
+add_test(NAME Build_MdtCMakeModules_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+)
+
+add_test(NAME Install_MdtCMakeModules_CL
+  COMMAND "${CMAKE_COMMAND}"
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL/cmake_install.cmake"
+)
+
+set_tests_properties(Install_MdtCMakeModules_CL
+  PROPERTIES
+    DEPENDS Build_MdtCMakeModules_CL
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+# Build + install MdtItemModel
+
+add_test(NAME Build_MdtItemModel_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemModel" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+
+set_tests_properties(Build_MdtItemModel_CL PROPERTIES DEPENDS Install_MdtCMakeModules_CL)
+
+add_test(NAME Install_MdtItemModel_CL
+  COMMAND "${CMAKE_COMMAND}"
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL/cmake_install.cmake"
+)
+
+set_tests_properties(Install_MdtItemModel_CL
+  PROPERTIES
+    DEPENDS Build_MdtItemModel_CL
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
 
 # Build + install MdtItemModel with:
 # - CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}"
@@ -159,14 +182,12 @@ if(BUILD_CONAN_TESTS)
   add_test(NAME Conan_Create_MdtCMakeModules
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_SOURCE_DIR}" "MdtCMakeModules_tests/testing"
-      --build
   )
 
   # Build and install MdtItemModel
   add_test(NAME Conan_Create_MdtItemModel
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemModel" "0.1@MdtCMakeModules_tests/testing"
-      --build
   )
 
   set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
@@ -175,7 +196,6 @@ if(BUILD_CONAN_TESTS)
   add_test(NAME Conan_Create_MdtItemEditor
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemEditor" "0.1@MdtCMakeModules_tests/testing"
-#       --build
   )
 
   set_tests_properties(Conan_Create_MdtItemEditor PROPERTIES DEPENDS Conan_Create_MdtItemModel)
@@ -186,17 +206,9 @@ if(BUILD_CONAN_TESTS)
       install "${CMAKE_CURRENT_SOURCE_DIR}/apps/TableEditor"
       --generator cmake_paths
       --install-folder "${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor"
-#       --build
       --options *:shared=True
   )
   set_tests_properties(Conan_Install_TableEditor_dependecies PROPERTIES DEPENDS Conan_Create_MdtItemEditor)
-
-  # NOTE: s.a. WINEPATH
-
-#   add_test(NAME Conan_ActivateLibraryPath_TableEditor
-#     COMMAND "bash source activate.sh"
-#   )
-#   set_tests_properties(Conan_ActivateLibraryPath_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
 
   add_test(NAME Conan_BuildAndRun_TableEditor
     COMMAND "${CMAKE_CTEST_COMMAND}"
@@ -208,6 +220,5 @@ if(BUILD_CONAN_TESTS)
       --test-command "${CMAKE_CTEST_COMMAND}"
   )
   set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
-#   set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=/home/philippe/.conan/data/MdtCmakeModulesTests_MdtItemEditor/0.1/MdtCMakeModules_tests/testing/package/14f9178991b181e5bfd3b9a54132f44e166108b4/lib:/home/philippe/.conan/data/MdtCmakeModulesTests_MdtItemModel/0.1/MdtCMakeModules_tests/testing/package/7c273bee01a1a5a75e59bc7cc6379e5f9fc6bb70/lib")
 
 endif()
