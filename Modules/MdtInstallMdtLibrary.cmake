@@ -58,6 +58,7 @@
 #     Mdt/ItemModel/SortProxyModel.cpp
 #   )
 #
+#   include(GenerateExportHeader)
 #   generate_export_header(Mdt_ItemModel)
 #
 #   target_include_directories(Mdt_ItemModel

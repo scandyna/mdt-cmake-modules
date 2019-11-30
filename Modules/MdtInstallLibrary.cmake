@@ -8,6 +8,8 @@
 # Headers in various project layouts
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
+# TODO: Module ideas: MdtInstallIcludes
+#
 # Some examples of source tree.
 # Some are inspired from `The Pitchfork Layout (PFL) <https://github.com/vector-of-bool/pitchfork>`_
 #
@@ -440,6 +442,9 @@
 #     ...
 #   )
 #
+#   include(GenerateExportHeader)
+#   generate_export_header(Mdt_ItemEditor)
+#
 #   target_link_libraries(Mdt_ItemEditor
 #     PUBLIC Mdt_ItemModel Qt5::Widgets
 #   )
@@ -464,7 +469,7 @@
 #     ARCHIVE_DESTINATION ${CMAKE_INSTALL_LIBDIR}
 #     INCLUDES_DIRECTORY .
 #     INCLUDES_FILE_WITHOUT_EXTENSION
-#     ADDITIONAL_INCLUDES_FILES "${CMAKE_CURRENT_BINARY_DIR}/MdtLedExport.h"
+#     ADDITIONAL_INCLUDES_FILES "${CMAKE_CURRENT_BINARY_DIR}/mdt_itemeditor_export.h"
 #     INCLUDES_DESTINATION ${MDT_INSTALL_INCLUDEDIR}
 #     EXPORT_NAME ItemEditor
 #     EXPORT_NAMESPACE Mdt0::
@@ -479,17 +484,17 @@
 #   )
 #
 # Notice the usage of ``MDT_INSTALL_PACKAGE_NAME`` and ``MDT_INSTALL_INCLUDEDIR``.
-# Those variable are used and provided by the :module:`MdtInstallDirs`
+# Those variable are used and provided by the :module:`MdtInstallDirs` module
 # and will help install the includes in a appropriate subdirectory.
 #
 # On a non system wide Linux installation, the result will be::
 #
 #   ${CMAKE_INSTALL_PREFIX}
 #     |-include
+#     |   |-mdt_itemeditor_export.h
 #     |   |-Mdt
 #     |     |-ItemEditor
 #     |       |-TableEditor.h
-#     |       |-ItemEditorExport.h
 #     |-lib
 #       |-libMdt0ItemEditor.so
 #       |-libMdt0ItemEditor.so.0
@@ -537,10 +542,10 @@
 #     |-include
 #     | |-x86_64-linux-gnu
 #     |   |-Mdt0
+#     |     |-mdt_itemeditor_export.h
 #     |     |-Mdt
 #     |       |-ItemEditor
 #     |         |-TableEditor.h
-#     |         |-ItemEditorExport.h
 #     |-lib
 #       |-x86_64-linux-gnu
 #         |-libMdt0ItemEditor.so
@@ -572,6 +577,8 @@
 #
 # Using installed shared libraries in your development
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# TODO: Module ideas: MdtRuntimeEvironment
 #
 # Introduction
 # """"""""""""
@@ -664,6 +671,8 @@
 #
 # At this stage we are in a dependency management problem,
 # that is not trivial to solve with CMake directly.
+#
+# TODO: see below, seems to be solvable with CMake..
 #
 # A solution would be to use a package manager that takes this issue into account.
 #
@@ -767,22 +776,28 @@ function(mdt_target_libraries_to_library_env_path out_var)
   set(pathList)
   set(directDependencies)
   get_target_property(directDependencies ${ARG_TARGET} LINK_LIBRARIES)
-  foreach(directDependency ${directDependencies})
-    if(TARGET ${directDependency})
-      string(APPEND pathList ":\$<TARGET_FILE_DIR:${directDependency}>")
-    else()
-      message(WARNING "mdt_target_libraries_to_library_env_path(): library ${directDependency} will be ignored because it is not a TARGET")
-    endif()
-    set(interfaceLinkDependencies)
-    get_target_property(interfaceLinkDependencies ${directDependency} INTERFACE_LINK_LIBRARIES)
-    foreach(interfaceLinkDependency ${interfaceLinkDependencies})
-      if(TARGET ${interfaceLinkDependency})
-        string(APPEND pathList ":\$<TARGET_FILE_DIR:${interfaceLinkDependency}>")
+  if(directDependencies)
+    foreach(directDependency ${directDependencies})
+      if(TARGET ${directDependency})
+        string(APPEND pathList ":\$<TARGET_FILE_DIR:${directDependency}>")
       else()
-        message(WARNING "mdt_target_libraries_to_library_env_path(): library ${interfaceLinkDependency} will be ignored because it is not a TARGET")
+        message(WARNING "mdt_target_libraries_to_library_env_path(): library ${directDependency} will be ignored because it is not a TARGET")
+        continue()
       endif()
+      set(interfaceLinkDependencies)
+      get_target_property(interfaceLinkDependencies ${directDependency} INTERFACE_LINK_LIBRARIES)
+      if(interfaceLinkDependencies)
+        foreach(interfaceLinkDependency ${interfaceLinkDependencies})
+          if(TARGET ${interfaceLinkDependency})
+            string(APPEND pathList ":\$<TARGET_FILE_DIR:${interfaceLinkDependency}>")
+          else()
+            message(WARNING "mdt_target_libraries_to_library_env_path(): library ${interfaceLinkDependency} will be ignored because it is not a TARGET")
+            continue()
+          endif()
+        endforeach()
+      endif(interfaceLinkDependencies)
     endforeach()
-  endforeach()
+  endif(directDependencies)
 
   set(pathName)
   if(APPLE)
@@ -795,16 +810,48 @@ function(mdt_target_libraries_to_library_env_path out_var)
     message(FATAL_ERROR "mdt_target_libraries_to_library_env_path(): unknown operating system")
   endif()
 
+  set(currentEnvPath "$ENV{${pathName}}")
+
+  set(envPath)
   if(pathList)
-    set(envPath "${pathName}=$<SHELL_PATH${pathList}>:$ENV{${pathName}}")
+    set(envPath "${pathName}=$<SHELL_PATH${pathList}>")
+    if(currentEnvPath)
+      string(APPEND envPath ":${currentEnvPath}")
+    endif()
   else()
-    set(envPath "${pathName}=$ENV{${pathName}}")
+    if(currentEnvPath)
+      set(envPath "${pathName}=${currentEnvPath}")
+    endif()
   endif()
 
   set(${out_var} ${envPath} PARENT_SCOPE)
 
 endfunction()
 
+
+function(mdt_set_test_library_env_path)
+
+  set(options "")
+  set(oneValueArgs NAME TARGET)
+  set(multiValueArgs "")
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_NAME)
+    message(FATAL_ERROR "mdt_set_test_library_env_path(): mandatory argument NAME missing")
+  endif()
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_set_test_library_env_path(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_set_test_library_env_path(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  mdt_target_libraries_to_library_env_path(envPath TARGET ${ARG_TARGET})
+  if(envPath)
+    set_tests_properties(${ARG_NAME} PROPERTIES ENVIRONMENT "${envPath}")
+  endif()
+
+endfunction()
 
 ###########################
 # Includes part - # TODO Move

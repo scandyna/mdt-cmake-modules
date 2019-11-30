@@ -52,6 +52,20 @@ add_test(NAME InstallMdtCMakeModules
 
 set_tests_properties(InstallMdtCMakeModules PROPERTIES DEPENDS BuildMdtCMakeModules)
 
+#################################################
+# Simple app that only depends on MdtCMakeModules
+#################################################
+
+  add_test(NAME BuildAndRun_Hello
+    COMMAND "${CMAKE_CTEST_COMMAND}"
+      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/Hello" "${CMAKE_CURRENT_BINARY_DIR}/buildHello"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-options
+        "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      --test-command "${CMAKE_CTEST_COMMAND}"
+  )
+  set_tests_properties(BuildAndRun_Hello PROPERTIES DEPENDS InstallMdtCMakeModules)
+
 ########################################
 # Test installing in different locations
 ########################################
