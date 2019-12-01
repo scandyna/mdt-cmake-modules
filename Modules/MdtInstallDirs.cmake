@@ -59,7 +59,7 @@
 #    ~/opt/project-name/include/projectlib.h
 #    ~/opt/project-name/
 #
-#  A project has probably some files to install in what is defined ``DATADIR`` (and also ``DATAROOTDIR``),
+#  A project has probably some files to install in that is defined ``DATADIR`` (and also ``DATAROOTDIR``),
 #  which is mostly defined as ``share`` .
 #
 #  If a project is installed on Linux system wide (typically in /usr or /urs/local),
@@ -88,7 +88,7 @@
 #
 # ``MDT_INSTALL_IS_DEBIAN_MULTIARCH_SYSTEM_WIDE``
 #    The logic to determine this variable is similar to the one implemented
-#    in the GNUInstallDirs module to define ``CMAKE_INSTALL_LIBDIR`` .
+#    in the :module:`GNUInstallDirs` module to define ``CMAKE_INSTALL_LIBDIR`` .
 #
 # ``MDT_INSTALL_PACKAGE_NAME``
 #    If not set while including this module, it will be set to ``${PROJECT_NAME}`` .
@@ -113,22 +113,24 @@
 # they will be used to define ``MDT_INSTALL_DATAROOTDIR`` and ``MDT_INSTALL_DATADIR``,
 # otherwise ``share`` will be considered.
 #
-# Example of a CMakeLists.txt::
+# Example of a CMakeLists.txt:
 #
-#  project(MyProject)
+# .. code-block:: cmake
 #
-#  find_package(MdtCMakeModules REQUIRED)
+#   project(MyProject)
 #
-#  add_library(myLib myLib.cpp)
-#  add_executable(myApp main.cpp)
-#  target_link_libraries(myApp myLib)
-#  # Other commands (f.ex. header include dirs for myLib, exports, etc..) are omited here
+#   find_package(MdtCMakeModules REQUIRED)
 #
-#  set(MDT_INSTALL_PACKAGE_NAME MyPackageName)
-#  include(GNUInstallDirs)
-#  include(MdtInstallDirs)
+#   add_library(myLib myLib.cpp)
+#   add_executable(myApp main.cpp)
+#   target_link_libraries(myApp myLib)
+#   # Other commands (f.ex. header include dirs for myLib, exports, etc..) are omited here
 #
-#  install(DIRECTORY ${CMAKE_SOURCE_DIR}/icons DESTINATION ${MDT_INSTALL_DATADIR})
+#   set(MDT_INSTALL_PACKAGE_NAME MyPackageName)
+#   include(GNUInstallDirs)
+#   include(MdtInstallDirs)
+#
+#   install(DIRECTORY ${CMAKE_SOURCE_DIR}/icons DESTINATION ${MDT_INSTALL_DATADIR})
 #
 # CMake uses ``CMAKE_INSTALL_PREFIX`` as root of the installation.
 #
