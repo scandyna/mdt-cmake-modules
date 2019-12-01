@@ -1,4 +1,5 @@
-include(MdtInstallLibrary)
+
+include(MdtRuntimeEnvironment)
 
 add_test(
   NAME RunTableEditor

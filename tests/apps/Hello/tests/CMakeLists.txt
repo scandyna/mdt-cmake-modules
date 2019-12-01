@@ -1,4 +1,4 @@
-include(MdtInstallLibrary)
+include(MdtRuntimeEnvironment)
 
 add_test(
   NAME RunHello

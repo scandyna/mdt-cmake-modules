@@ -78,6 +78,8 @@ install(
     "Modules/MdtPackageConfigHelpers.cmake"
     "Modules/MdtTargetPackageProperties.cmake"
     "Modules/MdtTargetProperties.cmake"
+    "Modules/MdtInstallIncludes.cmake"
+    "Modules/MdtRuntimeEnvironment.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
 )
 
