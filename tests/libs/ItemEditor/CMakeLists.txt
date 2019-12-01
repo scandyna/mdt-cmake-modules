@@ -6,6 +6,7 @@ project(MdtItemEditor VERSION 0.0.1)
 message("tests MdtItemEditor CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 
 option(BUILD_TESTS "Build the tests" OFF)
+option(INSTALL_NAMESPACE_PACKAGE_CONFIG_FILES "Install the package configuration files to support the component syntax of find_package()" OFF)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
@@ -24,7 +25,7 @@ if(BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
+if(INSTALL_NAMESPACE_PACKAGE_CONFIG_FILES)
   mdt_install_namespace_package_config_file(
     INSTALL_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MDT_INSTALL_PACKAGE_NAME}

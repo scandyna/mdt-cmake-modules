@@ -104,7 +104,7 @@ add_test(NAME BuildAndRun_TableEditor
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 
-set_tests_properties(BuildAndRun_TableEditor PROPERTIES DEPENDS Build_MdtItemEditor)
+set_tests_properties(BuildAndRun_TableEditor PROPERTIES DEPENDS Install_MdtItemEditor)
 
 # TODO: later, should install TableEditor and run from the install location
 
@@ -145,6 +145,7 @@ add_test(NAME Build_MdtItemModel_CL
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
       "-DCMAKE_INSTALL_PREFIX=/usr"
       "-DBUILD_SHARED_LIBS=ON"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 
@@ -161,16 +162,48 @@ set_tests_properties(Install_MdtItemModel_CL
     ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
 )
 
-# Build + install MdtItemModel with:
-# - CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}"
-# - CMAKE_INSTALL_PREFIX="${CMAKE_CURRENT_BINARY_DIR}/CommonInstall"
+# Build + install MdtItemEditor
 
-# Build + install MdtItemEditor with:
-# - CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/CommonInstall"
-# - CMAKE_INSTALL_PREFIX="${CMAKE_CURRENT_BINARY_DIR}/CommonInstall"
+add_test(NAME Build_MdtItemEditor_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+      "-DBUILD_SHARED_LIBS=ON"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
 
-# Build + run MyApp with:
-# - CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_BINARY_DIR}/CommonInstall"
+set_tests_properties(Build_MdtItemEditor_CL PROPERTIES DEPENDS Build_MdtItemModel_CL)
+
+add_test(NAME Install_MdtItemEditor_CL
+  COMMAND "${CMAKE_COMMAND}"
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL/cmake_install.cmake"
+)
+
+set_tests_properties(Install_MdtItemEditor_CL
+  PROPERTIES
+    DEPENDS Build_MdtItemEditor_CL
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+# Build + run TableEditor app
+
+add_test(NAME BuildAndRun_TableEditor_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildTableEditorCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+
+set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtItemEditor_CL)
+
 
 ####################################
 # Test installing with Conan

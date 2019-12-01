@@ -8,8 +8,8 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
   url = "https://github.com/scandyna/mdt-cmake-modules"
   description = "Test package for MdtCmakeModules tests"
   settings = "os", "compiler", "build_type", "arch"
-  options = {"shared": [True, False]}
-  default_options = {"shared": True}
+  options = {"shared": [True, False], "install_namespace_package_config_files": [True, False]}
+  default_options = {"shared": True, "install_namespace_package_config_files": True}
   requires = "MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing"
   generators = "cmake_paths"
   exports_sources="src/*", "CMakeLists.txt"
@@ -17,6 +17,10 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
   def build(self):
     cmake = CMake(self)
     cmake.definitions["CMAKE_TOOLCHAIN_FILE"] = "%s/conan_paths.cmake" % (self.build_folder)
+    if self.options.install_namespace_package_config_files:
+      cmake.definitions["INSTALL_NAMESPACE_PACKAGE_CONFIG_FILES"] = "ON"
+    else:
+      cmake.definitions["INSTALL_NAMESPACE_PACKAGE_CONFIG_FILES"] = "OFF"
     cmake.configure(cache_build_folder = "build")
     cmake.build()
     cmake.install()
