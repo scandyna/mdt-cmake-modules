@@ -31,7 +31,7 @@ endif()
 # Install directories
 #
 
-set(MDT_INSTALL_PACKAGE_NAME Mdt0)
+set(MDT_INSTALL_PACKAGE_NAME MdtCMakeModules)
 include(GNUInstallDirs)
 include(MdtInstallDirs)
 
@@ -54,6 +54,7 @@ include(MdtInstallDirs)
 #  C:\Program Files\MdtCMakeModules\Modules
 #
 
+# TODO: review UNIX sytsme wide install. See ECM for example
 set(MDT_CMAKE_MODULE_INSTALL_MODULES_DIR "${MDT_INSTALL_DATADIR}/Modules")
 set(MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR "${MDT_INSTALL_DATADIR}/cmake")
 
