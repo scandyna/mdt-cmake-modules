@@ -112,8 +112,6 @@ set_tests_properties(BuildAndRun_TableEditor PROPERTIES DEPENDS Install_MdtItemE
 # Test installing in common location
 ####################################
 
-# TODO: better: simulate a unix system wide install with DESTDIR
-
 # Build and install MdtCMakeModules
 
 add_test(NAME Build_MdtCMakeModules_CL
