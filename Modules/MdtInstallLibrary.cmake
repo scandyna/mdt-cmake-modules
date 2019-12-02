@@ -253,7 +253,29 @@
 # see :command:`mdt_install_namespace_package_config_file()`
 # and :command:`mdt_install_namespace_package_config_version_file()`.
 #
-# TODO: problem by running app
+# Above example should be fine to install a library.
+# At runtime, some problems can occur.
+# See the :module:`MdtRuntimeEnvironment` module for discussions about that.
+#
+#
+# Install a executable
+# """"""""""""""""""""
+#
+# .. command:: mdt_install_executable
+#
+# Install a executable::
+#
+#   mdt_install_executable(
+#     TARGET <target>
+#     RUNTIME_DESTINATION <dir>
+#     [LIBRARY_DESTINATION <dir>]
+#     [COPY_BINARY_DEPENDENCIES <TRUE|FALSE>]
+#     [or COPY_SHARED_LIBRARY_DEPENDENCIES <TRUE|FALSE>]
+#     [or COPY_DEPENDENT_SHARED_LIBRARIES <TRUE|FALSE>]
+#     [INSTALL_IS_UNIX_SYSTEM_WIDE <true>]
+#   )
+#
+# TODO RPATH to $ORIGIN/../lib  if not INSTALL_IS_UNIX_SYSTEM_WIDE
 #
 
 include(MdtTargetProperties)

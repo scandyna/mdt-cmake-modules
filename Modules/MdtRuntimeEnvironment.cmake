@@ -97,14 +97,11 @@
 # This time, running ``myApp`` in the build tree will fail.
 # This is because ``libMdt0ItemEditor.so`` cannot find ``libMdt0ItemModel.so``.
 #
-# At this stage we are in a dependency management problem,
-# that is not trivial to solve with CMake directly.
+# For the final application, a solution is to copy each shared library
+# to a common directory.
 #
-# TODO: see below, seems to be solvable with CMake..
-#
-# A solution would be to use a package manager that takes this issue into account.
-#
-# For example, see `Conan env_info <https://docs.conan.io/en/latest/reference/conanfile/methods.html#method-package-info-env-info>`_ .
+# While working on a library or a application,
+# setting temporary environment paths can help, at least to execute the unit tests.
 #
 #
 # Using environment path as CMake property
@@ -176,11 +173,50 @@
 #
 # TODO: is it possible to not set LD_LIBRARY_PATH for dependencies intsalled UNIX system wide ?
 #
+# TODO: should only add to path if the dependency is a shared library (generator expression available for this ?)
+# NOTE: read doc of LINK_INTERFACE_LIBRARIES
+#
 # Using environment path in the terminal
 # """"""""""""""""""""""""""""""""""""""
 #
+# To run a executable from the shell, without running CTest,
+# a environment can be set using Conan.
+#
 # TODO: describe Conan generator + document usage of launching a executable without CTest
 #
+# For example, see `Conan env_info <https://docs.conan.io/en/latest/reference/conanfile/methods.html#method-package-info-env-info>`_ .
+#
+# In the recipe of each library, define environment in the package_info:
+#
+# .. code-block:: python
+#
+#   def package_info(self):
+#     self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))
+#     self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+#
+# Then, in your project, in the conanfile.txt, add the ``virtualenv`` generator:
+#
+# .. code-block:: text
+#
+#   [generators]
+#   cmake_paths
+#   virtualenv
+#
+# On Linux, setup the temporary environment:
+#
+# .. code-block:: bash
+#
+#   source activate.sh
+#
+# Setup the temporary environment on Windows:
+#
+# .. code-block:: bash
+#
+#   activate.bat
+#
+# For more precisions, see `Conan Virtualenv generator <https://docs.conan.io/en/latest/mastering/virtualenv.html>`_ .
+#
+
 
 function(mdt_target_libraries_to_library_env_path out_var)
 

@@ -27,3 +27,4 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
 
   def package_info(self):
     self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))
+    self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
