@@ -57,6 +57,7 @@ add_test(NAME Build_MdtItemModel
     --build-options
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
       "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
@@ -78,6 +79,7 @@ add_test(NAME Build_MdtItemEditor
     --build-options
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel"
       "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemEditor"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
