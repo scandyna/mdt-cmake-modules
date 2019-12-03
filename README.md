@@ -9,6 +9,8 @@ or the Conan package manager.
 In this section, a build folder is assumed to be in the source tree,
 which is only for simplicity.
 
+To install tools, like CMake, see also https://gitlab.com/scandyna/build-and-install-cpp
+
 ## Install using CMake
 
 Get the sources:
