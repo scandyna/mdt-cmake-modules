@@ -110,6 +110,31 @@
 #   # Content of Mdt0LedTargets.cmake
 #   add_library(Mdt0::Led SHARED IMPORTED)
 #
+# Get some properties of a target
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_target_is_shared_library
+#
+# Check if a target is a shared library::
+#
+#   mdt_target_is_shared_library(<out_var> TARGET <target>)
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   add_library(myLib myLib.cpp)
+#
+#   mdt_target_is_shared_library(myLibIsSharedLibrary TARGET myLib)
+#
+#
+# In above code, ``myLibIsSharedLibrary`` will be true if ``myLib`` is a shared library.
+# Because it was not specified at the call to :command:`add_library()`,
+# it would depend on :variable:`BUILD_SHARED_LIBS`.
+#
+# Internally, the ``TYPE`` property of the target is used to check if it is a shared library or not.
+#
+#
 # Set RPATH properties
 # ^^^^^^^^^^^^^^^^^^^^
 #
@@ -154,6 +179,35 @@
 #
 # NOTE: currently only UNIX is supported.
 #
+
+function(mdt_target_is_shared_library out_var)
+
+  set(options)
+  set(oneValueArgs TARGET)
+  set(multiValueArgs)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_TARGET)
+    message(FATAL_ERROR "mdt_target_is_shared_library(): mandatory argument TARGET missing")
+  endif()
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_target_is_shared_library(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_target_is_shared_library(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(result)
+  get_target_property(targetType ${ARG_TARGET} TYPE)
+  if(${targetType} STREQUAL "SHARED_LIBRARY")
+    set(result TRUE)
+  else()
+    set(result FALSE)
+  endif()
+
+  set(${out_var} ${result} PARENT_SCOPE)
+
+endfunction()
 
 
 function(mdt_set_target_install_rpath_property)

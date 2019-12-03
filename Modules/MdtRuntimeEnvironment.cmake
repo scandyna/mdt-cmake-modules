@@ -138,6 +138,9 @@
 #   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{PATH}
 #
 #
+# TODO: is it possible to not set LD_LIBRARY_PATH for dependencies intsalled UNIX system wide ?
+#
+#
 # .. command:: mdt_set_test_library_env_path
 #
 # Set the ``ENVIRONMENT`` property to a test with paths
@@ -171,18 +174,12 @@
 #         "LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}"
 #   )
 #
-# TODO: is it possible to not set LD_LIBRARY_PATH for dependencies intsalled UNIX system wide ?
-#
-# TODO: should only add to path if the dependency is a shared library (generator expression available for this ?)
-# NOTE: read doc of LINK_INTERFACE_LIBRARIES
 #
 # Using environment path in the terminal
 # """"""""""""""""""""""""""""""""""""""
 #
 # To run a executable from the shell, without running CTest,
 # a environment can be set using Conan.
-#
-# TODO: describe Conan generator + document usage of launching a executable without CTest
 #
 # For example, see `Conan env_info <https://docs.conan.io/en/latest/reference/conanfile/methods.html#method-package-info-env-info>`_ .
 #
@@ -217,6 +214,7 @@
 # For more precisions, see `Conan Virtualenv generator <https://docs.conan.io/en/latest/mastering/virtualenv.html>`_ .
 #
 
+include(MdtTargetProperties)
 
 function(mdt_target_libraries_to_library_env_path out_var)
 
@@ -238,7 +236,10 @@ function(mdt_target_libraries_to_library_env_path out_var)
   if(directDependencies)
     foreach(directDependency ${directDependencies})
       if(TARGET ${directDependency})
-        string(APPEND pathList ":\$<TARGET_FILE_DIR:${directDependency}>")
+        mdt_target_is_shared_library(directDependencyIsSharedLibrary TARGET ${directDependency})
+        if(directDependencyIsSharedLibrary)
+          string(APPEND pathList ":\$<TARGET_FILE_DIR:${directDependency}>")
+        endif()
       else()
         message(WARNING "mdt_target_libraries_to_library_env_path(): library ${directDependency} will be ignored because it is not a TARGET")
         continue()
@@ -248,7 +249,10 @@ function(mdt_target_libraries_to_library_env_path out_var)
       if(interfaceLinkDependencies)
         foreach(interfaceLinkDependency ${interfaceLinkDependencies})
           if(TARGET ${interfaceLinkDependency})
-            string(APPEND pathList ":\$<TARGET_FILE_DIR:${interfaceLinkDependency}>")
+            mdt_target_is_shared_library(interfaceLinkDependencyIsSharedLibrary TARGET ${interfaceLinkDependency})
+            if(interfaceLinkDependencyIsSharedLibrary)
+              string(APPEND pathList ":\$<TARGET_FILE_DIR:${interfaceLinkDependency}>")
+            endif()
           else()
             message(WARNING "mdt_target_libraries_to_library_env_path(): library ${interfaceLinkDependency} will be ignored because it is not a TARGET")
             continue()
