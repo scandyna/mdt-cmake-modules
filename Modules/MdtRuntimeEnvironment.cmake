@@ -277,11 +277,14 @@ function(mdt_target_libraries_to_library_env_path out_var)
   else()
     message(FATAL_ERROR "mdt_target_libraries_to_library_env_path(): unknown operating system")
   endif()
+  
+  # See result on windows:
+  # set_tests_properties(RunTableEditor PROPERTIES  ENVIRONMENT "PATH=C:\\Users\\phili\\Documents\\dev\\build\\mdt-cmake-modules\\tests\\opt\\MdtItemEditor\\bin\\;C:\\Users\\phili\\Documents\\dev\\build\\mdt-cmake-modules\\tests\\opt\\MdtItemModel\\bin;C:\\Qt\\5.13.1\\mingw73_32\\bin;C:/Qt/Tools/mingw730_32\\bin;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\Program Files (x86)\\Intel\\iCLS Client;C:\\Program Files\\Intel\\iCLS Client;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files\\Git\\cmd;C:\\WINDOWS\\System32\\OpenSSH;C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\Bin;C:\\Program Files\\IVI Foundation\\VISA\\Win64\\Bin;C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\Bin;C:\\Program Files\\Intel\\WiFi\\bin;C:\\Program Files\\Common Files\\Intel\\WirelessCommon;C:\\Users\\phili\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\phili\\AppData\\Local\\GitHubDesktop\\bin;C:\\Users\\phili\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Program Files\\CMake\\bin" _BACKTRACE_TRIPLES "C:/Users/phili/Documents/dev/mdt-cmake-modules/tests/apps/TableEditor/tests/CMakeLists.txt;4;add_test;C:/Users/phili/Documents/dev/mdt-cmake-modules/tests/apps/TableEditor/tests/CMakeLists.txt;0;")
 
   set(pathSeparator)
   if(WIN32)
-    set(pathSeparator ";")
-    set(pathSeparatorGenExp "$<SEMICOLON>")
+    set(pathSeparator "\\;")
+    set(pathSeparatorGenExp "\\$<SEMICOLON>")
   else()
     set(pathSeparator ":")
     set(pathSeparatorGenExp ":")
