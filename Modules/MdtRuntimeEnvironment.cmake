@@ -109,7 +109,7 @@
 #
 # .. command:: mdt_target_libraries_to_library_env_path
 #
-# Get a list of full path to the directory for each dependency of a target::
+# Get a list of generator expression that will expand to the directory for each dependency of a target::
 #
 #   mdt_target_libraries_to_library_env_path(<out_var> TARGET <target>)
 #
@@ -126,19 +126,79 @@
 #   set(myAppEnv)
 #   mdt_target_libraries_to_library_env_path(myAppEnv TARGET myApp)
 #
-# ``myAppEnv`` will contain a generator expression to build a environment path.
+# ``myAppEnv`` will contain a list of generator expression to build a environment path.
 #
 # On Linux::
 #
-#   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}
+#   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
+#
+# If ``LD_LIBRARY_PATH`` was allready set, it will also be added to the end::
+#
+#   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}
 #
 #
 # On Windows::
 #
-#   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{PATH}
+#   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
 #
+# If ``PATH`` was allready set, it will also be added to the end::
 #
-# TODO: is it possible to not set LD_LIBRARY_PATH for dependencies intsalled UNIX system wide ?
+#   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>;$ENV{PATH}
+#
+# See also: :command:`mdt_set_test_library_env_path()`
+#
+# Note about the implementation
+# """""""""""""""""""""""""""""
+#
+# Notice that the ``$<SHELL_PATH:...>`` is able to handle a whole expression, so this works on Linux (also on CMake 3.10, despite it is not documented)::
+#
+#   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>:$ENV{LD_LIBRARY_PATH}>
+#
+# Above expression can also work on Windows::
+#
+#   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>$<SEMICOLON>$<TARGET_FILE_DIR:Mdt0::ItemModel>$<SEMICOLON>$ENV{PATH}>
+#
+# With above expression, problems beginn when we want to attach it to a property:
+#
+# .. code-block:: cmake
+#
+#   add_executable(myApp main.cpp)
+#
+#   target_link_libraries(myApp
+#     PRIVATE Mdt0::ItemEditor
+#   )
+#
+#   set(myAppEnv)
+#   mdt_target_libraries_to_library_env_path(myAppEnv TARGET myApp)
+#
+#   add_test(NAME RunMyApp COMMAND myApp)
+#   set_tests_properties(RunMyApp PROPERTIES ENVIRONMENT "${myAppEnv}")
+#
+# On Windows, all paths will be properly generated.
+# See a generated ``CTestTestfile.cmake`` as example:
+#
+# .. code-block:: cmake
+#
+#   set_tests_properties(RunMyApp
+#     PROPERTIES
+#       ENVIRONMENT "PATH=C:\\opt\\MdtItemEditor\\bin;C:\\opt\\MdtItemModel\\bin;C:\\Qt\\5.13.1\\mingw73_32\\bin;C:\\Qt\\Tools\\mingw730_32\\bin"
+#   )
+#
+# But, this cause a problem, due to the ``;``.
+# The test will only have the first path as ``ENVIRONMENT`` property.
+# All other paths will be affected as a other property, without any key.
+#
+# This is the reason :command:`mdt_target_libraries_to_library_env_path()`
+# generates a list of generator expression, separated by the target OS native separator.
+#
+# This way, it is then possible to escape the ``;`` on Windows,
+# at the time we want to attach it as a property of a test:
+#
+# .. code-block:: cmake
+#
+#   string(REPLACE ";" "\\;" myAppEnv "${myAppEnv}")
+#
+# See also: https://cmake.org/pipermail/cmake/2009-May/029425.html
 #
 #
 # .. command:: mdt_set_test_library_env_path
@@ -263,8 +323,8 @@ function(mdt_target_libraries_to_library_env_path out_var)
   endif(directDependencies)
 
   foreach(target ${targetList})
-#     list(APPEND pathList "$<SHELL_PATH:$<TARGET_FILE_DIR:${target}>>")
-    list(APPEND pathList "$<TARGET_FILE_DIR:${target}>")
+    list(APPEND pathList "$<SHELL_PATH:$<TARGET_FILE_DIR:${target}>>")
+#     list(APPEND pathList "$<TARGET_FILE_DIR:${target}>")
   endforeach()
 
   # TODO: s.a. WINEPATH
@@ -282,19 +342,13 @@ function(mdt_target_libraries_to_library_env_path out_var)
   # See result on windows:
   # set_tests_properties(RunTableEditor PROPERTIES  ENVIRONMENT "PATH=C:\\Users\\phili\\Documents\\dev\\build\\mdt-cmake-modules\\tests\\opt\\MdtItemEditor\\bin\\;C:\\Users\\phili\\Documents\\dev\\build\\mdt-cmake-modules\\tests\\opt\\MdtItemModel\\bin;C:\\Qt\\5.13.1\\mingw73_32\\bin;C:/Qt/Tools/mingw730_32\\bin;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\Program Files (x86)\\Intel\\iCLS Client;C:\\Program Files\\Intel\\iCLS Client;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\DAL;C:\\Program Files (x86)\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files\\Intel\\Intel(R) Management Engine Components\\IPT;C:\\Program Files\\Git\\cmd;C:\\WINDOWS\\System32\\OpenSSH;C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\Bin;C:\\Program Files\\IVI Foundation\\VISA\\Win64\\Bin;C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\Bin;C:\\Program Files\\Intel\\WiFi\\bin;C:\\Program Files\\Common Files\\Intel\\WirelessCommon;C:\\Users\\phili\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\phili\\AppData\\Local\\GitHubDesktop\\bin;C:\\Users\\phili\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Program Files\\CMake\\bin" _BACKTRACE_TRIPLES "C:/Users/phili/Documents/dev/mdt-cmake-modules/tests/apps/TableEditor/tests/CMakeLists.txt;4;add_test;C:/Users/phili/Documents/dev/mdt-cmake-modules/tests/apps/TableEditor/tests/CMakeLists.txt;0;")
 
-  # TODO: can $<SHELL_PATH:...> help ??
-  # NOTE: first version encapsulated target path to 1 $<SHELL_PATH:...>,
-  #       but currentEnvPath was passed raw
-  # NOTE: try encapsulated the whole result in $<SHELL_PATH:...>
-
-  # TODO if it works, try the simple initial version (or a variant)
-  #    ++ adapt documentation
-
   set(pathSeparator)
   if(WIN32)
-    set(pathSeparator "$<SEMICOLON>")
+    set(pathSeparator ";")
+#     set(pathSeparator "$<SEMICOLON>")
 #     set(pathSeparatorGenExp "\\$<SEMICOLON>")
   else()
+#     set(pathSeparator "$<SEMICOLON>")
     set(pathSeparator ":")
 #     set(pathSeparatorGenExp ":")
   endif()
@@ -315,14 +369,14 @@ function(mdt_target_libraries_to_library_env_path out_var)
 
   set(envPath)
   if(envPathList AND currentEnvPath)
-#     set(envPath "${pathName}=${envPathList}${pathSeparator}${currentEnvPath}")
-    set(envPath "${pathName}=$<SHELL_PATH:${envPathList}${pathSeparator}${currentEnvPath}>")
+    set(envPath "${pathName}=${envPathList}${pathSeparator}${currentEnvPath}")
+#     set(envPath "${pathName}=$<SHELL_PATH:${envPathList}${pathSeparator}${currentEnvPath}>")
   elseif(envPathList)
-#     set(envPath "${pathName}=${envPathList}")
-    set(envPath "${pathName}=$<SHELL_PATH:${envPathList}>")
+    set(envPath "${pathName}=${envPathList}")
+#     set(envPath "${pathName}=$<SHELL_PATH:${envPathList}>")
   elseif(currentEnvPath)
-#     set(envPath "${pathName}=${currentEnvPath}")
-    set(envPath "${pathName}=$<SHELL_PATH:${currentEnvPath}>")
+    set(envPath "${pathName}=${currentEnvPath}")
+#     set(envPath "${pathName}=$<SHELL_PATH:${currentEnvPath}>")
   endif()
 
   set(${out_var} ${envPath} PARENT_SCOPE)
@@ -348,6 +402,9 @@ function(mdt_set_test_library_env_path)
   endif()
 
   mdt_target_libraries_to_library_env_path(envPath TARGET ${ARG_TARGET})
+  if(WIN32)
+    string(REPLACE ";" "\\;" envPath "${envPath}")
+  endif()
   if(envPath)
     set_tests_properties(${ARG_NAME} PROPERTIES ENVIRONMENT "${envPath}")
   endif()
