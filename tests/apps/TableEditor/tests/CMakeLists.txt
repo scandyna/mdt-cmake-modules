@@ -8,9 +8,9 @@ add_test(
 
 mdt_set_test_library_env_path(NAME RunTableEditor TARGET tableEditor)
 
-get_test_property(RunTableEditor ENVIRONMENT envPath)
-message("RunTableEditor ENVIRONMENT: ${envPath}")
+# get_test_property(RunTableEditor ENVIRONMENT envPath)
+# message("RunTableEditor ENVIRONMENT: ${envPath}")
 
 
-add_test(NAME printEnv COMMAND ${CMAKE_COMMAND} -E environment) 
-mdt_set_test_library_env_path(NAME printEnv TARGET tableEditor)
+# add_test(NAME printEnv COMMAND ${CMAKE_COMMAND} -E environment)
+# mdt_set_test_library_env_path(NAME printEnv TARGET tableEditor)
