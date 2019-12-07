@@ -222,7 +222,6 @@ if(BUILD_CONAN_TESTS)
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemModel" "0.1@MdtCMakeModules_tests/testing"
   )
-
   set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
 
   # Build and install MdtItemEditor
@@ -230,7 +229,6 @@ if(BUILD_CONAN_TESTS)
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemEditor" "0.1@MdtCMakeModules_tests/testing"
   )
-
   set_tests_properties(Conan_Create_MdtItemEditor PROPERTIES DEPENDS Conan_Create_MdtItemModel)
 
   # Build TableEditor with Conan + run the app
@@ -253,5 +251,28 @@ if(BUILD_CONAN_TESTS)
       --test-command "${CMAKE_CTEST_COMMAND}"
   )
   set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
+
+  # Remove installed test packages
+
+  add_test(NAME Conan_Remove_MdtCMakeModules
+    COMMAND "${CONAN_COMMAND}"
+      remove "MdtCmakeModules/*@MdtCMakeModules_tests/testing"
+      --force
+  )
+  set_tests_properties(Conan_Remove_MdtCMakeModules PROPERTIES DEPENDS Conan_BuildAndRun_TableEditor)
+
+  add_test(NAME Conan_Remove_MdtItemModel
+    COMMAND "${CONAN_COMMAND}"
+      remove "MdtCmakeModulesTests_MdtItemModel/0.1@MdtCMakeModules_tests/testing"
+      --force
+  )
+  set_tests_properties(Conan_Remove_MdtItemModel PROPERTIES DEPENDS Conan_BuildAndRun_TableEditor)
+
+  add_test(NAME Conan_Remove_MdtItemEditor
+    COMMAND "${CONAN_COMMAND}"
+      remove "MdtCmakeModulesTests_MdtItemEditor/0.1@MdtCMakeModules_tests/testing"
+      --force
+  )
+  set_tests_properties(Conan_Remove_MdtItemEditor PROPERTIES DEPENDS Conan_BuildAndRun_TableEditor)
 
 endif()
