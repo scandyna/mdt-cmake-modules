@@ -211,16 +211,21 @@ set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtIt
 
 if(BUILD_CONAN_TESTS)
 
+  include(conan.cmake)
+  conan_cmake_settings(conanSettings)
+
   # Build and install MdtCMakeModules
   add_test(NAME Conan_Create_MdtCMakeModules
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_SOURCE_DIR}" "MdtCMakeModules_tests/testing"
+      ${conanSettings}
   )
 
   # Build and install MdtItemModel
   add_test(NAME Conan_Create_MdtItemModel
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemModel" "0.1@MdtCMakeModules_tests/testing"
+      ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
 
@@ -228,6 +233,7 @@ if(BUILD_CONAN_TESTS)
   add_test(NAME Conan_Create_MdtItemEditor
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemEditor" "0.1@MdtCMakeModules_tests/testing"
+      ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtItemEditor PROPERTIES DEPENDS Conan_Create_MdtItemModel)
 
@@ -238,6 +244,7 @@ if(BUILD_CONAN_TESTS)
       --generator cmake_paths
       --install-folder "${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor"
       --options *:shared=True
+      ${conanSettings}
   )
   set_tests_properties(Conan_Install_TableEditor_dependecies PROPERTIES DEPENDS Conan_Create_MdtItemEditor)
 
@@ -249,6 +256,7 @@ if(BUILD_CONAN_TESTS)
         "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor/conan_paths.cmake"
         "-DBUILD_SHARED_LIBS=ON"
       --test-command "${CMAKE_CTEST_COMMAND}"
+      ${conanSettings}
   )
   set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
 
