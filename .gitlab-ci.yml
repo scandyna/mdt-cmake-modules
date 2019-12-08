@@ -1,11 +1,21 @@
 #image: ubuntu:latest
-image: microsoft/nanoserver
+#image: microsoft/nanoserver
 
 stages:
   - build
+  - test
 
-build:
+build_linux:
+  image: ubuntu:latest
   stage: build
   script:
-    - dir
-    #- ls -l
+    - ls -l
+    - echo "Build Linux" >> build.txt
+    - cat build.txt
+
+test_linux:
+  image: ubuntu:latest
+  stage: test
+  script:
+    - ls -l
+    - cat build.txt
