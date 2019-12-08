@@ -30,3 +30,5 @@ test_linux:
     - ls -l
     - cat build/build.txt
     - cat build/content.txt
+    - echo "Will fail explicitly because this is not a real test"
+    - fakeJustToFail
