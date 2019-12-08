@@ -12,6 +12,10 @@ build_linux:
     - ls -l
     - echo "Build Linux" >> build.txt
     - cat build.txt
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build.txt
 
 test_linux:
   stage: test
