@@ -1,5 +1,5 @@
 #image: ubuntu:latest
-image: windows
+image: microsoft/nanoserver
 
 stages:
   - build
