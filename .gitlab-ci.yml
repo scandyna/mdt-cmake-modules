@@ -1,0 +1,9 @@
+image: ubuntu:latest
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - ls -l
