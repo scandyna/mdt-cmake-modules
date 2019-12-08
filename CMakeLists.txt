@@ -2,7 +2,7 @@
 # file Copyright.txt or https://cmake.org/licensing for details.
 
 cmake_minimum_required(VERSION 3.10)
-project(MdtCMakeModules VERSION 0.0.1)
+project(MdtCMakeModules VERSION 0.0.2)
 
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules/")
