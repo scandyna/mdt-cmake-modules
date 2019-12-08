@@ -1,4 +1,5 @@
-image: ubuntu:latest
+#image: ubuntu:latest
+image: windows
 
 stages:
   - build
@@ -6,4 +7,5 @@ stages:
 build:
   stage: build
   script:
-    - ls -l
+    - dir
+    #- ls -l
