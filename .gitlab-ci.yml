@@ -10,12 +10,16 @@ build_linux:
   image: ubuntu:latest
   script:
     - ls -l
+    - mkdir build
+    - cd build
     - echo "Build Linux" >> build.txt
+    - echo "Other content" >> content.txt
     - cat build.txt
+    - cat content.txt
   artifacts:
     expire_in: 1 day
     paths:
-      - build.txt
+      - build
 
 test_linux:
   stage: test
@@ -24,4 +28,5 @@ test_linux:
     - build_linux
   script:
     - ls -l
-    - cat build.txt
+    - cat build/build.txt
+    - cat build/content.txt
