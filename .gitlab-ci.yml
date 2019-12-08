@@ -1,4 +1,4 @@
-#image: ubuntu:latest
+image: ubuntu:latest
 #image: microsoft/nanoserver
 
 stages:
@@ -6,7 +6,7 @@ stages:
   - test
 
 build_linux:
-  image: ubuntu:latest
+  #image: ubuntu:latest
   stage: build
   script:
     - ls -l
@@ -14,7 +14,7 @@ build_linux:
     - cat build.txt
 
 test_linux:
-  image: ubuntu:latest
+  #image: ubuntu:latest
   stage: test
   script:
     - ls -l
