@@ -1,4 +1,6 @@
 
+# TODO Test mdt_get_git_tag(GIT_TAG_VERSION FAIL_IF_NO_TAG)
+
 cmake_minimum_required(VERSION 3.10)
 
 project(TableEditor VERSION 0.0.3)

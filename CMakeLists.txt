@@ -2,10 +2,18 @@
 # file Copyright.txt or https://cmake.org/licensing for details.
 
 cmake_minimum_required(VERSION 3.10)
-project(MdtCMakeModules VERSION 0.0.2)
 
+find_package(Git REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules/")
+include(MdtGitTag)
+
+mdt_get_git_tag(GIT_TAG_VERSION DEFAULT_VERSION 0.0.0-unknown)
+
+project(MdtCMakeModules VERSION ${GIT_TAG_VERSION})
+
+message("GIT_TAG_VERSION: ${GIT_TAG_VERSION}")
+message("PROJECT_VERSION: ${PROJECT_VERSION}")
 
 # TODO shared libraries !!
 
