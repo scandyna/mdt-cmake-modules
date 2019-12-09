@@ -89,6 +89,7 @@ install(
     "Modules/MdtInstallIncludes.cmake"
     "Modules/MdtRuntimeEnvironment.cmake"
     "Modules/MdtVersionUtils.cmake"
+    "Modules/MdtBuildOptionsUtils.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
 )
 

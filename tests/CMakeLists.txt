@@ -48,6 +48,18 @@ add_test(NAME BuildAndRun_Hello
 
 set_tests_properties(BuildAndRun_Hello PROPERTIES DEPENDS Install_MdtCMakeModules)
 
+
+# Simple application to check MdtBuildOptionsUtils module
+add_test(NAME BuildAndRun_HelloCompileOptions
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/HelloCompileOptions" "${CMAKE_CURRENT_BINARY_DIR}/buildHelloCompileOptions"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(BuildAndRun_HelloCompileOptions PROPERTIES DEPENDS Install_MdtCMakeModules)
+
 # Build + install MdtItemModel
 
 add_test(NAME Build_MdtItemModel
