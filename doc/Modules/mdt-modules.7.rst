@@ -9,7 +9,6 @@ All Modules
    AddQt5ToCMakePrefixPath.rst
    FindSphinx.rst
    MdtAddLibrary.rst
-   MdtGitTag.rst
    MdtInstallIncludes.rst
    MdtInstallLibrary.rst
    MdtInstallMdtLibrary.rst
@@ -18,3 +17,4 @@ All Modules
    MdtPackageConfigHelpers.rst
    MdtTargetProperties.rst
    MdtTargetPackageProperties.rst
+   MdtVersionUtils.rst

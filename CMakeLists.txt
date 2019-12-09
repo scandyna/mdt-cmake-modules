@@ -6,9 +6,9 @@ cmake_minimum_required(VERSION 3.10)
 find_package(Git REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules/")
-include(MdtGitTag)
+include(MdtVersionUtils)
 
-mdt_get_git_tag(GIT_TAG_VERSION DEFAULT_VERSION 0.0.0-unknown)
+mdt_cmake_project_version_from_git_tag(GIT_TAG_VERSION DEFAULT_VERSION 0.0.0)
 
 project(MdtCMakeModules VERSION ${GIT_TAG_VERSION})
 

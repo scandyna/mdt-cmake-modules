@@ -9,6 +9,8 @@ class MdtCMakeModulesConan(ConanFile):
   generators = "cmake_paths"
   exports_sources = "Modules/*", "CMakeLists.txt", "MdtCMakeModulesConfig.cmake.in", "LICENSE"
 
+  # TODO should fail if no tag found ?
+  # Does conan provide a semver tool ??
   def set_version(self):
     git = tools.Git()
     self.version = "%s" % (git.get_tag())
