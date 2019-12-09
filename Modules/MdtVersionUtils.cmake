@@ -89,6 +89,11 @@
 #
 # .. code-block:: cmake
 #
+#   # CMAKE_PREFIX_PATH is empty before any call to project()
+#   # Because set_project_version() does not exist,
+#   # we call the project command twice (is there a cleaner solution?)
+#   project(MyProject)
+#
 #   find_package(Git REQUIRED)
 #   find_package(MdtCMakeModules REQUIRED)
 #

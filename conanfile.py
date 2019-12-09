@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake, tools
+import os
 
 class MdtCMakeModulesConan(ConanFile):
   name = "MdtCMakeModules"
@@ -12,8 +13,11 @@ class MdtCMakeModulesConan(ConanFile):
   # TODO should fail if no tag found ?
   # Does conan provide a semver tool ??
   def set_version(self):
-    git = tools.Git()
-    self.version = "%s" % (git.get_tag())
+    if os.path.exists(".git"):
+      git = tools.Git()
+      self.version = "%s" % (git.get_tag())
+    #else:
+      #self.version = "None"
 
   def build(self):
     cmake = CMake(self)
