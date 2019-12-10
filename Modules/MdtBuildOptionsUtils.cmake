@@ -41,10 +41,10 @@
 #
 #   mdt_are_sanitizers_available(SANITIZERS_ARE_AVAILABLE)
 #   if(SANITIZERS_ARE_AVAILABLE)
-#     option(SANITIZER_ENABLE_ADDRESS "Enable address sanitizer" OFF)
-#     option(SANITIZER_ENABLE_LEAK "Enable leak sanitizer" OFF)
-#     option(SANITIZER_ENABLE_UNDEFINED "Enable undefined sanitizer" OFF)
-#     option(SANITIZER_ENABLE_THREAD "Enable thread sanitizer (can be incompatible with other sanitizers)" OFF)
+#     option(SANITIZER_ENABLE_ADDRESS "Enable address sanitizer for Instrumented build" OFF)
+#     option(SANITIZER_ENABLE_LEAK "Enable leak sanitizer for Instrumented build" OFF)
+#     option(SANITIZER_ENABLE_UNDEFINED "Enable undefined sanitizer for Instrumented build" OFF)
+#     option(SANITIZER_ENABLE_THREAD "Enable thread sanitizer for Instrumented build (can be incompatible with other sanitizers)" OFF)
 #   endif()
 #
 #   if(SANITIZER_ENABLE_ADDRESS)
@@ -147,17 +147,17 @@
 #
 
 
-function(mdt_set_available_build_types buildTypes)
+function(mdt_set_available_build_types)
 
   get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
   if(isMultiConfig)
-    foreach(buildType ${buildTypes})
+    foreach(buildType ${ARGV})
       if(NOT "${buildType}" IN_LIST CMAKE_CONFIGURATION_TYPES)
         list(APPEND CMAKE_CONFIGURATION_TYPES "${buildType}")
       endif()
     endforeach()
   else()
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${buildTypes}")
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${ARGV})
     if(NOT CMAKE_BUILD_TYPE)
       set(CMAKE_BUILD_TYPE Debug CACHE STRING "")
     endif()
