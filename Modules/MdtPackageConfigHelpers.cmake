@@ -287,9 +287,11 @@
 # .. code-block:: cmake
 #
 #   # Find dependencies for target Mdt0::ItemEditor
-#   find_package(Mdt0ItemModel 0.1.2 QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH)
-#   if(NOT Mdt0ItemModel_FOUND)
-#     find_package(Mdt0ItemModel 0.1.2 QUIET REQUIRED CONFIG)
+#   if(NOT TARGET Mdt0::ItemModel)
+#     find_package(Mdt0ItemModel 0.1.2 QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH)
+#     if(NOT Mdt0ItemModel_FOUND)
+#       find_package(Mdt0ItemModel 0.1.2 QUIET REQUIRED CONFIG)
+#     endif()
 #   endif()
 #
 #   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0ItemEditorTargets.cmake")
@@ -370,9 +372,11 @@
 # .. code-block:: cmake
 #
 #   # Find dependencies for target Abc::MyWidget
-#   find_package(Mdt0ItemEditor 0.1.2 QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH)
-#   if(NOT Mdt0ItemEditor_FOUND)
-#     find_package(Mdt0ItemEditor 0.1.2 QUIET REQUIRED CONFIG)
+#   if(NOT TARGET Mdt0::ItemEditor)
+#     find_package(Mdt0ItemEditor 0.1.2 QUIET CONFIG PATHS "${CMAKE_CURRENT_LIST_DIR}/.." NO_DEFAULT_PATH)
+#     if(NOT Mdt0ItemEditor_FOUND)
+#       find_package(Mdt0ItemEditor 0.1.2 QUIET REQUIRED CONFIG)
+#     endif()
 #   endif()
 #
 #   include("${CMAKE_CURRENT_LIST_DIR}/AbcMyWidgetTargets.cmake")
@@ -573,13 +577,15 @@ function(mdt_install_package_config_file)
       if(TARGET ${dependency})
         mdt_target_package_properties_to_find_package_commands(dependencyFindPackageCommands ${dependency})
         if(dependencyFindPackageCommands)
+          string(APPEND packageConfigFileContent "if(NOT TARGET ${dependency})\n")
           string(APPEND packageConfigFileContent "${dependencyFindPackageCommands}\n")
+          string(APPEND packageConfigFileContent "endif()\n")
         endif()
       endif()
     endforeach()
   endforeach()
   # Generate the statements to include the targets export file
-  string(APPEND packageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n\n")
+  string(APPEND packageConfigFileContent "\ninclude(\"\${CMAKE_CURRENT_LIST_DIR}/${ARG_TARGETS_EXPORT_FILE}\")\n\n")
   # Generate commands to set the package properties for each target of this package
   foreach(target ${ARG_TARGETS})
     mdt_get_target_export_name(importTarget ${target})
