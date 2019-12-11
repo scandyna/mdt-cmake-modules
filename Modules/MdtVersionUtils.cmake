@@ -137,10 +137,11 @@ function(mdt_get_git_tag out_var)
     WORKING_DIRECTORY "${workDirectory}"
     RESULT_VARIABLE result
     OUTPUT_VARIABLE gitTag
+    ERROR_VARIABLE stdErrLog
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
   if(result AND ARG_FAIL_IF_NO_TAG)
-    message(FATAL_ERROR "mdt_get_git_tag(): failed to get git tag, git returned: ${result}")
+    message(FATAL_ERROR "mdt_get_git_tag(): failed to get git tag, git returned: ${result}. Standard out: ${stdErrLog}")
   endif()
 
   if(NOT gitTag AND ARG_DEFAULT_VERSION)
