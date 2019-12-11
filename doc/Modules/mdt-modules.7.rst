@@ -10,6 +10,7 @@ All Modules
    FindSphinx.rst
    MdtBuildOptionsUtils.rst
    MdtAddLibrary.rst
+   MdtAddTest.rst
    MdtInstallIncludes.rst
    MdtInstallLibrary.rst
    MdtInstallMdtLibrary.rst

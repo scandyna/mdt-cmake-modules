@@ -93,6 +93,7 @@ add_test(NAME Build_MdtItemEditor
       "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemEditor"
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=ON"
+      "-DBUILD_TESTS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 

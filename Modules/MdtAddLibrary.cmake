@@ -13,7 +13,6 @@
 # Add a library::
 #
 #   mdt_add_library(
-#     TARGET_NAME ?
 #     NAMESPACE NameSpace
 #     LIBRARY_NAME LibraryName
 #     [PUBLIC_DEPENDENCIES <dependencies>]
