@@ -132,7 +132,7 @@ function(mdt_install_mdt_library)
 
   get_target_property(libraryName ${ARG_TARGET} LIBRARY_NAME)
   if(NOT libraryName)
-    message(FATAL_ERROR "mdt_install_mdt_library(): mandatory target property LIBRARY_NAME is missing for ${ARG_TARGET}")
+    message(FATAL_ERROR "mdt_install_mdt_library(): ${ARG_TARGET} has no LIBRARY_NAME property")
   endif()
 
   string(TOLOWER ${libraryName} libraryNameLowerCase)
