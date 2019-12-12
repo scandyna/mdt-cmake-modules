@@ -270,7 +270,6 @@
 #     COMPONENT Mdt_ItemEditor_Dev
 #   )
 #
-# TODO Check if INTERFACE_LINK_LIBRARIES defines Mdt0::ItemModel, not Mdt_ItemModel (should)
 # For above example, CMake will generate ``Mdt0ItemEditorTargets.cmake``.
 # The extract of some key parts looks like:
 #
@@ -577,7 +576,8 @@ function(mdt_install_package_config_file)
       if(TARGET ${dependency})
         mdt_target_package_properties_to_find_package_commands(dependencyFindPackageCommands ${dependency})
         if(dependencyFindPackageCommands)
-          string(APPEND packageConfigFileContent "if(NOT TARGET ${dependency})\n")
+          mdt_get_target_export_name(dependencyImportName ${dependency})
+          string(APPEND packageConfigFileContent "if(NOT TARGET ${dependencyImportName})\n")
           string(APPEND packageConfigFileContent "${dependencyFindPackageCommands}\n")
           string(APPEND packageConfigFileContent "endif()\n")
         endif()

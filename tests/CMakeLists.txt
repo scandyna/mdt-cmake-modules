@@ -123,6 +123,43 @@ set_tests_properties(BuildAndRun_TableEditor PROPERTIES DEPENDS Install_MdtItemE
 
 # TODO: later, should install TableEditor and run from the install location
 
+########################################
+# Test building a superproject
+########################################
+
+add_test(NAME Build_MultiDevTools
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/MultiDevTools" "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevTools"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MultiDevTools"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(Build_MultiDevTools PROPERTIES DEPENDS Install_MdtCMakeModules)
+
+add_test(NAME Install_MultiDevTools
+  COMMAND "${CMAKE_COMMAND}"
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevTools/cmake_install.cmake"
+)
+set_tests_properties(Install_MultiDevTools PROPERTIES DEPENDS Build_MultiDevTools)
+
+
+add_test(NAME BuildAndRun_TableEditor_Mdt
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor_Mdt" "${CMAKE_CURRENT_BINARY_DIR}/buildTableEditor_Mdt"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MultiDevTools"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/TableEditor_Mdt"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(BuildAndRun_TableEditor_Mdt PROPERTIES DEPENDS Install_MultiDevTools)
+
+
 ####################################
 # Test installing in common location
 ####################################
