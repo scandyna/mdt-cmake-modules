@@ -1,7 +1,20 @@
 # mdt-cmake-modules
+
 Some CMake modules used in my projects
 
+For the available CMake modules and their usage,
+see the [documentation page](https://scandyna.gitlab.io/mdt-cmake-modules)
+
 # Install
+
+Some tools and libraries are required to build MdtCMakeModules:
+ - Git
+ - CMake
+ - Conan
+ - Make
+ - Sphinx
+
+For a overview how to install them, see https://gitlab.com/scandyna/build-and-install-cpp
 
 MdtCMakeModules can be installed by using CMake directly,
 or the Conan package manager.
