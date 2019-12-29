@@ -6,6 +6,7 @@ default:
 stages:
   - build
   - test
+  - deploy
 
 build_linux_debug:
   stage: build
@@ -26,3 +27,17 @@ test_linux_debug:
   script:
     - cd build
     - ctest --output-on-failure .
+
+
+deploy_docs:
+  stage: deploy
+  dependencies:
+    - build_linux_debug
+  script:
+    - cd build
+    - make documentation
+    - cd ..
+    - mv build/doc/html public
+  artifacts:
+    paths:
+      - public
