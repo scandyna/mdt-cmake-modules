@@ -1,34 +1,28 @@
-#image: ubuntu:latest
 #image: microsoft/nanoserver
+
+default:
+  image: registry.gitlab.com/scandyna/docker-images/ubuntu-18.04-cpp:latest
 
 stages:
   - build
   - test
 
-build_linux:
+build_linux_debug:
   stage: build
-  image: ubuntu:latest
   script:
-    - ls -l
     - mkdir build
     - cd build
-    - echo "Build Linux" >> build.txt
-    - echo "Other content" >> content.txt
-    - cat build.txt
-    - cat content.txt
+    - cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_DOCS=ON ..
+    - make -j4
   artifacts:
     expire_in: 1 day
     paths:
       - build
 
-test_linux:
+test_linux_debug:
   stage: test
-  image: ubuntu:latest
   dependencies:
-    - build_linux
+    - build_linux_debug
   script:
-    - ls -l
-    - cat build/build.txt
-    - cat build/content.txt
-    - echo "Will fail explicitly because this is not a real test"
-    - fakeJustToFail
+    - cd build
+    - ctest --output-on-failure .
