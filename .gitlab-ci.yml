@@ -29,7 +29,7 @@ test_linux_debug:
     - ctest --output-on-failure .
 
 
-deploy_docs:
+pages:
   stage: deploy
   dependencies:
     - build_linux_debug
