@@ -16,7 +16,7 @@ build_linux_debug:
     - cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_DOCS=ON ..
     - make -j4
   artifacts:
-    expire_in: 1 day
+    expire_in: 1 day # TODO check the default behaviour: delete after pipeline ???
     paths:
       - build
 
@@ -27,6 +27,20 @@ test_linux_debug:
   script:
     - cd build
     - ctest --output-on-failure .
+
+# TODO: for deploy
+#  - only if git tags
+#  - scandyna/channel where channel is the branch
+
+deploy_conan:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: always
+    - when: never
+  script:
+    - conan create . scandyna/testing
+    - conan upload MdtCMakeModules/*@scandyna/testing -r scandyna --all -c
 
 
 pages:
