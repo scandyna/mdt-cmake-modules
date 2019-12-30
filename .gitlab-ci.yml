@@ -36,7 +36,7 @@ deploy_conan:
       when: always
     - when: never
   before_script:
-    - conan user -p $BINTRAY_API_KEY scandyna
+    - conan user -p $BINTRAY_API_KEY -r scandyna scandyna
   script:
     - conan create . scandyna/testing
     - conan upload MdtCMakeModules/*@scandyna/testing -r scandyna --all -c
