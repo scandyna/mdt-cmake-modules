@@ -108,6 +108,27 @@
 #
 #   mdt_are_sanitizers_available(out_var)
 #
+# This can be used to provide options to enable sanitizers if they are available:
+#
+# .. code-block:: cmake
+#
+#   mdt_are_sanitizers_available(SANITIZERS_ARE_AVAILABLE)
+#   if(SANITIZERS_ARE_AVAILABLE)
+#     option(SANITIZER_ENABLE_ADDRESS "Enable address sanitizer for Instrumented build" OFF)
+#     option(SANITIZER_ENABLE_LEAK "Enable leak sanitizer for Instrumented build" OFF)
+#     option(SANITIZER_ENABLE_UNDEFINED "Enable undefined sanitizer for Instrumented build" OFF)
+#     option(SANITIZER_ENABLE_THREAD "Enable thread sanitizer for Instrumented build (can be incompatible with other sanitizers)" OFF)
+#   endif()
+#
+# Note that current implementation is basic.
+# It will only check for some CMake variables (OS, compiler).
+# The deduction is based on:
+#
+# - The address sanitizer documentation: https://github.com/google/sanitizers/wiki/AddressSanitizer
+# - The anounce from Microsoft: https://devblogs.microsoft.com/cppblog/addresssanitizer-asan-for-windows-with-msvc
+#
+# This function is candidate to deprecation.
+# See https://gitlab.com/scandyna/mdt-cmake-modules/issues/1
 #
 # .. command:: mdt_compile_with_address_sanitizer
 #
@@ -208,15 +229,18 @@ function(mdt_add_debug_symbols_compile_option)
 
 endfunction()
 
-
+# TODO see https://gitlab.com/scandyna/mdt-cmake-modules/issues/1
 function(mdt_are_sanitizers_available out_var)
 
-  # TODO do more serious checks
   set(sanitizersAvailable)
-  if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-    set(sanitizersAvailable TRUE)
+  if(WIN32)
+    if(MSVC_VERSION AND ${MSVC_VERSION} GREATER_EQUAL 1929)
+      set(sanitizersAvailable TRUE)
+    else()
+      set(sanitizersAvailable FALSE)
+    endif()
   else()
-    set(sanitizersAvailable FALSE)
+    set(sanitizersAvailable TRUE)
   endif()
 
   set(${out_var} ${sanitizersAvailable} PARENT_SCOPE)
