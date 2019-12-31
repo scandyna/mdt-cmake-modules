@@ -29,9 +29,9 @@ before_build:
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - echo %PATH%
-  - set PATH=%QT_PREFIX_PATH%\bin;%PATH%
+  - set PATH=%QT_PREFIX_PATH%\bin;"%PATH%"
   - echo %PATH%
-  - if "%platform%"=="mingw" (set PATH=%MINGW_PREFIX_PATH%\bin;%PATH%)
+  - if "%platform%"=="mingw" (set "PATH=%MINGW_PREFIX_PATH%\bin;%PATH%")
   - echo %PATH%
 
 # TODO: should not add QT_PREFIX_PATH\bin to PATH to check that mdt_target_libraries_to_library_env_path() works
