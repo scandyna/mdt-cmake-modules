@@ -1,6 +1,16 @@
 
 image: Visual Studio 2017
 
+# NOTE: to build the PATH:
+#  - Should not double quote them
+#  - Never build the PATH on conditions using cmd (probably the default if not specified)
+# Example:
+#  if "%platform%"=="mingw" (set "PATH=%MINGW_PREFIX_PATH%\bin;%PATH%")
+#  This allways gave a error like "\Microsoft was unexpected at this time"
+#  Have try with double quotes, without, any combinations, simply never worked.
+#  See also: http://www.blinnov.com/en/2010/06/04/microsoft-was-unexpected-at-this-time/
+# The solution could be to use PowerShell
+
 environment:
   matrix:
     # MinGW x86_64
@@ -11,6 +21,7 @@ environment:
       QT_PREFIX_PATH: 'C:\Qt\5.13\mingw73_64'
       MINGW_PREFIX_PATH: 'C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64'
       extra_path_command: 'set PATH=%MINGW_PREFIX_PATH%\bin;%PATH%'
+      before_build_extra_command: 'echo No before build extra command'
     # Visual Studio x86_64
     - name: msvc_x86_64
       platform: msvc
@@ -18,24 +29,21 @@ environment:
       MAKE_COMMAND: nmake
       QT_PREFIX_PATH: 'C:\Qt\5.13.2\msvc2017_64'
       extra_path_command: 'set PATH=%PATH%'
-
+      before_build_extra_command: 'call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
 
 configuration:
   - Debug
 
 before_build:
+  - "%extra_path_command%"
+  - "%before_build_extra_command%"
   # Workaround for CMake not wanting sh.exe on PATH for MinGW
   # Thanks to: http://help.appveyor.com/discussions/problems/3193-cmake-building-for-mingw-issue-with-git-shexe
-  - echo %PATH%
-  - "%extra_path_command%"
-  - echo %PATH%
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
-  - echo %PATH%
   - set PATH=%QT_PREFIX_PATH%\bin;%PATH%
-  - echo %PATH%
-  #- if "%platform%"=="mingw" (set "PATH=%MINGW_PREFIX_PATH%\bin;%PATH%")
+
 
 # TODO: should not add QT_PREFIX_PATH\bin to PATH to check that mdt_target_libraries_to_library_env_path() works
 
