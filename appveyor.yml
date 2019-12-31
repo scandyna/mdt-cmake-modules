@@ -14,6 +14,9 @@ configuration:
   - Debug
 
 before_build:
+  # Workaround for CMake not wanting sh.exe on PATH for MinGW
+  # Thanks to: http://help.appveyor.com/discussions/problems/3193-cmake-building-for-mingw-issue-with-git-shexe
+  - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=%MINGW_BIN_PATH%;%PATH%
 
 build_script:
