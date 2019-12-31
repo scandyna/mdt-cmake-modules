@@ -14,6 +14,7 @@ project(MdtCMakeModules VERSION ${GIT_TAG_VERSION})
 
 message("GIT_TAG_VERSION: ${GIT_TAG_VERSION}")
 message("PROJECT_VERSION: ${PROJECT_VERSION}")
+message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 # TODO shared libraries !!
 
