@@ -42,8 +42,12 @@ before_build:
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
-  - set PATH=%QT_PREFIX_PATH%\bin;%PATH%
+  - set PATH=%QT_PREFIX_PATH%\bin;C:\Python38;%PATH%
   - echo %PATH%
+  - python --version
+  - pip.exe install conan
+  - conan user
+  - conan --version
 
 
 # TODO: should not add QT_PREFIX_PATH\bin to PATH to check that mdt_target_libraries_to_library_env_path() works
@@ -51,7 +55,7 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - cmake -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE="%configuration%" -DQT_PREFIX_PATH="QT_PREFIX_PATH" -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=OFF -DBUILD_DOCS=OFF ..
+  - cmake -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE="%configuration%" -DQT_PREFIX_PATH="QT_PREFIX_PATH" -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_DOCS=OFF ..
   - "%MAKE_COMMAND%"
 
 test_script:
