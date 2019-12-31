@@ -1,0 +1,23 @@
+
+image: Visual Studio 2019
+
+environment:
+  matrix:
+    # MinGW x86_64
+    - CMAKE_GENERATOR: "MinGW Makefiles"
+      MAKE_COMMAND: mingw32-make -j4
+      QT_PREFIX_PATH: C:\Qt\5.13.2\mingw73_64
+      MINGW_BIN_PATH: %QT_PREFIX_PATH%\bin
+      PATH: %MINGW_BIN_PATH%;%PATH%
+
+configuration:
+  - Debug
+
+build_script:
+  - mkdir build
+  - cd build
+  - cmake -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE="%configuration%" -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=OFF -DBUILD_DOCS=OFF ..
+  - %MAKE_COMMAND%
+
+test_script:
+  - ctest --output-on-failure .
