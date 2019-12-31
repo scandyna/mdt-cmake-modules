@@ -21,8 +21,7 @@ environment:
 configuration:
   - Debug
 
-#before_build:
-init:
+before_build:
   # Workaround for CMake not wanting sh.exe on PATH for MinGW
   # Thanks to: http://help.appveyor.com/discussions/problems/3193-cmake-building-for-mingw-issue-with-git-shexe
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
@@ -30,7 +29,6 @@ init:
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=%QT_PREFIX_PATH%\bin;%PATH%
   - if %platform%==mingw (set PATH=%MINGW_PREFIX_PATH%\bin;%PATH%)
-  - echo PATH %PATH%
 
 # TODO: should not add QT_PREFIX_PATH\bin to PATH to check that mdt_target_libraries_to_library_env_path() works
 
