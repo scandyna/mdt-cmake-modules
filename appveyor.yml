@@ -10,12 +10,14 @@ environment:
       MAKE_COMMAND: mingw32-make -j4
       QT_PREFIX_PATH: 'C:\Qt\5.13\mingw73_64'
       MINGW_PREFIX_PATH: 'C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64'
+      extra_path_command: 'set "PATH=%MINGW_PREFIX_PATH%\bin;%PATH%"'
     # Visual Studio x86_64
     - name: msvc_x86_64
       platform: msvc
       CMAKE_GENERATOR: "NMake Makefiles"
       MAKE_COMMAND: nmake
       QT_PREFIX_PATH: 'C:\Qt\5.13.2\msvc2017_64'
+      extra_path_command: 'set "PATH=%PATH%"'
 
 
 configuration:
@@ -31,7 +33,8 @@ before_build:
   - echo %PATH%
   - set PATH=%QT_PREFIX_PATH%\bin;"%PATH%"
   - echo %PATH%
-  - if "%platform%"=="mingw" (set "PATH=%MINGW_PREFIX_PATH%\bin;%PATH%")
+  - "%extra_path_command%"
+  #- if "%platform%"=="mingw" (set "PATH=%MINGW_PREFIX_PATH%\bin;%PATH%")
   - echo %PATH%
 
 # TODO: should not add QT_PREFIX_PATH\bin to PATH to check that mdt_target_libraries_to_library_env_path() works
