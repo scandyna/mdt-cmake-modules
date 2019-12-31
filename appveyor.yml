@@ -8,6 +8,10 @@ environment:
       MAKE_COMMAND: mingw32-make -j4
       QT_PREFIX_PATH: 'C:\Qt\5.13\mingw73_64'
       MINGW_PREFIX_PATH: 'C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64'
+    # Visual Studio x86_64
+    - CMAKE_GENERATOR: "NMake Makefiles"
+      MAKE_COMMAND: nmake
+      QT_PREFIX_PATH: 'C:\Qt\5.13.2\msvc2017_64'
 
 
 configuration:
@@ -19,12 +23,16 @@ before_build:
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
-  - set PATH=%QT_PREFIX_PATH%\bin;%MINGW_PREFIX_PATH%\bin;%PATH%
+  - set PATH=%QT_PREFIX_PATH%\bin;%PATH%
+  - if MINGW_PREFIX_PATH (set PATH=%MINGW_PREFIX_PATH%\bin;%PATH%)
+  - echo PATH %PATH%
+
+# TODO: should not add QT_PREFIX_PATH\bin to PATH to check that mdt_target_libraries_to_library_env_path() works
 
 build_script:
   - mkdir build
   - cd build
-  - cmake -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE="%configuration%" -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=OFF -DBUILD_DOCS=OFF ..
+  - cmake -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE="%configuration%" -DQT_PREFIX_PATH="QT_PREFIX_PATH" -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=OFF -DBUILD_DOCS=OFF ..
   - "%MAKE_COMMAND%"
 
 test_script:
