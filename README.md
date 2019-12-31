@@ -1,5 +1,7 @@
 # mdt-cmake-modules
 
+NOTE TODO add badges to: GitLab CI/CD, AppVeyor CI, Bintray Conan repo/package
+
 Some CMake modules used in my projects
 
 For the available CMake modules and their usage,
@@ -122,7 +124,7 @@ This will break if the internal directory organisation changes.
 To use Conan, create a conanfile.txt:
 ```conan
 [requires]
-MdtCMakeModules/[>=0.10.2]@scandyna/testing
+MdtCMakeModules/[>=0.10.6]@scandyna/testing
 
 [generators]
 cmake_paths
