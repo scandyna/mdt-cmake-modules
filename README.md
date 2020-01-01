@@ -61,9 +61,18 @@ The configuration could also be done using cmake-gui:
 cmake-gui .
 ```
 
+To generate the documentation and the tests, run the build:
+```bash
+make -j4
+```
+
+To run the tests:
+```bash
+ctest --output-on-failure .
+```
+
 Install the modules:
 ```bash
-make
 make install
 ```
 
@@ -82,12 +91,48 @@ The configuration could also be done using cmake-gui:
 cmake-gui .
 ```
 
+To generate the documentation and the tests, run the build:
+```bash
+mingw32-make -j4
+```
+
+To run the tests:
+```bash
+ctest --output-on-failure .
+```
+
 Install the modules:
 ```bash
-mingw32-make
 mingw32-make install
 ```
 
+## Install using CMake on Windows MSVC
+
+Configure:
+```cmd
+mkdir build && cd build
+cmake -G "Visual Studio 15 2017" -A x64 -DCMAKE_INSTALL_PREFIX=C:\some\path ..
+```
+
+The configuration could also be done using cmake-gui:
+```bash
+cmake-gui .
+```
+
+To generate the tests, run the build:
+```bash
+cmake --build . --config Release
+```
+
+To run the tests:
+```bash
+ctest --output-on-failure -C Release .
+```
+
+Install the modules:
+```cmd
+cmake --build . --target INSTALL --config Release
+```
 
 ## Create a Conan package
 
