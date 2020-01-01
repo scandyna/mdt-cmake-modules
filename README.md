@@ -9,12 +9,19 @@ see the [documentation page](https://scandyna.gitlab.io/mdt-cmake-modules)
 
 # Install
 
-Some tools and libraries are required to build MdtCMakeModules:
+Some tools are required to install MdtCMakeModules:
  - Git
  - CMake
- - Conan
+ - Conan - Optional, only required to create a Conan package
+
+Additional tool are required to generate the documentation:
  - Make
  - Sphinx
+
+To run the unit tests, those libraries and tools are also required:
+ - Gcc
+ - Qt
+ - Conan - Optional
 
 For a overview how to install them, see https://gitlab.com/scandyna/build-and-install-cpp
 
@@ -24,13 +31,14 @@ or the Conan package manager.
 In this section, a build folder is assumed to be in the source tree,
 which is only for simplicity.
 
-
-## Install using CMake
+## Get the source code
 
 Get the sources:
 ```bash
 git clone https://github.com/scandyna/mdt-cmake-modules.git
 ```
+
+## Install using CMake on Linux (Makefiles)
 
 Configure:
 ```bash
@@ -58,6 +66,28 @@ Install the modules:
 make
 make install
 ```
+
+## Install using CMake on Windows MinGW
+
+Open a terminal that has gcc and mingw32-make in the PATH.
+
+Configure:
+```bash
+mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=C:\some\path ..
+```
+
+The configuration could also be done using cmake-gui:
+```bash
+cmake-gui .
+```
+
+Install the modules:
+```bash
+mingw32-make
+mingw32-make install
+```
+
 
 ## Create a Conan package
 
