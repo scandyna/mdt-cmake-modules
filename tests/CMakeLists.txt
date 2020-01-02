@@ -35,6 +35,7 @@ add_test(NAME Build_MdtCMakeModules
 
 add_test(NAME Install_MdtCMakeModules
   COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModules/cmake_install.cmake"
 )
 
@@ -90,6 +91,7 @@ add_test(NAME Build_MdtItemModel
 
 add_test(NAME Install_MdtItemModel
   COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModel/cmake_install.cmake"
 )
 
@@ -116,6 +118,7 @@ add_test(NAME Build_MdtItemEditor
 
 add_test(NAME Install_MdtItemEditor
   COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditor/cmake_install.cmake"
 )
 
@@ -165,6 +168,7 @@ set_tests_properties(Build_MultiDevTools PROPERTIES DEPENDS Install_MdtCMakeModu
 
 add_test(NAME Install_MultiDevTools
   COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevTools/cmake_install.cmake"
 )
 set_tests_properties(Install_MultiDevTools PROPERTIES DEPENDS Build_MultiDevTools)
@@ -205,6 +209,7 @@ add_test(NAME Build_MdtCMakeModules_CL
 
 add_test(NAME Install_MdtCMakeModules_CL
   COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL/cmake_install.cmake"
 )
 
@@ -235,6 +240,7 @@ set_tests_properties(Build_MdtItemModel_CL PROPERTIES DEPENDS Install_MdtCMakeMo
 
 add_test(NAME Install_MdtItemModel_CL
   COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL/cmake_install.cmake"
 )
 
@@ -265,6 +271,7 @@ set_tests_properties(Build_MdtItemEditor_CL PROPERTIES DEPENDS Build_MdtItemMode
 
 add_test(NAME Install_MdtItemEditor_CL
   COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL/cmake_install.cmake"
 )
 
