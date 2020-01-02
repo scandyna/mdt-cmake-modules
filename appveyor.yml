@@ -17,7 +17,7 @@ environment:
     - name: mingw_x86_64
       platform: mingw
       CMAKE_GENERATOR: "MinGW Makefiles"
-      CMAKE_GENERATOR_EXTRA_ARGUMENTS: ""
+      #CMAKE_GENERATOR_EXTRA_ARGUMENTS: ""
       #MAKE_COMMAND: mingw32-make -j4
       QT_PREFIX_PATH: 'C:\Qt\5.13\mingw73_64'
       MINGW_PREFIX_PATH: 'C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64'
@@ -26,8 +26,8 @@ environment:
     # Visual Studio x86_64
     - name: msvc_x86_64
       platform: msvc
-      CMAKE_GENERATOR: "Visual Studio 15 2017"
-      CMAKE_GENERATOR_EXTRA_ARGUMENTS: -A x64 -T "host=x64"
+      CMAKE_GENERATOR: "Visual Studio 15 2017 Win64"
+      #CMAKE_GENERATOR_EXTRA_ARGUMENTS: -A x64
       #MAKE_COMMAND: nmake
       QT_PREFIX_PATH: 'C:\Qt\5.13.2\msvc2017_64'
       extra_path_command: 'set PATH=%PATH%'
