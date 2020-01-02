@@ -26,7 +26,7 @@ environment:
     # Visual Studio x86_64
     - name: msvc_x86_64
       platform: msvc
-      CMAKE_GENERATOR: "Visual Studio 15 2017 Win64"
+      CMAKE_GENERATOR: "Visual Studio 15 2017"
       CMAKE_GENERATOR_EXTRA_ARGUMENTS: "-A x64"
       #MAKE_COMMAND: nmake
       QT_PREFIX_PATH: 'C:\Qt\5.13.2\msvc2017_64'
