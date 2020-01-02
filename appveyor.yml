@@ -22,7 +22,7 @@ environment:
       QT_PREFIX_PATH: 'C:\Qt\5.13\mingw73_64'
       MINGW_PREFIX_PATH: 'C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64'
       extra_path_command: 'set PATH=%MINGW_PREFIX_PATH%\bin;%PATH%'
-      #before_build_extra_command: 'echo No before build extra command'
+      before_build_extra_command: 'echo No before build extra command'
     # Visual Studio x86_64
     - name: msvc_x86_64
       platform: msvc
@@ -31,14 +31,14 @@ environment:
       #MAKE_COMMAND: nmake
       QT_PREFIX_PATH: 'C:\Qt\5.13.2\msvc2017_64'
       extra_path_command: 'set PATH=%PATH%'
-      #before_build_extra_command: 'call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
+      before_build_extra_command: 'call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
 
 configuration:
   - Debug
 
 before_build:
   - "%extra_path_command%"
-  #- "%before_build_extra_command%"
+  - "%before_build_extra_command%"
   # Workaround for CMake not wanting sh.exe on PATH for MinGW
   # Thanks to: http://help.appveyor.com/discussions/problems/3193-cmake-building-for-mingw-issue-with-git-shexe
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
