@@ -111,7 +111,7 @@ mingw32-make install
 Configure:
 ```cmd
 mkdir build && cd build
-cmake -G "Visual Studio 15 2017" -A x64 -DCMAKE_INSTALL_PREFIX=C:\some\path ..
+cmake -G "Visual Studio 15 2017 Win64" -A x64 -DCMAKE_INSTALL_PREFIX=C:\some\path ..
 ```
 
 The configuration could also be done using cmake-gui:
