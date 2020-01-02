@@ -68,7 +68,7 @@ make -j4
 
 To run the tests:
 ```bash
-ctest --output-on-failure .
+ctest --output-on-failure -j4 .
 ```
 
 Install the modules:
@@ -98,7 +98,7 @@ mingw32-make -j4
 
 To run the tests:
 ```bash
-ctest --output-on-failure .
+ctest --output-on-failure -j4 .
 ```
 
 Install the modules:
@@ -126,7 +126,7 @@ cmake --build . --config Release
 
 To run the tests:
 ```bash
-ctest --output-on-failure -C Release .
+ctest --output-on-failure -C Release -j4 .
 ```
 
 Install the modules:
