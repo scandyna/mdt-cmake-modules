@@ -12,6 +12,7 @@ mdt_cmake_project_version_from_git_tag(GIT_TAG_VERSION DEFAULT_VERSION 0.0.0)
 
 project(MdtCMakeModules VERSION ${GIT_TAG_VERSION})
 
+
 message("GIT_TAG_VERSION: ${GIT_TAG_VERSION}")
 message("PROJECT_VERSION: ${PROJECT_VERSION}")
 message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
@@ -20,9 +21,17 @@ message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 option(BUILD_TESTS "Build the tests" OFF)
 option(BUILD_CONAN_TESTS "Build packaging with Conan tests" OFF)
+option(BUILD_QT_TESTS "Build the tests depending on Qt" OFF)
 
 if(BUILD_CONAN_TESTS)
   find_program(CONAN_COMMAND NAMES conan)
+endif()
+
+if(BUILD_QT_TESTS)
+  include(AddQt5ToCMakePrefixPath)
+  set(QT_PREFIX_PATH CACHE PATH "Path to the root of Qt distribution. (For example: /opt/qt/Qt5/5.13.0/gcc_64). If empty, system distribution is considered.")
+  add_qt5_to_cmake_prefix_path("${QT_PREFIX_PATH}")
+  find_package(Qt5 COMPONENTS Core REQUIRED)
 endif()
 
 if(BUILD_TESTS)

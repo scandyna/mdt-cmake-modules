@@ -53,7 +53,7 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - cmake -G "%CMAKE_GENERATOR%" "%CMAKE_GENERATOR_EXTRA_ARGUMENTS%" -DCMAKE_BUILD_TYPE="%configuration%" -DQT_PREFIX_PATH="QT_PREFIX_PATH" -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_DOCS=OFF ..
+  - cmake -G "%CMAKE_GENERATOR%" "%CMAKE_GENERATOR_EXTRA_ARGUMENTS%" -DCMAKE_BUILD_TYPE="%configuration%" -DQT_PREFIX_PATH="%QT_PREFIX_PATH%" -DBUILD_TESTS=ON -DBUILD_QT_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_DOCS=OFF ..
   - cmake --build . --config "%configuration%"
 
 test_script:

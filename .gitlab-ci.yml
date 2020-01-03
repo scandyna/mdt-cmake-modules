@@ -13,7 +13,7 @@ build_linux_debug:
   script:
     - mkdir build
     - cd build
-    - cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_DOCS=ON ..
+    - cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_QT_TESTS=ON -DBUILD_DOCS=ON ..
     - make -j4
   artifacts:
     expire_in: 1 day
@@ -28,6 +28,16 @@ test_linux_debug:
     - cd build
     - ctest --output-on-failure .
 
+# TODO: deploy
+#  - scandyna/testing only on NON master branch
+#  - scandyna/stabe on master brach
+# All only with git tags.
+# Job names:
+#  - deploy_conan_testing
+#  - deploy_conan_stable
+# NOTE: check what stable means
+#
+# TODO: also deploy a source tarball
 
 deploy_conan:
   stage: deploy

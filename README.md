@@ -20,8 +20,8 @@ Additional tool are required to generate the documentation:
 
 To run the unit tests, those libraries and tools are also required:
  - Gcc
- - Qt
- - Conan - Optional
+ - Qt - Optional (only required when BUILD_QT_TESTS is ON)
+ - Conan - Optional (only required when BUILD_CONAN_TESTS is ON)
 
 For a overview how to install them, see https://gitlab.com/scandyna/build-and-install-cpp
 

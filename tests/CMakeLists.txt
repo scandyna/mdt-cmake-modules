@@ -3,16 +3,22 @@
 
 include(AddQt5ToCMakePrefixPath)
 include(MdtPackageConfigHelpers)
+include(MdtAddTest)
 
-set(QT_PREFIX_PATH CACHE PATH "Path to the root of Qt distribution. (For example: /opt/qt/Qt5/5.13.0/gcc_64). If empty, system distribution is considered.")
-add_qt5_to_cmake_prefix_path("${QT_PREFIX_PATH}")
+#######################################################
+# Build a simple Qt executable
+# Check also that it can run when Qt is not in the PATH
+#######################################################
 
-find_package(Qt5 COMPONENTS Core REQUIRED)
-
-add_executable(hello "src/hello.cpp")
-target_link_libraries(hello Qt5::Core)
-add_test(NAME helloTest COMMAND hello)
-
+if(BUILD_QT_TESTS)
+  mdt_add_test(
+    NAME HelloQt
+    TARGET helloQt
+    DEPENDENCIES Qt5::Core
+    SOURCE_FILES
+      "src/hello.cpp"
+  )
+endif()
 
 ########################################
 # Test installing in different locations
