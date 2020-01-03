@@ -6,7 +6,6 @@
 
 namespace Mdt{ namespace Core{
 
-  MDT_CORE_EXPORT
   void find(const std::string & str);
 
 }} // namespace Mdt{ namespace Core{

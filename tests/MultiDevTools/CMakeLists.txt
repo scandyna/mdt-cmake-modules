@@ -7,6 +7,9 @@ message("tests MultiDevTools CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 option(BUILD_TESTS "Build the tests" OFF)
 option(INSTALL_NAMESPACE_PACKAGE_CONFIG_FILES "Install the package configuration files to support the component syntax of find_package()" OFF)
 
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
+
 find_package(MdtCMakeModules REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH)
 
 set(MDT_INSTALL_PACKAGE_NAME Mdt0)
