@@ -235,7 +235,6 @@ add_test(NAME Build_MdtItemModel_CL
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
-
 set_tests_properties(Build_MdtItemModel_CL PROPERTIES DEPENDS Install_MdtCMakeModules_CL)
 
 add_test(NAME Install_MdtItemModel_CL
@@ -243,7 +242,6 @@ add_test(NAME Install_MdtItemModel_CL
     -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL/cmake_install.cmake"
 )
-
 set_tests_properties(Install_MdtItemModel_CL
   PROPERTIES
     DEPENDS Build_MdtItemModel_CL
@@ -266,15 +264,13 @@ add_test(NAME Build_MdtItemEditor_CL
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
-
-set_tests_properties(Build_MdtItemEditor_CL PROPERTIES DEPENDS Build_MdtItemModel_CL)
+set_tests_properties(Build_MdtItemEditor_CL PROPERTIES DEPENDS Install_MdtItemModel_CL)
 
 add_test(NAME Install_MdtItemEditor_CL
   COMMAND "${CMAKE_COMMAND}"
     -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL/cmake_install.cmake"
 )
-
 set_tests_properties(Install_MdtItemEditor_CL
   PROPERTIES
     DEPENDS Build_MdtItemEditor_CL
@@ -296,7 +292,6 @@ add_test(NAME BuildAndRun_TableEditor_CL
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
-
 set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtItemEditor_CL)
 
 
