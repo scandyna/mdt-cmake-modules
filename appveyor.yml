@@ -38,7 +38,8 @@ before_build:
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
-  - set PATH=%QT_PREFIX_PATH%\bin;C:\Python38;%PATH%
+  - set PATH=C:\Python38;%PATH%
+  #- set PATH=%QT_PREFIX_PATH%\bin;C:\Python38;%PATH%
   - echo %PATH%
   - python --version
   - pip --version
