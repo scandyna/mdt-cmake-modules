@@ -5,6 +5,17 @@
 # MdtInstallLibrary
 # -----------------
 #
+# TODO: should split:
+#
+#  maybe mdt_install_static_library()
+#  maybe mdt_install_shared_library()
+#  mdt_install_interface_library()
+#
+# Then, mdt_install_library() should check
+# the type of the target and call the correct one
+#
+# NOTE: is mdt_install_static_library() required ??
+#
 # Install a library
 # ^^^^^^^^^^^^^^^^^
 #
@@ -405,13 +416,16 @@ function(mdt_install_library)
       DESTINATION "${ARG_INCLUDES_DESTINATION}"
   )
 
-  install(
-    TARGETS ${ARG_TARGET}
-    LIBRARY
-      DESTINATION "${ARG_LIBRARY_DESTINATION}"
-      NAMELINK_ONLY
-      ${developmentComponentArguments}
-  )
+  get_target_property(targetType ${ARG_TARGET} TYPE)
+  if(${targetType} STREQUAL SHARED_LIBRARY)
+    install(
+      TARGETS ${ARG_TARGET}
+      LIBRARY
+        DESTINATION "${ARG_LIBRARY_DESTINATION}"
+        NAMELINK_ONLY
+        ${developmentComponentArguments}
+    )
+  endif()
 
   set(fileWithoutExtensionArgument)
   if(ARG_INCLUDES_FILE_WITHOUT_EXTENSION)

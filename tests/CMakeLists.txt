@@ -300,6 +300,42 @@ add_test(NAME BuildAndRun_TableEditor_CL
 )
 set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtItemEditor_CL)
 
+######################################################################
+# gl_issue2: mdt_install_library() produces error for STATIC librariy
+######################################################################
+
+# Compile and install a static library
+
+add_test(NAME Build_MultiDevTools_Static
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/MultiDevTools" "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevToolsStatic"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MultiDevTools"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
+      "-DBUILD_SHARED_LIBS=OFF"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(Build_MultiDevTools_Static PROPERTIES DEPENDS Install_MdtCMakeModules)
+
+add_test(NAME Install_MultiDevTools_Static
+  COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevToolsStatic/cmake_install.cmake"
+)
+set_tests_properties(Install_MultiDevTools_Static PROPERTIES DEPENDS Build_MultiDevTools_Static)
+
+
+#######################################################################
+# TODO: gl_issue3: mdt_install_library() not work for INTERFACE library
+#######################################################################
+
+# Compile and install a INTERFACE library
+
 
 ####################################
 # Test installing with Conan
