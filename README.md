@@ -199,7 +199,7 @@ This will break if the internal directory organisation changes.
 To use Conan, create a conanfile.txt:
 ```conan
 [requires]
-MdtCMakeModules/[>=0.10.6]@scandyna/testing
+MdtCMakeModules/[>=0.11.0]@scandyna/testing
 
 [generators]
 cmake_paths
