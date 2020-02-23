@@ -1,17 +1,15 @@
 from conans import ConanFile, CMake, tools
 import os
 
-class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
-  name = "MdtCmakeModulesTests_MdtItemModel"
+class MdtCmakeModulesTestMdtHeaderOnlyConan(ConanFile):
+  name = "MdtCmakeModulesTests_MdtHeaderOnly"
   #version = "0.5"
   license = "BSD 3-Clause"
   url = "https://github.com/scandyna/mdt-cmake-modules"
   description = "Test package for MdtCmakeModules tests"
-  settings = "os", "compiler", "build_type", "arch"
-  options = {"shared": [True, False], "install_namespace_package_config_files": [True, False]}
-  default_options = {"shared": True, "install_namespace_package_config_files": True}
-  requires = ["MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing",
-              "MdtCmakeModulesTests_MdtHeaderOnly/0.1@MdtCMakeModules_tests/testing"]
+  options = {"install_namespace_package_config_files": [True, False]}
+  default_options = {"install_namespace_package_config_files": True}
+  requires = "MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing"
   generators = "cmake_paths"
   exports_sources="src/*", "CMakeLists.txt"
 
@@ -25,7 +23,3 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
     cmake.configure(cache_build_folder = "build")
     cmake.build()
     cmake.install()
-
-  def package_info(self):
-    self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))
-    self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

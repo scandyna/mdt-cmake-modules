@@ -16,6 +16,9 @@ target_include_directories(Mdt_ItemModel
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
+target_link_libraries(Mdt_ItemModel
+  PRIVATE Mdt0::HeaderOnly
+)
 message("Test ItemModel, CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 message("Test ItemModel, CMAKE_INSTALL_BINDIR: ${CMAKE_INSTALL_BINDIR} , MDT_INSTALL_INCLUDEDIR: ${MDT_INSTALL_INCLUDEDIR}")
 message("Test ItemModel, PROJECT_VERSION: ${PROJECT_VERSION}")

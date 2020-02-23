@@ -1,4 +1,5 @@
 #include "SortProxyModel.h"
+#include <Mdt/HeaderOnly/Algorithm>
 #include <iostream>
 
 namespace Mdt{ namespace ItemModel{

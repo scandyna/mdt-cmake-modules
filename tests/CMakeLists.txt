@@ -5,6 +5,7 @@ include(AddQt5ToCMakePrefixPath)
 include(MdtPackageConfigHelpers)
 include(MdtAddTest)
 
+
 #######################################################
 # Build a simple Qt executable
 # Check also that it can run when Qt is not in the PATH
@@ -20,11 +21,10 @@ if(BUILD_QT_TESTS)
   )
 endif()
 
-########################################
-# Test installing in different locations
-########################################
-
+###################################
 # Build and install MdtCMakeModules
+# Will be used by several tests
+###################################
 
 add_test(NAME Build_MdtCMakeModules
   COMMAND "${CMAKE_CTEST_COMMAND}"
@@ -44,10 +44,12 @@ add_test(NAME Install_MdtCMakeModules
     -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModules/cmake_install.cmake"
 )
-
 set_tests_properties(Install_MdtCMakeModules PROPERTIES DEPENDS Build_MdtCMakeModules)
 
+
+#################################################
 # Simple app that only depends on MdtCMakeModules
+#################################################
 
 add_test(NAME BuildAndRun_Hello
   COMMAND "${CMAKE_CTEST_COMMAND}"
@@ -60,7 +62,6 @@ add_test(NAME BuildAndRun_Hello
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
-
 set_tests_properties(BuildAndRun_Hello PROPERTIES DEPENDS Install_MdtCMakeModules)
 
 
@@ -78,6 +79,83 @@ add_test(NAME BuildAndRun_HelloCompileOptions
 )
 set_tests_properties(BuildAndRun_HelloCompileOptions PROPERTIES DEPENDS Install_MdtCMakeModules)
 
+################################################
+# Build a simple executable that uses Sanitizers
+################################################
+
+add_test(NAME BuildAndRun_SanitizersHello
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/Sanitizers" "${CMAKE_CURRENT_BINARY_DIR}/buildSanitizersHelloTSan"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config "Instrumented"
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DTEST_THREAD_SANITIZER=ON"
+      "-DCMAKE_BUILD_TYPE=Instrumented"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(BuildAndRun_SanitizersHello PROPERTIES DEPENDS Install_MdtCMakeModules)
+
+######################################################################
+# gl_issue2: mdt_install_library() produces error for STATIC librariy
+######################################################################
+
+# Compile and install a static library
+
+add_test(NAME Build_MultiDevTools_Static
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/MultiDevTools" "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevToolsStatic"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MultiDevTools"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
+      "-DBUILD_SHARED_LIBS=OFF"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(Build_MultiDevTools_Static PROPERTIES DEPENDS Install_MdtCMakeModules)
+
+add_test(NAME Install_MultiDevTools_Static
+  COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevToolsStatic/cmake_install.cmake"
+)
+set_tests_properties(Install_MultiDevTools_Static PROPERTIES DEPENDS Build_MultiDevTools_Static)
+
+########################################
+# Test installing in different locations
+########################################
+
+# gl_issue3: configure and install a INTERFACE library
+
+add_test(NAME ConfigureAndTest_HeaderOnly
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/HeaderOnly" "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnly"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtHeaderOnly"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(ConfigureAndTest_HeaderOnly PROPERTIES DEPENDS Install_MdtCMakeModules)
+
+add_test(NAME Install_HeaderOnly
+  COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnly/cmake_install.cmake"
+)
+set_tests_properties(Install_HeaderOnly PROPERTIES DEPENDS ConfigureAndTest_HeaderOnly)
+
+
 # Build + install MdtItemModel
 
 add_test(NAME Build_MdtItemModel
@@ -88,12 +166,13 @@ add_test(NAME Build_MdtItemModel
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtHeaderOnly"
       "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel"
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
+set_tests_properties(Build_MdtItemModel PROPERTIES DEPENDS Install_HeaderOnly)
 
 add_test(NAME Install_MdtItemModel
   COMMAND "${CMAKE_COMMAND}"
@@ -200,6 +279,7 @@ set_tests_properties(BuildAndRun_TableEditor_Mdt PROPERTIES DEPENDS Install_Mult
 # Test installing in common location
 ####################################
 
+
 # Build and install MdtCMakeModules
 
 add_test(NAME Build_MdtCMakeModules_CL
@@ -225,6 +305,36 @@ set_tests_properties(Install_MdtCMakeModules_CL
     ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
 )
 
+
+# gl_issue3: configure and install a INTERFACE library
+
+add_test(NAME ConfigureAndTest_HeaderOnly_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/HeaderOnly" "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(ConfigureAndTest_HeaderOnly_CL PROPERTIES DEPENDS Install_MdtCMakeModules_CL)
+
+add_test(NAME Install_HeaderOnly_CL
+  COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL/cmake_install.cmake"
+)
+set_tests_properties(Install_HeaderOnly_CL
+  PROPERTIES
+    DEPENDS ConfigureAndTest_HeaderOnly_CL
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+
 # Build + install MdtItemModel
 
 add_test(NAME Build_MdtItemModel_CL
@@ -238,10 +348,10 @@ add_test(NAME Build_MdtItemModel_CL
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
       "-DCMAKE_INSTALL_PREFIX=/usr"
       "-DBUILD_SHARED_LIBS=ON"
-      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
-set_tests_properties(Build_MdtItemModel_CL PROPERTIES DEPENDS Install_MdtCMakeModules_CL)
+set_tests_properties(Build_MdtItemModel_CL PROPERTIES DEPENDS Install_HeaderOnly_CL)
 
 add_test(NAME Install_MdtItemModel_CL
   COMMAND "${CMAKE_COMMAND}"
@@ -300,42 +410,6 @@ add_test(NAME BuildAndRun_TableEditor_CL
 )
 set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtItemEditor_CL)
 
-######################################################################
-# gl_issue2: mdt_install_library() produces error for STATIC librariy
-######################################################################
-
-# Compile and install a static library
-
-add_test(NAME Build_MultiDevTools_Static
-  COMMAND "${CMAKE_CTEST_COMMAND}"
-    --build-and-test "${CMAKE_SOURCE_DIR}/tests/MultiDevTools" "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevToolsStatic"
-    --build-generator "${CMAKE_GENERATOR}"
-    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
-    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-    --build-config $<CONFIG>
-    --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MultiDevTools"
-      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
-      "-DBUILD_SHARED_LIBS=OFF"
-    --test-command "${CMAKE_CTEST_COMMAND}"
-)
-set_tests_properties(Build_MultiDevTools_Static PROPERTIES DEPENDS Install_MdtCMakeModules)
-
-add_test(NAME Install_MultiDevTools_Static
-  COMMAND "${CMAKE_COMMAND}"
-    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
-    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMultiDevToolsStatic/cmake_install.cmake"
-)
-set_tests_properties(Install_MultiDevTools_Static PROPERTIES DEPENDS Build_MultiDevTools_Static)
-
-
-#######################################################################
-# TODO: gl_issue3: mdt_install_library() not work for INTERFACE library
-#######################################################################
-
-# Compile and install a INTERFACE library
-
 
 ####################################
 # Test installing with Conan
@@ -353,13 +427,21 @@ if(BUILD_CONAN_TESTS)
       ${conanSettings}
   )
 
+  # Build and install MdtHeaderOnly
+  add_test(NAME Conan_Create_MdtHeaderOnly
+    COMMAND "${CONAN_COMMAND}"
+      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/HeaderOnly" "0.1@MdtCMakeModules_tests/testing"
+      ${conanSettings}
+  )
+  set_tests_properties(Conan_Create_MdtHeaderOnly PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
+
   # Build and install MdtItemModel
   add_test(NAME Conan_Create_MdtItemModel
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemModel" "0.1@MdtCMakeModules_tests/testing"
       ${conanSettings}
   )
-  set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
+  set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtHeaderOnly)
 
   # Build and install MdtItemEditor
   add_test(NAME Conan_Create_MdtItemEditor

@@ -43,7 +43,7 @@
 #   mdt_get_target_export_name(exportName Mdt_Led)
 #   # exportName will contain Led
 #
-# Example of a target that define the ``EXPORT_NAME`` and ``EXPORT_NAMESPACE`` properties:
+# Example of a target that define the ``EXPORT_NAME`` and ``INTERFACE_EXPORT_NAMESPACE`` properties:
 #
 # .. code-block:: cmake
 #
@@ -51,7 +51,7 @@
 #   set_target_properties(Mdt_Led
 #     PROPERTIES
 #       EXPORT_NAME Led
-#       EXPORT_NAMESPACE Mdt0::
+#       INTERFACE_EXPORT_NAMESPACE Mdt0::
 #   )
 #
 #   mdt_get_target_export_name(exportName Mdt_Led)
@@ -131,7 +131,12 @@
 # For this purpose, the following target properties are used:
 #
 #  - ``EXPORT_NAME``: export name of the target (standard CMake target property)
-#  - ``EXPORT_NAMESPACE``: namespace as passed to :command:`install(EXPORT)`
+#  - ``INTERFACE_EXPORT_NAMESPACE``: namespace as passed to :command:`install(EXPORT)`
+#
+# Note: previous version used ``EXPORT_NAMESPACE`` instead of ``INTERFACE_EXPORT_NAMESPACE``,
+# but this is not a allowed as property of a ``INTERFACE`` target.
+#
+# See also this issue: https://gitlab.kitware.com/cmake/cmake/issues/19145
 #
 # For more informations about above properties,
 # see the helper function :command:`mdt_get_target_export_name()`.
@@ -159,7 +164,7 @@
 #   set_target_properties(Mdt_ItemModel
 #     PROPERTIES
 #       EXPORT_NAME ItemModel
-#       EXPORT_NAMESPACE Mdt0::
+#       INTERFACE_EXPORT_NAMESPACE Mdt0::
 #       INTERFACE_FIND_PACKAGE_NAME Mdt0ItemModel
 #       INTERFACE_FIND_PACKAGE_VERSION ${PROJECT_VERSION}
 #       INTERFACE_FIND_PACKAGE_PATHS ..
@@ -232,7 +237,7 @@
 #   set_target_properties(Mdt_ItemEditor
 #     PROPERTIES
 #       EXPORT_NAME ItemEditor
-#       EXPORT_NAMESPACE Mdt0::
+#       INTERFACE_EXPORT_NAMESPACE Mdt0::
 #       INTERFACE_FIND_PACKAGE_NAME Mdt0ItemEditor
 #       INTERFACE_FIND_PACKAGE_VERSION ${PROJECT_VERSION}
 #       INTERFACE_FIND_PACKAGE_PATHS ..
@@ -318,7 +323,7 @@
 #   set_target_properties(Abc_MyWidget
 #     PROPERTIES
 #       EXPORT_NAME MyWidget
-#       EXPORT_NAMESPACE Abc::
+#       INTERFACE_EXPORT_NAMESPACE Abc::
 #       INTERFACE_FIND_PACKAGE_NAME AbcMyWidget
 #       INTERFACE_FIND_PACKAGE_VERSION ${PROJECT_VERSION}
 #   )
@@ -527,7 +532,7 @@ function(mdt_get_target_export_name out_var target)
   endif()
 
   get_target_property(exportName ${target} EXPORT_NAME)
-  get_target_property(exportNamespace ${target} EXPORT_NAMESPACE)
+  get_target_property(exportNamespace ${target} INTERFACE_EXPORT_NAMESPACE)
 
   if(exportNamespace)
     set(${out_var} ${exportNamespace}${exportName} PARENT_SCOPE)

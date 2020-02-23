@@ -5,16 +5,198 @@
 # MdtInstallLibrary
 # -----------------
 #
-# TODO: should split:
+# These commands are available:
+#  - :command:`mdt_install_interface_library()`
+#  - :command:`mdt_install_library()`
 #
-#  maybe mdt_install_static_library()
-#  maybe mdt_install_shared_library()
-#  mdt_install_interface_library()
+# Install a interface library
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# Then, mdt_install_library() should check
-# the type of the target and call the correct one
+# .. command:: mdt_install_interface_library
 #
-# NOTE: is mdt_install_static_library() required ??
+# Install a interface (typically a header only) library::
+#
+#   mdt_install_interface_library(
+#     TARGET <target>
+#     LIBRARY_DESTINATION <dir>
+#     INCLUDES_DIRECTORY <dir>
+#     [INCLUDES_FILE_EXTENSIONS ext1 [ext2 ...]]
+#     [INCLUDES_FILE_WITHOUT_EXTENSION]
+#     [ADDITIONAL_INCLUDES_FILES file1 [file2 ...]]
+#     INCLUDES_DESTINATION <dir>
+#     EXPORT_NAME <export-name>
+#     EXPORT_NAMESPACE <export-namespace>
+#     INSTALL_NAMESPACE <install-namespace>
+#     [FIND_PACKAGE_PATHS path1 [path2 ...]]
+#     [VERSION <version>]
+#     [VERSION_COMPATIBILITY <AnyNewerVersion|SameMajorVersion|ExactVersion>]
+#     [DEVELOPMENT_COMPONENT <component-name>]
+#   )
+#
+# Will install the includes directory passed as ``INCLUDES_DIRECTORY`` argument
+# to the destination specified by ``INCLUDES_DESTINATION`` using :command:`mdt_install_include_directory()`.
+# For more informations about ``INCLUDES_FILE_EXTENSIONS`` and ``INCLUDES_FILE_WITHOUT_EXTENSION``
+# see :command:`mdt_install_include_directory()`.
+#
+# Header files passed to ``ADDITIONAL_INCLUDES_FILES`` will also be installed,
+# using :command:`install(FILES)`,
+# to the location defined by the ``INCLUDES_DESTINATION`` argument.
+#
+# The ``INCLUDES_DESTINATION`` will also be passed to :command:`install(TARGETS)`
+# as ``INCLUDES DESTINATION`` argument.
+# This way, the ``INTERFACE_INCLUDE_DIRECTORIES`` will be set for the IMPORTED target.
+#
+# The ``EXPORT_NAME`` and ``EXPORT_NAMESPACE`` will be set as properties to ``target``:
+#
+# .. code-block:: cmake
+#
+#   set_target_properties(${target}
+#     PROPERTIES
+#       EXPORT_NAME ${EXPORT_NAME}
+#       INTERFACE_EXPORT_NAMESPACE ${EXPORT_NAMESPACE}
+#   )
+#
+# As result, the export name of ``target`` (which will be the name of the IMPORTED target for the consumer of the package)
+# will be ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
+# The library base name will also be ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
+#
+# Notice that the ``EXPORT_NAMESPACE`` argument will be set as ``INTERFACE_EXPORT_NAMESPACE`` target property.
+# This is because CMake currently not allows ``EXPORT_NAMESPACE`` as property of a ``INTERFACE`` target.
+#
+# See also this issue: https://gitlab.kitware.com/cmake/cmake/issues/19145
+#
+# Package config files will also be generated using :command:`install(TARGETS ... EXPORT ...)`.
+# Those files will contain the definition of the imported target, named ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
+# Those files will also be installed using :command:`install(EXPORT)`.
+#
+# A package config file named ``${INSTALL_NAMESPACE}${EXPORT_NAME}Config.cmake`` is also generated
+# and installed using :command:`mdt_install_package_config_file()`.
+#
+# If a VERSION is specified, a package config version file named ``${INSTALL_NAMESPACE}${EXPORT_NAME}ConfigVersion.cmake``
+# is also generated and installed using :command:`mdt_install_package_config_version_file()`.
+#
+# All generated package configuration files will be installed to ``${LIBRARY_DESTINATION}/cmake/${INSTALL_NAMESPACE}${EXPORT_NAME}``,
+# which is a standard location for :command:`find_package()`.
+#
+# Some package informations will also be attached as properties of ``target``.
+# Those properties will be reused when a other target, that depends on ``target``, is installed.
+# For more informations of package properties, see :command:`mdt_install_package_config_file()`.
+# The following package properties are defined:
+#
+#  - ``INTERFACE_FIND_PACKAGE_NAME``: set to ``${INSTALL_NAMESPACE}${EXPORT_NAME}``
+#  - ``INTERFACE_FIND_PACKAGE_VERSION``: set to ``${VERSION}`` if ``VERSION`` argument was specified, otherwise it is not defined
+#  - ``INTERFACE_FIND_PACKAGE_PATHS``: set to ``${FIND_PACKAGE_PATHS}`` if ``FIND_PACKAGE_PATHS`` argument was specified, otherwise it is not defined
+#
+# If specified, the following parts will be associated to ``DEVELOPMENT_COMPONENT``:
+#
+#  - ``LIBRARY_DESTINATION`` : cmake subfolder with the genarated package config files and the namelink of a versionned library.
+#  - ``INCLUDES_DESTINATION`` : the header files.
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt_Algorithms INTERFACE)
+#
+#   include(GenerateExportHeader)
+#   generate_export_header(Mdt_Algorithms)
+#
+#   target_link_libraries(Mdt_Algorithms
+#     INTERFACE Boost::hana
+#   )
+#
+#   target_include_directories(Mdt_Algorithms
+#     INTERFACE
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#   )
+#
+#   # This should be set at the top level CMakeLists.txt
+#   set(MDT_INSTALL_PACKAGE_NAME Mdt0)
+#   include(GNUInstallDirs)
+#   include(MdtInstallDirs)
+#
+#   mdt_install_interface_library(
+#     TARGET Mdt_Algorithms
+#     LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     INCLUDES_DIRECTORY .
+#     INCLUDES_FILE_WITHOUT_EXTENSION
+#     ADDITIONAL_INCLUDES_FILES "${CMAKE_CURRENT_BINARY_DIR}/mdt_algorithms_export.h"
+#     INCLUDES_DESTINATION ${MDT_INSTALL_INCLUDEDIR}
+#     EXPORT_NAME Algorithms
+#     EXPORT_NAMESPACE Mdt0::
+#     INSTALL_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
+#     FIND_PACKAGE_PATHS ..
+#     VERSION ${PROJECT_VERSION}
+#     VERSION_COMPATIBILITY ExactVersion
+#     DEVELOPMENT_COMPONENT Mdt_Algorithms_Dev
+#   )
+#
+# Notice the usage of ``MDT_INSTALL_PACKAGE_NAME`` and ``MDT_INSTALL_INCLUDEDIR``.
+# Those variable are used and provided by the :module:`MdtInstallDirs` module
+# and will help install the includes in a appropriate subdirectory.
+#
+# On a non system wide Linux installation, the result will be::
+#
+#   ${CMAKE_INSTALL_PREFIX}
+#     |-include
+#     |   |-mdt_algorithms_export.h
+#     |   |-Mdt
+#     |     |-Algorithms
+#     |       |-Algorithms.h
+#     |-lib
+#       |-cmake
+#         |-Mdt0ItemEditor
+#           |-Mdt0AlgorithmsTargets.cmake
+#           |-Mdt0AlgorithmsConfig.cmake
+#           |-Mdt0AlgorithmsConfigVersion.cmake
+#
+# The generated ``Mdt0AlgorithmsTargets.cmake`` will define the IMPORTED target:
+#
+# .. code-block:: cmake
+#
+#   add_library(Mdt0::Algorithms IMPORTED)
+#
+#   set_target_properties(Mdt0::Algorithms PROPERTIES
+#     INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
+#     INTERFACE_LINK_LIBRARIES "Boost::hana"
+#   )
+#
+# The generated ``Mdt0AlgorithmsConfig.cmake`` will look like:
+#
+# .. code-block:: cmake
+#
+#   include("${CMAKE_CURRENT_LIST_DIR}/Mdt0AlgorithmsTargets.cmake")
+#   # Set package properties for target Mdt0::Algorithms
+#   set_target_properties(Mdt0::Algorithms
+#     PROPERTIES
+#       INTERFACE_FIND_PACKAGE_NAME Mdt0Algorithms
+#       INTERFACE_FIND_PACKAGE_VERSION 0.1.2
+#       INTERFACE_FIND_PACKAGE_PATHS ..
+#   )
+#
+# Example of a system wide install on a Debian MultiArch (``CMAKE_INSTALL_PREFIX=/usr``)::
+#
+#   /usr
+#     |-include
+#     | |-x86_64-linux-gnu
+#     |   |-Mdt0
+#     |     |-mdt_algorithms_export.h
+#     |     |-Mdt
+#     |       |-Algorithms
+#     |         |-Algorithms.h
+#     |-lib
+#       |-x86_64-linux-gnu
+#         |-cmake
+#           |-Mdt0ItemEditor
+#             |-Mdt0AlgorithmsTargets.cmake
+#             |-Mdt0AlgorithmsConfig.cmake
+#             |-Mdt0AlgorithmsConfigVersion.cmake
+#
+# Notice that the library is installed in the architecture dependent path.
+#
+# See this issue: https://gitlab.com/scandyna/mdt-cmake-modules/issues/6
+#
 #
 # Install a library
 # ^^^^^^^^^^^^^^^^^
@@ -48,7 +230,7 @@
 # Install ``target`` using :command:`install(TARGETS)` to the various given destinations.
 #
 # Will also install the includes directory passed as ``INCLUDES_DIRECTORY`` argument
-# to the destination specified by ``INCLUDES_DESTINATION`` using :command:`mdt_install_interface_include_directories()`.
+# to the destination specified by ``INCLUDES_DESTINATION`` using :command:`mdt_install_include_directory()`.
 # For more informations about ``INCLUDES_FILE_EXTENSIONS`` and ``INCLUDES_FILE_WITHOUT_EXTENSION``
 # see :command:`mdt_install_include_directory()`.
 #
@@ -68,12 +250,17 @@
 #     PROPERTIES
 #       OUTPUT_NAME ${INSTALL_NAMESPACE}${EXPORT_NAME}
 #       EXPORT_NAME ${EXPORT_NAME}
-#       EXPORT_NAMESPACE ${EXPORT_NAMESPACE}
+#       INTERFACE_EXPORT_NAMESPACE ${EXPORT_NAMESPACE}
 #   )
 #
 # As result, the export name of ``target`` (which will be the name of the IMPORTED target for the consumer of the package)
 # will be ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
 # The library base name will also be ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
+#
+# Notice that the ``EXPORT_NAMESPACE`` argument will be set as ``INTERFACE_EXPORT_NAMESPACE`` target property.
+# This is because CMake currently not allows ``EXPORT_NAMESPACE`` as property of a ``INTERFACE`` target.
+#
+# See also this issue: https://gitlab.kitware.com/cmake/cmake/issues/19145
 #
 # Package config files will also be generated using :command:`install(TARGETS ... EXPORT ...)`.
 # Those files will contain the definition of the imported target, named ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
@@ -293,6 +480,143 @@ include(MdtTargetProperties)
 include(MdtInstallIncludes)
 include(MdtPackageConfigHelpers)
 
+function(mdt_install_interface_library)
+
+  set(options INCLUDES_FILE_WITHOUT_EXTENSION)
+  set(oneValueArgs TARGET LIBRARY_DESTINATION
+                  INCLUDES_DIRECTORY INCLUDES_DESTINATION INCLUDES_FILES_MATCHING_PATTERN
+                  EXPORT_NAME EXPORT_NAMESPACE INSTALL_NAMESPACE
+                  VERSION VERSION_COMPATIBILITY
+                  DEVELOPMENT_COMPONENT)
+  set(multiValueArgs INCLUDES_FILE_EXTENSIONS ADDITIONAL_INCLUDES_FILES FIND_PACKAGE_PATHS)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_TARGET)
+    message(FATAL_ERROR "mdt_install_interface_library(): no target provided")
+  endif()
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_install_interface_library(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(NOT ARG_LIBRARY_DESTINATION)
+    message(FATAL_ERROR "mdt_install_interface_library(): mandatory argument LIBRARY_DESTINATION missing")
+  endif()
+  if(NOT ARG_INCLUDES_DIRECTORY)
+    message(FATAL_ERROR "mdt_install_interface_library(): mandatory argument INCLUDES_DIRECTORY missing")
+  endif()
+  if(NOT ARG_INCLUDES_DESTINATION)
+    message(FATAL_ERROR "mdt_install_interface_library(): mandatory argument INCLUDES_DESTINATION missing")
+  endif()
+  if(NOT ARG_EXPORT_NAME)
+    message(FATAL_ERROR "mdt_install_interface_library(): mandatory argument EXPORT_NAME missing")
+  endif()
+  if(NOT ARG_EXPORT_NAMESPACE)
+    message(FATAL_ERROR "mdt_install_interface_library(): mandatory argument EXPORT_NAMESPACE missing")
+  endif()
+  if(NOT ARG_INSTALL_NAMESPACE)
+    message(FATAL_ERROR "mdt_install_interface_library(): mandatory argument INSTALL_NAMESPACE missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_install_interface_library(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  if(ARG_VERSION AND NOT ARG_VERSION_COMPATIBILITY)
+    message(FATAL_ERROR "mdt_install_interface_library(): provided a VERSION argument, but no VERSION_COMPATIBILITY")
+  endif()
+
+  set_target_properties(${ARG_TARGET}
+    PROPERTIES
+      EXPORT_NAME ${ARG_EXPORT_NAME}
+      INTERFACE_EXPORT_NAMESPACE ${ARG_EXPORT_NAMESPACE}
+      INTERFACE_FIND_PACKAGE_NAME ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
+  )
+
+  if(ARG_FIND_PACKAGE_PATHS)
+    set_target_properties(${ARG_TARGET}
+      PROPERTIES
+        INTERFACE_FIND_PACKAGE_PATHS "${ARG_FIND_PACKAGE_PATHS}"
+    )
+  endif()
+
+  if(ARG_VERSION)
+    set_target_properties(${ARG_TARGET}
+      PROPERTIES
+        INTERFACE_FIND_PACKAGE_VERSION ${ARG_VERSION}
+    )
+  endif()
+
+  if(${ARG_FIND_PACKAGE_PATHS})
+    set_target_properties(${ARG_TARGET}
+      PROPERTIES
+        INTERFACE_FIND_PACKAGE_PATHS "${ARG_FIND_PACKAGE_PATHS}"
+    )
+  endif()
+
+  set(targetExportName ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}Targets)
+
+  set(developmentComponentArguments)
+  if(ARG_DEVELOPMENT_COMPONENT)
+    set(developmentComponentArguments COMPONENT ${ARG_DEVELOPMENT_COMPONENT})
+  endif()
+
+  install(
+    TARGETS ${ARG_TARGET}
+    EXPORT ${targetExportName}
+    LIBRARY
+      DESTINATION "${ARG_LIBRARY_DESTINATION}"
+      ${developmentComponentArguments}
+    INCLUDES
+      DESTINATION "${ARG_INCLUDES_DESTINATION}"
+  )
+
+  set(fileWithoutExtensionArgument)
+  if(ARG_INCLUDES_FILE_WITHOUT_EXTENSION)
+    set(fileWithoutExtensionArgument FILE_WITHOUT_EXTENSION)
+  endif()
+
+  mdt_install_include_directory(
+    DIRECTORY "${ARG_INCLUDES_DIRECTORY}"
+    DESTINATION "${ARG_INCLUDES_DESTINATION}"
+    FILE_EXTENSIONS ${ARG_INCLUDES_FILE_EXTENSIONS}
+    ${fileWithoutExtensionArgument}
+    ${developmentComponentArguments}
+  )
+
+  if(ARG_ADDITIONAL_INCLUDES_FILES)
+    install(
+      FILES "${ARG_ADDITIONAL_INCLUDES_FILES}"
+      DESTINATION "${ARG_INCLUDES_DESTINATION}"
+      ${developmentComponentArguments}
+    )
+  endif()
+
+  install(
+    EXPORT ${targetExportName}
+    DESTINATION ${ARG_LIBRARY_DESTINATION}/cmake/${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
+    NAMESPACE ${ARG_EXPORT_NAMESPACE}
+    FILE ${targetExportName}.cmake
+    ${developmentComponentArguments}
+  )
+
+  mdt_install_package_config_file(
+    TARGETS ${ARG_TARGET}
+    TARGETS_EXPORT_FILE ${targetExportName}.cmake
+    FILE ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}Config.cmake
+    DESTINATION ${ARG_LIBRARY_DESTINATION}/cmake/${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
+    ${developmentComponentArguments}
+  )
+
+  if(ARG_VERSION)
+    mdt_install_package_config_version_file(
+      VERSION ${ARG_VERSION}
+      COMPATIBILITY ${ARG_VERSION_COMPATIBILITY}
+      FILE ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}ConfigVersion.cmake
+      DESTINATION ${ARG_LIBRARY_DESTINATION}/cmake/${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
+      ${developmentComponentArguments}
+    )
+  endif()
+
+endfunction()
+
 
 function(mdt_install_library)
 
@@ -347,7 +671,7 @@ function(mdt_install_library)
     PROPERTIES
       OUTPUT_NAME ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
       EXPORT_NAME ${ARG_EXPORT_NAME}
-      EXPORT_NAMESPACE ${ARG_EXPORT_NAMESPACE}
+      INTERFACE_EXPORT_NAMESPACE ${ARG_EXPORT_NAMESPACE}
       INTERFACE_FIND_PACKAGE_NAME ${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
   )
 
