@@ -179,8 +179,6 @@ add_test(NAME Install_MdtItemModel
     -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
     -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModel/cmake_install.cmake"
 )
-
-set_tests_properties(Build_MdtItemModel PROPERTIES DEPENDS Install_MdtCMakeModules)
 set_tests_properties(Install_MdtItemModel PROPERTIES DEPENDS Build_MdtItemModel)
 
 # Build + install MdtItemEditor
