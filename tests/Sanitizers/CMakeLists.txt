@@ -12,12 +12,12 @@ mdt_set_available_build_types(Release Debug RelWithDebInfo MinSizeRel Instrument
 option(TEST_THREAD_SANITIZER "" OFF)
 
 mdt_add_thread_sanitizer_option_if_available(SANITIZER_ENABLE_THREAD
-  HELP_STRING "Enable thread sanitizer for Instrumented build (can be incompatible with other sanitizers)"
+  HELP_STRING "Enable thread sanitizer for Debug build (can be incompatible with other sanitizers)"
   INITIAL_VALUE ON
 )
 if(TEST_THREAD_SANITIZER AND SANITIZER_ENABLE_THREAD)
   message("SanitizersTests: build with ThreadSanitizer")
-  mdt_build_with_thread_sanitizer(BUILD_TYPES Instrumented)
+  mdt_build_with_thread_sanitizer(BUILD_TYPES Debug)
 endif()
 
 

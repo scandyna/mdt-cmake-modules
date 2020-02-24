@@ -89,7 +89,7 @@ add_test(NAME BuildAndRun_SanitizersHello
     --build-generator "${CMAKE_GENERATOR}"
     --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-    --build-config "Instrumented"
+    --build-config $<CONFIG>
     --build-options
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
       "-DTEST_THREAD_SANITIZER=ON"
