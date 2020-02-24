@@ -28,3 +28,5 @@ class MdtCMakeModulesConan(ConanFile):
   #def package(self):
     #cmake = CMake(self)
     #cmake.install()
+
+# See: https://bincrafters.readthedocs.io/en/latest/contributing_to_packages/package_guidelines_required.html

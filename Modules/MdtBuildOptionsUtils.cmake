@@ -130,6 +130,7 @@
 # This function is candidate to deprecation.
 # See https://gitlab.com/scandyna/mdt-cmake-modules/issues/1
 #
+#
 # .. command:: mdt_compile_with_address_sanitizer
 #
 # Compile with support for address sanitizer::

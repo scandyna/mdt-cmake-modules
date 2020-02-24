@@ -98,6 +98,7 @@ install(
     "Modules/MdtTargetProperties.cmake"
     "Modules/MdtInstallIncludes.cmake"
     "Modules/MdtRuntimeEnvironment.cmake"
+    "Modules/MdtSanitizers.cmake"
     "Modules/MdtVersionUtils.cmake"
     "Modules/MdtBuildOptionsUtils.cmake"
     "Modules/MdtAddTest.cmake"
