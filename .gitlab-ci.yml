@@ -8,25 +8,61 @@ stages:
   - test
   - deploy
 
-build_linux_gcc_debug:
+
+.build_linux:
   stage: build
   script:
     - mkdir build
     - cd build
-    - cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_QT_TESTS=ON -DBUILD_DOCS=ON ..
+    - cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DWARNING_AS_ERROR=ON
+                               -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_CXX_COMPILER=$CXX_COMPILER $CMAKE_EXTRA_CACHE_ENTRIES
+                               -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_QT_TESTS=ON -DBUILD_DOCS=ON ..
     - make -j4
   artifacts:
     expire_in: 1 day
     paths:
       - build
 
-test_linux_gcc_debug:
+
+.test_linux:
   stage: test
-  dependencies:
-    - build_linux_gcc_debug
   script:
     - cd build
     - ctest --output-on-failure .
+
+
+build_linux_gcc7_x86_64_debug:
+  variables:
+    C_COMPILER: gcc-7
+    CXX_COMPILER: g++-7
+    BUILD_TYPE: Debug
+  extends: .build_linux
+
+test_linux_gcc7_x86_64_debug:
+  dependencies:
+    - build_linux_gcc7_x86_64_debug
+  extends: .test_linux
+
+
+#build_linux_gcc_debug:
+  #stage: build
+  #script:
+    #- mkdir build
+    #- cd build
+    #- cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_QT_TESTS=ON -DBUILD_DOCS=ON ..
+    #- make -j4
+  #artifacts:
+    #expire_in: 1 day
+    #paths:
+      #- build
+
+#test_linux_gcc_debug:
+  #stage: test
+  #dependencies:
+    #- build_linux_gcc_debug
+  #script:
+    #- cd build
+    #- ctest --output-on-failure .
 
 
 # TODO: also deploy a source tarball (probably use CPack to create the tarball)
@@ -44,6 +80,23 @@ deploy_conan:
     - conan upload MdtCMakeModules/*@scandyna/testing -r scandyna --all -c
 
 
+build_api_doc:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: always
+    - when: never
+  script:
+    - mkdir build
+    - cd build
+    - cmake -DBUILD_DOCS=ON ..
+    - make documentation
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
+
+
 pages:
   stage: deploy
   rules:
@@ -51,11 +104,8 @@ pages:
       when: always
     - when: never
   dependencies:
-    - build_linux_gcc_debug
+    - build_api_doc
   script:
-    - cd build
-    - make documentation
-    - cd ..
     - mv build/doc/html public
   artifacts:
     paths:
