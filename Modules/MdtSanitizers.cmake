@@ -188,6 +188,29 @@
 
 include(MdtRuntimeEnvironment)
 
+
+function(mdt_get_cxx_or_c_compiler_id out_var)
+
+  if(CMAKE_CXX_COMPILER_ID)
+    set(${out_var} "${CMAKE_CXX_COMPILER_ID}" PARENT_SCOPE)
+  else()
+    set(${out_var} "${CMAKE_C_COMPILER_ID}" PARENT_SCOPE)
+  endif()
+
+endfunction()
+
+
+function(mdt_get_cxx_or_c_compiler_version out_var)
+
+  if(CMAKE_CXX_COMPILER_VERSION)
+    set(${out_var} ${CMAKE_CXX_COMPILER_VERSION} PARENT_SCOPE)
+  else()
+    set(${out_var} ${CMAKE_C_COMPILER_VERSION} PARENT_SCOPE)
+  endif()
+
+endfunction()
+
+
 function(mdt_is_address_sanitizer_available out_var)
 
   if(WIN32)
@@ -216,13 +239,7 @@ function(mdt_is_address_sanitizer_available out_var)
     return()
   endif()
 
-  # TODO: should create a function for compiler checks
-  set(compilerId)
-  if(CMAKE_CXX_COMPILER_ID)
-    set(compilerId "${CMAKE_CXX_COMPILER_ID}")
-  else()
-    set(compilerId "${CMAKE_C_COMPILER_ID}")
-  endif()
+  mdt_get_cxx_or_c_compiler_id(compilerId)
   if(NOT compilerId)
     set(${out_var} FALSE PARENT_SCOPE)
     return()
@@ -234,12 +251,7 @@ function(mdt_is_address_sanitizer_available out_var)
     return()
   endif()
 
-  set(compilerVersion)
-  if(CMAKE_CXX_COMPILER_VERSION)
-    set(compilerVersion ${CMAKE_CXX_COMPILER_VERSION})
-  else()
-    set(compilerVersion ${CMAKE_C_COMPILER_VERSION})
-  endif()
+  mdt_get_cxx_or_c_compiler_version(compilerVersion)
   if(NOT compilerVersion)
     set(${out_var} FALSE PARENT_SCOPE)
     return()
@@ -346,13 +358,7 @@ function(mdt_is_thread_sanitizer_available out_var)
     return()
   endif()
 
-  # TODO: should create a function for compiler checks
-  set(compilerId)
-  if(CMAKE_CXX_COMPILER_ID)
-    set(compilerId "${CMAKE_CXX_COMPILER_ID}")
-  else()
-    set(compilerId "${CMAKE_C_COMPILER_ID}")
-  endif()
+  mdt_get_cxx_or_c_compiler_id(compilerId)
   if(NOT compilerId)
     set(${out_var} FALSE PARENT_SCOPE)
     return()
@@ -364,12 +370,7 @@ function(mdt_is_thread_sanitizer_available out_var)
     return()
   endif()
 
-  set(compilerVersion)
-  if(CMAKE_CXX_COMPILER_VERSION)
-    set(compilerVersion ${CMAKE_CXX_COMPILER_VERSION})
-  else()
-    set(compilerVersion ${CMAKE_C_COMPILER_VERSION})
-  endif()
+  mdt_get_cxx_or_c_compiler_version(compilerVersion)
   if(NOT compilerVersion)
     set(${out_var} FALSE PARENT_SCOPE)
     return()
