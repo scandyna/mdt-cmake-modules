@@ -5,6 +5,31 @@
 # MdtRuntimeEnvironment
 # ---------------------
 #
+# Some test utilities
+# ^^^^^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_append_test_environment_variables_string
+#
+# Add a string of variables to the end of the ``ENVIRONMENT`` property of a test::
+#
+#   mdt_append_test_environment_variables_string(
+#     NAME test
+#     VARIABLES_STRING variables_string
+#   )
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   mdt_append_test_environment_variables_string(
+#     NAME SomeTest
+#     VARIABLES_STRING "var1=value1;var2=value2"
+#   )
+#
+# The `VARIABLES_STRING` is not parsed, but appended as is to the ``ENVIRONMENT`` property of the test.
+# See next sections to understand this choice.
+#
+#
 # Using installed shared libraries in your development
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
@@ -276,6 +301,36 @@
 
 include(MdtTargetProperties)
 
+
+function(mdt_append_test_environment_variables_string)
+
+  set(options "")
+  set(oneValueArgs NAME VARIABLES_STRING)
+  set(multiValueArgs "")
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_NAME)
+    message(FATAL_ERROR "mdt_append_test_environment_variables_string(): mandatory argument NAME missing")
+  endif()
+  if(NOT ARG_VARIABLES_STRING)
+    message(FATAL_ERROR "mdt_append_test_environment_variables_string(): mandatory argument VARIABLES_STRING missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_append_test_environment_variables_string(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  get_test_property(${ARG_NAME} ENVIRONMENT testEnvirnoment)
+  if(testEnvirnoment)
+    set(testEnvirnoment "${testEnvirnoment};${ARG_VARIABLES_STRING}")
+  else()
+    set(testEnvirnoment "${ARG_VARIABLES_STRING}")
+  endif()
+
+  set_tests_properties(${ARG_NAME} PROPERTIES ENVIRONMENT "${testEnvirnoment}")
+
+endfunction()
+
+
 function(mdt_target_libraries_to_library_env_path out_var)
 
   set(options "")
@@ -394,7 +449,11 @@ function(mdt_set_test_library_env_path)
     string(REPLACE ";" "\\;" envPath "${envPath}")
   endif()
   if(envPath)
-    set_tests_properties(${ARG_NAME} PROPERTIES ENVIRONMENT "${envPath}")
+#     set_tests_properties(${ARG_NAME} PROPERTIES ENVIRONMENT "${envPath}")
+    mdt_append_test_environment_variables_string(
+      NAME ${ARG_NAME}
+      VARIABLES_STRING "${envPath}"
+    )
   endif()
 
 endfunction()
