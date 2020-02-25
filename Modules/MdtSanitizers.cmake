@@ -281,9 +281,6 @@ function(mdt_set_test_tsan_options)
 
   string(REPLACE ";" " " tsanOptions "${ARG_OPTIONS}")
 
-  mdt_append_test_environment_variables_string(
-    NAME ${ARG_NAME}
-    VARIABLES_STRING "${tsanOptions}"
-  )
+  mdt_append_test_environment_variables_string(${ARG_NAME} "${tsanOptions}")
 
 endfunction()
