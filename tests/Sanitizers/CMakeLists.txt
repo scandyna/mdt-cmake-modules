@@ -9,7 +9,17 @@ include(MdtBuildOptionsUtils)
 
 mdt_set_available_build_types(Release Debug RelWithDebInfo MinSizeRel Instrumented)
 
+option(TEST_ADDRESS_SANITIZER "" OFF)
 option(TEST_THREAD_SANITIZER "" OFF)
+
+mdt_add_address_sanitizer_option_if_available(SANITIZER_ENABLE_ADDRESS
+  HELP_STRING "Enable address sanitizer for Debug and RelWithDebInfo build"
+  INITIAL_VALUE ON
+)
+if(TEST_ADDRESS_SANITIZER AND SANITIZER_ENABLE_ADDRESS)
+  message("SanitizersTests: build with AddressSanitizer")
+  mdt_build_with_address_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+endif()
 
 mdt_add_thread_sanitizer_option_if_available(SANITIZER_ENABLE_THREAD
   HELP_STRING "Enable thread sanitizer for Debug build (can be incompatible with other sanitizers)"

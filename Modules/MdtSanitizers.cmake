@@ -34,7 +34,8 @@
 #   endif()
 #
 # The rules to deduce if AddressSanitizer is available are based on:
-#   - https://github.com/google/sanitizers/wiki/AddressSanitizer
+#   - The address sanitizer documentation: https://github.com/google/sanitizers/wiki/AddressSanitizer
+#   - The anounce from Microsoft: https://devblogs.microsoft.com/cppblog/addresssanitizer-asan-for-windows-with-msvc
 #
 #
 # .. command:: mdt_add_address_sanitizer_option_if_available
@@ -59,16 +60,45 @@
 # See also :command:`mdt_is_address_sanitizer_available()`.
 #
 #
-# .. command:: mdt_build_address_thread_sanitizer
+# .. command:: mdt_build_with_address_sanitizer
 #
 # Build with support for AddressSanitizer::
 #
-#   mdt_build_address_thread_sanitizer(
+#   mdt_build_with_address_sanitizer(
 #     BUILD_TYPES type1 [[type2 ...]
 #   )
 #
 # Note that this function will not check the availability of ASan,
 # but simply passes the appropriate flags.
+#
+#
+# .. command:: mdt_set_test_asan_options
+#
+# Pass ASAN_OPTIONS as `ENVIRONMENT` property of a test::
+#
+#   mdt_set_test_asan_options(
+#     NAME test
+#     OPTIONS options1 [options2...]
+#   )
+#
+# While running a executable with AddressSanitizer,
+# some runtime options can be passed.
+# This is done by setting those options to the ASAN_OPTIONS.
+#
+# For example on Linux::
+#
+#   ASAN_OPTIONS=verbosity=1:malloc_context_size=20
+#
+# Usage exemple:
+#
+# .. code-block:: cmake
+#
+#   mdt_set_test_asan_options(
+#     NAME SomeTest
+#     OPTIONS verbosity=1 malloc_context_size=20
+#   )
+#
+# See also https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 #
 #
 # ThreadSanitizer
@@ -158,6 +188,151 @@
 
 include(MdtRuntimeEnvironment)
 
+function(mdt_is_address_sanitizer_available out_var)
+
+  if(WIN32)
+    if(MSVC_VERSION)
+      if(${MSVC_VERSION} GREATER_EQUAL 1929)
+        set(${out_var} TRUE PARENT_SCOPE)
+        return()
+      endif()
+    else()
+      set(${out_var} FALSE PARENT_SCOPE)
+      return()
+    endif()
+  endif()
+
+  # TODO: missing FreeBSD
+  set(supportedCpuArchs)
+  if(UNIX)
+    if(APPLE)
+      set(supportedCpuArchs x86_64 x86)
+    else()
+      set(supportedCpuArchs x86_64 x86 mips mips64 powerpc powerpc64)
+    endif()
+  endif()
+  if(NOT CMAKE_SYSTEM_PROCESSOR IN_LIST supportedCpuArchs)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  # TODO: should create a function for compiler checks
+  set(compilerId)
+  if(CMAKE_CXX_COMPILER_ID)
+    set(compilerId "${CMAKE_CXX_COMPILER_ID}")
+  else()
+    set(compilerId "${CMAKE_C_COMPILER_ID}")
+  endif()
+  if(NOT compilerId)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  set(supportedCompilers "AppleClang" "Clang" "GNU")
+  if(NOT compilerId IN_LIST supportedCompilers)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  set(compilerVersion)
+  if(CMAKE_CXX_COMPILER_VERSION)
+    set(compilerVersion ${CMAKE_CXX_COMPILER_VERSION})
+  else()
+    set(compilerVersion ${CMAKE_C_COMPILER_VERSION})
+  endif()
+  if(NOT compilerVersion)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  if(${compilerId} MATCHES "Clang")
+    if(${compilerVersion} VERSION_LESS 3.1)
+      set(${out_var} FALSE PARENT_SCOPE)
+      return()
+    endif()
+  endif()
+
+  if(${compilerId} STREQUAL "GNU")
+    if(${compilerVersion} VERSION_LESS 4.8)
+      set(${out_var} FALSE PARENT_SCOPE)
+      return()
+    endif()
+  endif()
+
+  set(${out_var} TRUE PARENT_SCOPE)
+
+endfunction()
+
+
+function(mdt_add_address_sanitizer_option_if_available var)
+
+  set(options)
+  set(oneValueArgs HELP_STRING INITIAL_VALUE)
+  set(multiValueArgs)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_HELP_STRING)
+    message(FATAL_ERROR "mdt_add_address_sanitizer_option_if_available(): HELP_STRING argument missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_add_address_sanitizer_option_if_available(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  mdt_is_address_sanitizer_available(addressSanitizerIsAvailable)
+  if(addressSanitizerIsAvailable)
+    option(${var} "${ARG_HELP_STRING}" ${ARG_INITIAL_VALUE})
+  endif()
+
+endfunction()
+
+
+function(mdt_build_with_address_sanitizer)
+
+  set(options)
+  set(oneValueArgs)
+  set(multiValueArgs BUILD_TYPES)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_BUILD_TYPES)
+    message(FATAL_ERROR "mdt_build_with_address_sanitizer(): BUILD_TYPES argument expects at least one build type")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_build_with_address_sanitizer(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  foreach(buildType ${ARG_BUILD_TYPES})
+    add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=address>)
+    add_compile_options($<$<CONFIG:${buildType}>:-fno-omit-frame-pointer>)
+    link_libraries($<$<CONFIG:${buildType}>:-fsanitize=address>)
+  endforeach()
+
+endfunction()
+
+
+function(mdt_set_test_asan_options)
+
+  set(options)
+  set(oneValueArgs NAME)
+  set(multiValueArgs OPTIONS)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_NAME)
+    message(FATAL_ERROR "mdt_set_test_asan_options(): NAME argument missing")
+  endif()
+  if(NOT ARG_OPTIONS)
+    message(FATAL_ERROR "mdt_set_test_asan_options(): OPTIONS argument expects at least one option")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_set_test_asan_options(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  string(REPLACE ";" ":" asanOptions "${ARG_OPTIONS}")
+
+  mdt_append_test_environment_variables_string(${ARG_NAME} "${asanOptions}")
+
+endfunction()
+
+
 function(mdt_is_thread_sanitizer_available out_var)
 
   if(WIN32 OR CYGWIN)
@@ -171,6 +346,7 @@ function(mdt_is_thread_sanitizer_available out_var)
     return()
   endif()
 
+  # TODO: should create a function for compiler checks
   set(compilerId)
   if(CMAKE_CXX_COMPILER_ID)
     set(compilerId "${CMAKE_CXX_COMPILER_ID}")
