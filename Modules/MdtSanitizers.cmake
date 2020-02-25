@@ -101,6 +101,71 @@
 # See also https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 #
 #
+# AddressSanitizerLeakSanitizer
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# LeakSanitizer is enable by AddressSanitizer by defualt on some platforms.
+# It can be enabled without AddressSanitizer, which is currently not supported here.
+#
+# See also https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer
+#
+#
+# MemorySanitizer
+# ^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_is_memory_sanitizer_available
+#
+# Check if MemorySanitizer is available::
+#
+#   mdt_is_memory_sanitizer_available(var)
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   mdt_is_memory_sanitizer_available(memorySanitizerIsAvailable)
+#   if(memorySanitizerIsAvailable)
+#     ...
+#   endif()
+#
+# The rules to deduce if MemorySanitizer is available are based on:
+#   - https://github.com/google/sanitizers/wiki/MemorySanitizer
+#
+#
+# .. command:: mdt_add_memory_sanitizer_option_if_available
+#
+# Add a option, by calling :command:`option()`, to enable MemorySanitizer if available::
+#
+#   mdt_add_memory_sanitizer_option_if_available(var HELP_STRING [INITIAL_VALUE])
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   mdt_add_memory_sanitizer_option_if_available(SANITIZER_ENABLE_MEMORY
+#     HELP_STRING "Enable memory sanitizer for Debug and RelWithDebInfo build"
+#     INITIAL_VALUE OFF
+#   )
+#   if(SANITIZER_ENABLE_MEMORY)
+#     mdt_build_with_memory_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+#   endif()
+#
+#
+# See also :command:`mdt_is_memory_sanitizer_available()`.
+#
+#
+# .. command:: mdt_build_with_memory_sanitizer
+#
+# Build with support for MemorySanitizer::
+#
+#   mdt_build_with_memory_sanitizer(
+#     BUILD_TYPES type1 [[type2 ...]
+#   )
+#
+# Note that this function will not check the availability of MSan,
+# but simply passes the appropriate flags.
+#
+#
 # ThreadSanitizer
 # ^^^^^^^^^^^^^^^
 #
@@ -341,6 +406,91 @@ function(mdt_set_test_asan_options)
   string(REPLACE ";" ":" asanOptions "${ARG_OPTIONS}")
 
   mdt_append_test_environment_variables_string(${ARG_NAME} "${asanOptions}")
+
+endfunction()
+
+
+function(mdt_is_memory_sanitizer_available out_var)
+
+  set(supportedCpuArchs x86_64 aarch64 mips64 powerpc64)
+  if(NOT CMAKE_SYSTEM_PROCESSOR IN_LIST supportedCpuArchs)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  mdt_get_cxx_or_c_compiler_id(compilerId)
+  if(NOT compilerId)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  set(supportedCompilers "AppleClang" "Clang")
+  if(NOT compilerId IN_LIST supportedCompilers)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  mdt_get_cxx_or_c_compiler_version(compilerVersion)
+  if(NOT compilerVersion)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  if(${compilerId} MATCHES "Clang")
+    if(${compilerVersion} VERSION_LESS 4.0)
+      set(${out_var} FALSE PARENT_SCOPE)
+      return()
+    endif()
+  endif()
+
+  set(${out_var} TRUE PARENT_SCOPE)
+
+endfunction()
+
+
+function(mdt_add_memory_sanitizer_option_if_available var)
+
+  set(options)
+  set(oneValueArgs HELP_STRING INITIAL_VALUE)
+  set(multiValueArgs)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_HELP_STRING)
+    message(FATAL_ERROR "mdt_add_memory_sanitizer_option_if_available(): HELP_STRING argument missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_add_memory_sanitizer_option_if_available(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  mdt_is_memory_sanitizer_available(memorySanitizerIsAvailable)
+  if(memorySanitizerIsAvailable)
+    option(${var} "${ARG_HELP_STRING}" ${ARG_INITIAL_VALUE})
+  endif()
+
+endfunction()
+
+
+function(mdt_build_with_memory_sanitizer)
+
+  set(options)
+  set(oneValueArgs)
+  set(multiValueArgs BUILD_TYPES)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_BUILD_TYPES)
+    message(FATAL_ERROR "mdt_build_with_memory_sanitizer(): BUILD_TYPES argument expects at least one build type")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_build_with_memory_sanitizer(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  foreach(buildType ${ARG_BUILD_TYPES})
+    add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=memory>)
+    add_compile_options($<$<CONFIG:${buildType}>:-fPIE>)
+    add_compile_options($<$<CONFIG:${buildType}>:-fpie>)
+    add_compile_options($<$<CONFIG:${buildType}>:-fno-omit-frame-pointer>)
+    link_libraries($<$<CONFIG:${buildType}>:-fsanitize=memory>)
+  endforeach()
 
 endfunction()
 
