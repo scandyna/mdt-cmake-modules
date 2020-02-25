@@ -15,6 +15,62 @@
 #
 # TODO: see also value sanitizer
 #
+# AddressSanitizer
+# ^^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_is_address_sanitizer_available
+#
+# Check if AddressSanitizer is available::
+#
+#   mdt_is_address_sanitizer_available(var)
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   mdt_is_address_sanitizer_available(addressSanitizerIsAvailable)
+#   if(addressSanitizerIsAvailable)
+#     ...
+#   endif()
+#
+# The rules to deduce if AddressSanitizer is available are based on:
+#   - https://github.com/google/sanitizers/wiki/AddressSanitizer
+#
+#
+# .. command:: mdt_add_address_sanitizer_option_if_available
+#
+# Add a option, by calling :command:`option()`, to enable AddressSanitizer if available::
+#
+#   mdt_add_address_sanitizer_option_if_available(var HELP_STRING [INITIAL_VALUE])
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   mdt_add_address_sanitizer_option_if_available(SANITIZER_ENABLE_ADDRESS
+#     HELP_STRING "Enable address sanitizer for Debug and RelWithDebInfo build"
+#     INITIAL_VALUE OFF
+#   )
+#   if(SANITIZER_ENABLE_ADDRESS)
+#     mdt_build_with_address_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+#   endif()
+#
+#
+# See also :command:`mdt_is_address_sanitizer_available()`.
+#
+#
+# .. command:: mdt_build_address_thread_sanitizer
+#
+# Build with support for AddressSanitizer::
+#
+#   mdt_build_address_thread_sanitizer(
+#     BUILD_TYPES type1 [[type2 ...]
+#   )
+#
+# Note that this function will not check the availability of ASan,
+# but simply passes the appropriate flags.
+#
+#
 # ThreadSanitizer
 # ^^^^^^^^^^^^^^^
 #
@@ -70,9 +126,15 @@
 # Note that this function will not check the availability of TSan,
 # but simply passes the appropriate flags.
 #
+#
 # .. command:: mdt_set_test_tsan_options
 #
-# TODO: see what CMake/CTest allready supports then implement
+# Pass TSAN_OPTIONS as `ENVIRONMENT` property of a test::
+#
+#   mdt_set_test_tsan_options(
+#     NAME test
+#     OPTIONS options1 [options2...]
+#   )
 #
 # While running a executable with ThreadSanitizer,
 # some runtime options can be passed.
@@ -82,8 +144,19 @@
 #
 #   TSAN_OPTIONS="ignore_noninstrumented_modules=true verbosity=1"
 #
+# Usage exemple:
+#
+# .. code-block:: cmake
+#
+#   mdt_set_test_tsan_options(
+#     NAME SomeTest
+#     OPTIONS ignore_noninstrumented_modules=true verbosity=1
+#   )
+#
 # See also https://github.com/google/sanitizers/wiki/ThreadSanitizerFlags
 #
+
+include(MdtRuntimeEnvironment)
 
 function(mdt_is_thread_sanitizer_available out_var)
 
@@ -185,5 +258,32 @@ function(mdt_build_with_thread_sanitizer)
     add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=thread>)
     link_libraries($<$<CONFIG:${buildType}>:-fsanitize=thread>)
   endforeach()
+
+endfunction()
+
+
+function(mdt_set_test_tsan_options)
+
+  set(options)
+  set(oneValueArgs NAME)
+  set(multiValueArgs OPTIONS)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_NAME)
+    message(FATAL_ERROR "mdt_set_test_tsan_options(): NAME argument missing")
+  endif()
+  if(NOT ARG_OPTIONS)
+    message(FATAL_ERROR "mdt_set_test_tsan_options(): OPTIONS argument expects at least one option")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_set_test_tsan_options(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  string(REPLACE ";" " " tsanOptions "${ARG_OPTIONS}")
+
+  mdt_append_test_environment_variables_string(
+    NAME ${ARG_NAME}
+    VARIABLES_STRING "${tsanOptions}"
+  )
 
 endfunction()

@@ -83,9 +83,9 @@ set_tests_properties(BuildAndRun_HelloCompileOptions PROPERTIES DEPENDS Install_
 # Build a simple executable that uses Sanitizers
 ################################################
 
-add_test(NAME BuildAndRun_SanitizersHello
+add_test(NAME BuildAndRun_HelloTSan
   COMMAND "${CMAKE_CTEST_COMMAND}"
-    --build-and-test "${CMAKE_SOURCE_DIR}/tests/Sanitizers" "${CMAKE_CURRENT_BINARY_DIR}/buildSanitizersHelloTSan"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/Sanitizers" "${CMAKE_CURRENT_BINARY_DIR}/buildHelloTSan"
     --build-generator "${CMAKE_GENERATOR}"
     --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
@@ -96,7 +96,7 @@ add_test(NAME BuildAndRun_SanitizersHello
       "-DCMAKE_BUILD_TYPE=Instrumented"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
-set_tests_properties(BuildAndRun_SanitizersHello PROPERTIES DEPENDS Install_MdtCMakeModules)
+set_tests_properties(BuildAndRun_HelloTSan PROPERTIES DEPENDS Install_MdtCMakeModules)
 
 ######################################################################
 # gl_issue2: mdt_install_library() produces error for STATIC librariy
