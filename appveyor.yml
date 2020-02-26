@@ -42,8 +42,8 @@ before_build:
   #- set PATH=%QT_PREFIX_PATH%\bin;C:\Python38;%PATH%
   - echo %PATH%
   - python --version
-  - pip --version
-  - pip install conan
+  - pip3 --version
+  - pip3 install conan
   - conan user
   - conan --version
 
