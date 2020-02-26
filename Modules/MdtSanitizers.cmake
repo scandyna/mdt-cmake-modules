@@ -5,18 +5,11 @@
 # MdtSanitizers
 # -------------
 #
-# List of sanitizers:
-#  - ASan
-#  - HWASan ?
-#  - LSan ?
-#  - MSan
-#  - UBSan
-#  - TSan
+# .. contents:: Known sanitizers
+#    :local:
 #
-# TODO: see also value sanitizer
-#
-# AddressSanitizer
-# ^^^^^^^^^^^^^^^^
+# AddressSanitizer (ASan)
+# ^^^^^^^^^^^^^^^^^^^^^^^
 #
 # .. command:: mdt_is_address_sanitizer_available
 #
@@ -101,8 +94,8 @@
 # See also https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 #
 #
-# AddressSanitizerLeakSanitizer
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# AddressSanitizerLeakSanitizer (LSan)
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # LeakSanitizer is enable by AddressSanitizer by defualt on some platforms.
 # It can be enabled without AddressSanitizer, which is currently not supported here.
@@ -110,8 +103,16 @@
 # See also https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer
 #
 #
-# MemorySanitizer
-# ^^^^^^^^^^^^^^^
+# Hardware-assisted AddressSanitizer (HWASan)
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# Similar to AddressSanitizer, but based on partial hardware assistance.
+# HWASan is currently not supported here.
+#
+# See also https://clang.llvm.org/docs/HardwareAssistedAddressSanitizerDesign.html
+#
+# MemorySanitizer (MSan)
+# ^^^^^^^^^^^^^^^^^^^^^^
 #
 # .. command:: mdt_is_memory_sanitizer_available
 #
@@ -166,8 +167,8 @@
 # but simply passes the appropriate flags.
 #
 #
-# UndefinedBehaviorSanitizer
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^
+# UndefinedBehaviorSanitizer (UBSan)
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # .. command:: mdt_is_undefined_sanitizer_available
 #
@@ -256,8 +257,8 @@
 #   - https://chromium.googlesource.com/chromium/src/testing/libfuzzer/+/HEAD/reference.md
 #
 #
-# ThreadSanitizer
-# ^^^^^^^^^^^^^^^
+# ThreadSanitizer (TSan)
+# ^^^^^^^^^^^^^^^^^^^^^^
 #
 # .. command:: mdt_is_thread_sanitizer_available
 #
