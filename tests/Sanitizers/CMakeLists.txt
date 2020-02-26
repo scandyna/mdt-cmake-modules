@@ -11,7 +11,9 @@ mdt_set_available_build_types(Release Debug RelWithDebInfo MinSizeRel Instrument
 
 option(TEST_ADDRESS_SANITIZER "" OFF)
 option(TEST_MEMORY_SANITIZER "" OFF)
+option(TEST_UNDEFINED_SANITIZER "" OFF)
 option(TEST_THREAD_SANITIZER "" OFF)
+
 
 mdt_add_address_sanitizer_option_if_available(SANITIZER_ENABLE_ADDRESS
   HELP_STRING "Enable address sanitizer for Debug and RelWithDebInfo build"
@@ -28,6 +30,14 @@ mdt_add_memory_sanitizer_option_if_available(SANITIZER_ENABLE_MEMORY
 )
 if(TEST_MEMORY_SANITIZER AND SANITIZER_ENABLE_MEMORY)
   mdt_build_with_memory_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+endif()
+
+mdt_add_undefined_sanitizer_option_if_available(SANITIZER_ENABLE_UNDEFINED
+  HELP_STRING "Enable undefined behaviour sanitizer for Debug and RelWithDebInfo build"
+  INITIAL_VALUE ON
+)
+if(TEST_UNDEFINED_SANITIZER AND SANITIZER_ENABLE_UNDEFINED)
+  mdt_build_with_undefined_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
 endif()
 
 mdt_add_thread_sanitizer_option_if_available(SANITIZER_ENABLE_THREAD

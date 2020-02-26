@@ -115,6 +115,22 @@ add_test(NAME BuildAndRun_HelloMSan
 set_tests_properties(BuildAndRun_HelloMSan PROPERTIES DEPENDS Install_MdtCMakeModules)
 
 
+add_test(NAME BuildAndRun_HelloUBSan
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/Sanitizers" "${CMAKE_CURRENT_BINARY_DIR}/buildHelloUBSan"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DTEST_UNDEFINED_SANITIZER=ON"
+      "-DCMAKE_BUILD_TYPE=Debug"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(BuildAndRun_HelloUBSan PROPERTIES DEPENDS Install_MdtCMakeModules)
+
+
 add_test(NAME BuildAndRun_HelloTSan
   COMMAND "${CMAKE_CTEST_COMMAND}"
     --build-and-test "${CMAKE_SOURCE_DIR}/tests/Sanitizers" "${CMAKE_CURRENT_BINARY_DIR}/buildHelloTSan"

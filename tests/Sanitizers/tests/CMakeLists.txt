@@ -11,6 +11,13 @@ if(TEST_ADDRESS_SANITIZER AND SANITIZER_ENABLE_ADDRESS)
   )
 endif()
 
+if(TEST_UNDEFINED_SANITIZER AND SANITIZER_ENABLE_UNDEFINED)
+  mdt_set_test_ubsan_options(
+    NAME RunSanitizersHello
+    OPTIONS log_path=ubsanlog.txt
+  )
+endif()
+
 if(TEST_THREAD_SANITIZER AND SANITIZER_ENABLE_THREAD)
   mdt_set_test_tsan_options(
     NAME RunSanitizersHello

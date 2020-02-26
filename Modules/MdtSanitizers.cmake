@@ -166,6 +166,96 @@
 # but simply passes the appropriate flags.
 #
 #
+# UndefinedBehaviorSanitizer
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# .. command:: mdt_is_undefined_sanitizer_available
+#
+# Check if UndefinedBehaviorSanitizer is available::
+#
+#   mdt_is_undefined_sanitizer_available(var)
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   mdt_is_undefined_sanitizer_available(undefinedSanitizerIsAvailable)
+#   if(undefinedSanitizerIsAvailable)
+#     ...
+#   endif()
+#
+# The rules to deduce if UndefinedBehaviorSanitizer is available are based on:
+#   - https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+#   - https://www.kernel.org/doc/html/v4.14/dev-tools/ubsan.html
+#
+#
+# .. command:: mdt_add_undefined_sanitizer_option_if_available
+#
+# Add a option, by calling :command:`option()`, to enable UndefinedBehaviorSanitizer if available::
+#
+#   mdt_add_undefined_sanitizer_option_if_available(var HELP_STRING [INITIAL_VALUE])
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   mdt_add_undefined_sanitizer_option_if_available(SANITIZER_ENABLE_UNDEFINED
+#     HELP_STRING "Enable undefined behaviour sanitizer for Debug and RelWithDebInfo build"
+#     INITIAL_VALUE OFF
+#   )
+#   if(SANITIZER_ENABLE_UNDEFINED)
+#     mdt_build_with_undefined_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+#   endif()
+#
+#
+# See also :command:`mdt_is_undefined_sanitizer_available()`.
+#
+#
+# .. command:: mdt_build_with_undefined_sanitizer
+#
+# Build with support for UndefinedBehaviorSanitizer::
+#
+#   mdt_build_with_undefined_sanitizer(
+#     BUILD_TYPES type1 [[type2 ...]
+#   )
+#
+# Note that this function will not check the availability of UBSan,
+# but simply passes the appropriate flags.
+#
+#
+# .. command:: mdt_set_test_ubsan_options
+#
+#
+# Pass UBSAN_OPTIONS as `ENVIRONMENT` property of a test::
+#
+#   mdt_set_test_ubsan_options(
+#     NAME test
+#     OPTIONS options1 [options2...]
+#   )
+#
+#
+# While running a executable with UndefinedBehaviorSanitizer,
+# some runtime options can be passed.
+# This is done by setting those options to the UBSAN_OPTIONS.
+#
+# For example on Linux::
+#
+#   UBSAN_OPTIONS=suppressions=MyUBSan.supp:log_path=ubsanlog.txt
+#
+# Usage exemple:
+#
+# .. code-block:: cmake
+#
+#   mdt_set_test_asan_options(
+#     NAME SomeTest
+#     OPTIONS suppressions=MyUBSan.supp log_path=ubsanlog.txt
+#   )
+#
+# See also:
+#   - https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+#   - https://chromium.googlesource.com/chromium/src/testing/libfuzzer/+/HEAD/reference.md
+#
+#
 # ThreadSanitizer
 # ^^^^^^^^^^^^^^^
 #
@@ -491,6 +581,114 @@ function(mdt_build_with_memory_sanitizer)
     add_compile_options($<$<CONFIG:${buildType}>:-fno-omit-frame-pointer>)
     link_libraries($<$<CONFIG:${buildType}>:-fsanitize=memory>)
   endforeach()
+
+endfunction()
+
+
+function(mdt_is_undefined_sanitizer_available out_var)
+
+  mdt_get_cxx_or_c_compiler_id(compilerId)
+  if(NOT compilerId)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  set(supportedCompilers "AppleClang" "Clang" "GNU")
+  if(NOT compilerId IN_LIST supportedCompilers)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  mdt_get_cxx_or_c_compiler_version(compilerVersion)
+  if(NOT compilerVersion)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  if(${compilerId} MATCHES "Clang")
+    if(${compilerVersion} VERSION_LESS 3.3)
+      set(${out_var} FALSE PARENT_SCOPE)
+      return()
+    endif()
+  endif()
+
+  if(${compilerId} STREQUAL "GNU")
+    if(${compilerVersion} VERSION_LESS 4.9)
+      set(${out_var} FALSE PARENT_SCOPE)
+      return()
+    endif()
+  endif()
+
+  set(${out_var} TRUE PARENT_SCOPE)
+
+endfunction()
+
+
+function(mdt_add_undefined_sanitizer_option_if_available var)
+
+  set(options)
+  set(oneValueArgs HELP_STRING INITIAL_VALUE)
+  set(multiValueArgs)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_HELP_STRING)
+    message(FATAL_ERROR "mdt_add_undefined_sanitizer_option_if_available(): HELP_STRING argument missing")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_add_undefined_sanitizer_option_if_available(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  mdt_is_undefined_sanitizer_available(undefinedSanitizerIsAvailable)
+  if(undefinedSanitizerIsAvailable)
+    option(${var} "${ARG_HELP_STRING}" ${ARG_INITIAL_VALUE})
+  endif()
+
+endfunction()
+
+
+function(mdt_build_with_undefined_sanitizer)
+
+  set(options)
+  set(oneValueArgs)
+  set(multiValueArgs BUILD_TYPES)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_BUILD_TYPES)
+    message(FATAL_ERROR "mdt_build_with_undefined_sanitizer(): BUILD_TYPES argument expects at least one build type")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_build_with_undefined_sanitizer(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  foreach(buildType ${ARG_BUILD_TYPES})
+    add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=undefined>)
+    add_compile_options($<$<CONFIG:${buildType}>:-fno-omit-frame-pointer>)
+    link_libraries($<$<CONFIG:${buildType}>:-fsanitize=undefined>)
+  endforeach()
+
+endfunction()
+
+
+function(mdt_set_test_ubsan_options)
+
+  set(options)
+  set(oneValueArgs NAME)
+  set(multiValueArgs OPTIONS)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_NAME)
+    message(FATAL_ERROR "mdt_set_test_ubsan_options(): NAME argument missing")
+  endif()
+  if(NOT ARG_OPTIONS)
+    message(FATAL_ERROR "mdt_set_test_ubsan_options(): OPTIONS argument expects at least one option")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_set_test_ubsan_options(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  string(REPLACE ";" ":" ubsanOptions "${ARG_OPTIONS}")
+
+  mdt_append_test_environment_variables_string(${ARG_NAME} "UBSAN_OPTIONS=${ubsanOptions}")
 
 endfunction()
 
