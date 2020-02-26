@@ -588,6 +588,13 @@ endfunction()
 
 function(mdt_is_undefined_sanitizer_available out_var)
 
+  # MinGW seems not to support any sanitizer
+  # See also https://github.com/msys2/MINGW-packages/issues/3163
+  if(MINGW)
+    set(${out_var} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
   mdt_get_cxx_or_c_compiler_id(compilerId)
   if(NOT compilerId)
     set(${out_var} FALSE PARENT_SCOPE)
