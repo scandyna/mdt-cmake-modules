@@ -495,7 +495,7 @@ function(mdt_set_test_asan_options)
 
   string(REPLACE ";" ":" asanOptions "${ARG_OPTIONS}")
 
-  mdt_append_test_environment_variables_string(${ARG_NAME} "${asanOptions}")
+  mdt_append_test_environment_variables_string(${ARG_NAME} "ASAN_OPTIONS=${asanOptions}")
 
 endfunction()
 
@@ -806,6 +806,6 @@ function(mdt_set_test_tsan_options)
 
   string(REPLACE ";" " " tsanOptions "${ARG_OPTIONS}")
 
-  mdt_append_test_environment_variables_string(${ARG_NAME} "${tsanOptions}")
+  mdt_append_test_environment_variables_string(${ARG_NAME} "TSAN_OPTIONS=${tsanOptions}")
 
 endfunction()
