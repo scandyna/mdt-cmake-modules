@@ -663,6 +663,13 @@ function(mdt_build_with_undefined_sanitizer)
 
   foreach(buildType ${ARG_BUILD_TYPES})
     add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=undefined>)
+    # See https://stackoverflow.com/questions/55480333/clang-8-with-mingw-w64-how-do-i-use-address-ub-sanitizers
+    if(WIN32)
+      mdt_get_cxx_or_c_compiler_id(compilerId)
+      if( (${compilerId} MATCHES "Clang") OR (${compilerId} MATCHES "GNU") )
+        add_compile_options($<$<CONFIG:${buildType}>:-fsanitize-undefined-trap-on-error>)
+      endif()
+    endif()
     add_compile_options($<$<CONFIG:${buildType}>:-fno-omit-frame-pointer>)
     link_libraries($<$<CONFIG:${buildType}>:-fsanitize=undefined>)
   endforeach()
