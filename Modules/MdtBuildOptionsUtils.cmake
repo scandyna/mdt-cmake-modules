@@ -39,27 +39,38 @@
 #     endif()
 #   endif()
 #
-#   mdt_are_sanitizers_available(SANITIZERS_ARE_AVAILABLE)
-#   if(SANITIZERS_ARE_AVAILABLE)
-#     option(SANITIZER_ENABLE_ADDRESS "Enable address sanitizer for Instrumented build" OFF)
-#     option(SANITIZER_ENABLE_LEAK "Enable leak sanitizer for Instrumented build" OFF)
-#     option(SANITIZER_ENABLE_UNDEFINED "Enable undefined sanitizer for Instrumented build" OFF)
-#     option(SANITIZER_ENABLE_THREAD "Enable thread sanitizer for Instrumented build (can be incompatible with other sanitizers)" OFF)
-#   endif()
+#   mdt_add_address_sanitizer_option_if_available(SANITIZER_ENABLE_ADDRESS
+#     HELP_STRING "Enable address sanitizer for Debug and RelWithDebInfo build"
+#     INITIAL_VALUE OFF
+#   )
+#   mdt_add_memory_sanitizer_option_if_available(SANITIZER_ENABLE_MEMORY
+#     HELP_STRING "Enable memory sanitizer for Debug and RelWithDebInfo build"
+#     INITIAL_VALUE OFF
+#   )
+#   mdt_add_undefined_sanitizer_option_if_available(SANITIZER_ENABLE_UNDEFINED
+#     HELP_STRING "Enable undefined behaviour sanitizer for Debug and RelWithDebInfo build"
+#     INITIAL_VALUE OFF
+#   )
+#   mdt_add_thread_sanitizer_option_if_available(SANITIZER_ENABLE_THREAD
+#     HELP_STRING "Enable thread sanitizer for Debug and RelWithDebInfo build (can be incompatible with other sanitizers)"
+#     INITIAL_VALUE OFF
+#   )
 #
 #   if(SANITIZER_ENABLE_ADDRESS)
-#     mdt_compile_with_address_sanitizer(BUILD_TYPES Instrumented)
+#     mdt_build_with_address_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
 #   endif()
-#   if(SANITIZER_ENABLE_LEAK)
-#     mdt_compile_with_leak_sanitizer(BUILD_TYPES Instrumented)
+#   if(SANITIZER_ENABLE_MEMORY)
+#     mdt_build_with_memory_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
 #   endif()
 #   if(SANITIZER_ENABLE_UNDEFINED)
-#     mdt_compile_with_undefined_sanitizer(BUILD_TYPES Instrumented)
+#     mdt_build_with_undefined_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
 #   endif()
 #   if(SANITIZER_ENABLE_THREAD)
-#     mdt_compile_with_thread_sanitizer(BUILD_TYPES Instrumented)
+#     mdt_build_with_thread_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
 #   endif()
 #
+#
+# For sanitizers, see also the :module:`MdtSanitizers` module.
 #
 # .. command:: mdt_set_available_build_types
 #
@@ -127,8 +138,13 @@
 # - The address sanitizer documentation: https://github.com/google/sanitizers/wiki/AddressSanitizer
 # - The anounce from Microsoft: https://devblogs.microsoft.com/cppblog/addresssanitizer-asan-for-windows-with-msvc
 #
-# This function is candidate to deprecation.
-# See https://gitlab.com/scandyna/mdt-cmake-modules/issues/1
+# Note: this command is deprecated and will be removed in a future version.
+# Use those commands instead:
+#
+#   - :command:`mdt_add_address_sanitizer_option_if_available()`
+#   - :command:`mdt_add_memory_sanitizer_option_if_available()`
+#   - :command:`mdt_add_undefined_sanitizer_option_if_available()`
+#   - :command:`mdt_add_thread_sanitizer_option_if_available()`
 #
 #
 # .. command:: mdt_compile_with_address_sanitizer
@@ -139,6 +155,9 @@
 #     BUILD_TYPES type1 [[type2 ...]
 #   )
 #
+# Note: this command is deprecated and will be removed in a future version.
+# Use :command:`mdt_build_with_address_sanitizer()` instead.
+#
 #
 # .. command:: mdt_compile_with_leak_sanitizer
 #
@@ -147,6 +166,9 @@
 #   mdt_compile_with_leak_sanitizer(
 #     BUILD_TYPES type1 [[type2 ...]
 #   )
+#
+# Note: this command is deprecated and will be removed in a future version.
+# Use :command:`mdt_build_with_address_sanitizer()` instead.
 #
 #
 # .. command:: mdt_compile_with_undefined_sanitizer
@@ -157,15 +179,20 @@
 #     BUILD_TYPES type1 [[type2 ...]
 #   )
 #
+# Note: this command is deprecated and will be removed in a future version.
+# Use :command:`mdt_build_with_undefined_sanitizer()` instead.
+#
 #
 # .. command:: mdt_compile_with_thread_sanitizer
 #
-# Compile with support for address sanitizer::
+# Compile with support for thread sanitizer::
 #
 #   mdt_compile_with_thread_sanitizer(
 #     BUILD_TYPES type1 [[type2 ...]
 #   )
 #
+# Note: this command is deprecated and will be removed in a future version.
+# Use :command:`mdt_build_with_thread_sanitizer()` instead.
 #
 
 
@@ -233,6 +260,8 @@ endfunction()
 # TODO see https://gitlab.com/scandyna/mdt-cmake-modules/issues/1
 function(mdt_are_sanitizers_available out_var)
 
+  message(DEPRECATION "mdt_are_sanitizers_available() is deprecated. Consider using functions available in MdtSanitizers module")
+
   set(sanitizersAvailable FALSE)
   if(WIN32)
     if(MSVC_VERSION)
@@ -250,6 +279,8 @@ endfunction()
 
 
 function(mdt_compile_with_address_sanitizer)
+
+  message(DEPRECATION "mdt_compile_with_address_sanitizer() is deprecated. Use mdt_build_with_address_sanitizer() instead")
 
   set(options)
   set(oneValueArgs)
@@ -273,6 +304,8 @@ endfunction()
 
 function(mdt_compile_with_leak_sanitizer)
 
+  message(DEPRECATION "mdt_compile_with_leak_sanitizer() is deprecated. Use mdt_build_with_address_sanitizer() instead")
+
   set(options)
   set(oneValueArgs)
   set(multiValueArgs BUILD_TYPES)
@@ -295,6 +328,8 @@ endfunction()
 
 function(mdt_compile_with_undefined_sanitizer)
 
+  message(DEPRECATION "mdt_compile_with_undefined_sanitizer() is deprecated. Use mdt_build_with_undefined_sanitizer() instead")
+
   set(options)
   set(oneValueArgs)
   set(multiValueArgs BUILD_TYPES)
@@ -316,6 +351,8 @@ endfunction()
 
 
 function(mdt_compile_with_thread_sanitizer)
+
+  message(DEPRECATION "mdt_compile_with_thread_sanitizer() is deprecated. Use mdt_build_with_thread_sanitizer() instead")
 
   set(options)
   set(oneValueArgs)
