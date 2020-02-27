@@ -21,9 +21,14 @@
 #     add_compile_options($<$<CONFIG:Instrumented>:${BUILD_TYPE_INSTRUMENTED_OPTIMIZATION_LEVEL}>)
 #   endif()
 #
-#   option(BUILD_TYPE_INSTRUMENTED_USE_DEBUG_SYMBOLS "Add debug symbols (-g on Gcc/Clang, /DEBUG on MSVC)" ON)
+#   option(BUILD_TYPE_INSTRUMENTED_USE_DEBUG_SYMBOLS "Add debug symbols for Instrumented build (-g on Gcc/Clang, /DEBUG on MSVC)" ON)
 #   if(BUILD_TYPE_INSTRUMENTED_USE_DEBUG_SYMBOLS)
 #     mdt_add_debug_symbols_compile_option(BUILD_TYPES Instrumented)
+#   endif()
+#
+#   option(BUILD_TYPE_INSTRUMENTED_DEFINE_NDEBUG "Set NDEBUG definition for Instrumented build (will disable assert)" OFF)
+#   if(BUILD_TYPE_INSTRUMENTED_DEFINE_NDEBUG)
+#     add_definitions($<$<CONFIG:Instrumented>:NDEBUG>)
 #   endif()
 #
 #   option(WARNING_AS_ERROR "Threat warnings as errors" OFF)
