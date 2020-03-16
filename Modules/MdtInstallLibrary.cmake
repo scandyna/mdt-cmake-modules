@@ -606,6 +606,19 @@ function(mdt_install_interface_library)
   )
 
   if(ARG_VERSION)
+    # Taken from here: https://github.com/catchorg/Catch2/blob/master/CMakeLists.txt
+    #
+    # By default, FooConfigVersion is tied to architecture that it was generated on.
+    # A INTERFACE (header only) library is arch-independent,
+    # and thus the generated version file should not be tied to the architecture it was generated on.
+    #
+    # CMake does not provide a direct customization point for this in
+    # `write_basic_package_version_file`, but it can be accomplished
+    # indirectly by temporarily redefining `CMAKE_SIZEOF_VOID_P` to an empty string.
+    # Note that just undefining the variable could be
+    # insufficient in cases where the variable was already in CMake cache
+    set(MDT_INITIAL_CMAKE_SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
+    set(CMAKE_SIZEOF_VOID_P "")
     mdt_install_package_config_version_file(
       VERSION ${ARG_VERSION}
       COMPATIBILITY ${ARG_VERSION_COMPATIBILITY}
@@ -613,6 +626,7 @@ function(mdt_install_interface_library)
       DESTINATION ${ARG_LIBRARY_DESTINATION}/cmake/${ARG_INSTALL_NAMESPACE}${ARG_EXPORT_NAME}
       ${developmentComponentArguments}
     )
+    set(CMAKE_SIZEOF_VOID_P ${MDT_INITIAL_CMAKE_SIZEOF_VOID_P})
   endif()
 
 endfunction()
