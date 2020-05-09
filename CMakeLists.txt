@@ -3,19 +3,27 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+##################################################################
+# Project definition with versionning got from git tag or by Conan
+##################################################################
+
 find_package(Git REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules/")
 include(MdtVersionUtils)
 
-mdt_cmake_project_version_from_git_tag(GIT_TAG_VERSION DEFAULT_VERSION 0.0.0)
+set(INITIAL_PROJECT_VERSION)
+if(FROM_CONAN_PROJECT_VERSION)
+  set(INITIAL_PROJECT_VERSION ${FROM_CONAN_PROJECT_VERSION})
+else()
+  mdt_cmake_project_version_from_git_tag(INITIAL_PROJECT_VERSION DEFAULT_VERSION 0.0.0)
+endif()
 
-project(MdtCMakeModules VERSION ${GIT_TAG_VERSION})
+project(MdtCMakeModules VERSION ${INITIAL_PROJECT_VERSION})
 
+unset(INITIAL_PROJECT_VERSION)
 
-message("GIT_TAG_VERSION: ${GIT_TAG_VERSION}")
 message("PROJECT_VERSION: ${PROJECT_VERSION}")
-message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 # TODO shared libraries !!
 
