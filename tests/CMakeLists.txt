@@ -277,6 +277,53 @@ set_tests_properties(BuildAndRun_TableEditor PROPERTIES DEPENDS Install_MdtItemE
 
 # TODO: later, should install TableEditor and run from the install location
 
+#######################################################################
+# gl_issue4
+# mdt_add_test() does not add dependencies in ENVIRONMENT transitively
+# A project looks like:
+# apps
+#  |--TableEditor
+#  |      |--src
+#  |      |   |--main.cpp
+# libs
+#  |--TableEditorHelpers
+#           |--src
+#           |   |--TableEditorHelpers.h
+#           |   |--TableEditorHelpers.cpp
+#           |--tests
+#                |--src
+#                    |--TableEditorHelpersTest.cpp
+#
+#
+# In libs/TableEditorHelpers, a target named tableEditorHelpers is created.
+# tableEditorHelpers has a PUBLIC dependecy to Mdt0::ItemEditor (external library)
+#
+# Mdt0::ItemEditor also depends on Mdt0::ItemModel.
+#
+# In libs/TableEditorHelpers/tests, a target named tableEditorHelpersTest is created.
+# tableEditorHelpersTest has a dependecy to tableEditorHelpers
+#
+# To be able to run tableEditorHelpersTest,
+# TableEditorHelpersTest must have its ENVIRONMENT PATH
+# containing all the dependencies, transitively
+#######################################################################
+
+add_test(NAME BuildAndTest_TableEditorGlIssue4
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/TableEditorGlIssue4" "${CMAKE_CURRENT_BINARY_DIR}/buildTableEditorGlIssue4"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemEditor"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+
+set_tests_properties(BuildAndTest_TableEditorGlIssue4 PROPERTIES DEPENDS Install_MdtItemEditor)
+
+
 ########################################
 # Test building a superproject
 ########################################

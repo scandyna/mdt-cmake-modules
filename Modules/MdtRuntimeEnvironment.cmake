@@ -318,6 +318,65 @@ function(mdt_append_test_environment_variables_string test_name)
 endfunction()
 
 
+function(mdt_collect_shared_libraries_dependencies out_var)
+
+  set(options "")
+  set(oneValueArgs TARGET)
+  set(multiValueArgs "")
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_collect_shared_libraries_dependencies(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_collect_shared_libraries_dependencies(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(targetList)
+  get_target_property(interfaceLinkDependencies ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
+  if(interfaceLinkDependencies)
+    foreach(interfaceLinkDependency ${interfaceLinkDependencies})
+      if(TARGET ${interfaceLinkDependency})
+        mdt_target_is_shared_library(interfaceLinkDependencyIsSharedLibrary TARGET ${interfaceLinkDependency})
+        if(interfaceLinkDependencyIsSharedLibrary)
+          list(APPEND targetList ${interfaceLinkDependency})
+        endif()
+      endif()
+    endforeach()
+  endif(interfaceLinkDependencies)
+
+  set(${out_var} ${targetList} PARENT_SCOPE)
+
+endfunction()
+
+
+function(mdt_collect_shared_libraries_dependencies_transitively out_var)
+
+  set(options "")
+  set(oneValueArgs TARGET)
+  set(multiValueArgs "")
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_collect_shared_libraries_dependencies_transitively(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_collect_shared_libraries_dependencies_transitively(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(allDependencies)
+  mdt_collect_shared_libraries_dependencies(directDependencies TARGET ${ARG_TARGET})
+  list(APPEND allDependencies ${directDependencies})
+  foreach(directDependency ${directDependencies})
+    mdt_collect_shared_libraries_dependencies_transitively(dependencies TARGET ${directDependency})
+    list(APPEND allDependencies ${dependencies})
+  endforeach()
+
+  set(${out_var} ${allDependencies} PARENT_SCOPE)
+
+endfunction()
+
+
 function(mdt_target_libraries_to_library_env_path out_var)
 
   set(options "")
@@ -346,21 +405,7 @@ function(mdt_target_libraries_to_library_env_path out_var)
 #         message(WARNING "mdt_target_libraries_to_library_env_path(): library ${directDependency} will be ignored because it is not a TARGET")
         continue()
       endif()
-      set(interfaceLinkDependencies)
-      get_target_property(interfaceLinkDependencies ${directDependency} INTERFACE_LINK_LIBRARIES)
-      if(interfaceLinkDependencies)
-        foreach(interfaceLinkDependency ${interfaceLinkDependencies})
-          if(TARGET ${interfaceLinkDependency})
-            mdt_target_is_shared_library(interfaceLinkDependencyIsSharedLibrary TARGET ${interfaceLinkDependency})
-            if(interfaceLinkDependencyIsSharedLibrary)
-              list(APPEND targetList ${interfaceLinkDependency})
-            endif()
-          else()
-#             message(WARNING "mdt_target_libraries_to_library_env_path(): library ${interfaceLinkDependency} will be ignored because it is not a TARGET")
-            continue()
-          endif()
-        endforeach()
-      endif(interfaceLinkDependencies)
+      mdt_collect_shared_libraries_dependencies_transitively(targetList TARGET ${directDependency})
     endforeach()
   endif(directDependencies)
 

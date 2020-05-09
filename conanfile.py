@@ -19,8 +19,14 @@ class MdtCMakeModulesConan(ConanFile):
     #else:
       #self.version = "None"
 
-  def build(self):
+  def configure_cmake(self):
     cmake = CMake(self)
+    cmake.definitions["FROM_CONAN_PROJECT_VERSION"] = self.version
+
+    return cmake
+
+  def build(self):
+    cmake = self.configure_cmake()
     cmake.configure()
     cmake.build()
     cmake.install()
