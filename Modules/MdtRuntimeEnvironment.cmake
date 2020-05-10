@@ -372,6 +372,11 @@ function(mdt_collect_shared_libraries_dependencies_transitively out_var)
     list(APPEND allDependencies ${dependencies})
   endforeach()
 
+  list(LENGTH allDependencies listLen)
+  if(listLen GREATER 1)
+    list(REMOVE_DUPLICATES allDependencies)
+  endif()
+
   set(${out_var} ${allDependencies} PARENT_SCOPE)
 
 endfunction()
