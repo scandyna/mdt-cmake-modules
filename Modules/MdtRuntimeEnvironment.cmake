@@ -318,7 +318,7 @@ function(mdt_append_test_environment_variables_string test_name)
 endfunction()
 
 
-function(mdt_collect_shared_libraries_dependencies out_var)
+function(mdt_collect_libraries_dependencies out_var)
 
   set(options "")
   set(oneValueArgs TARGET)
@@ -326,10 +326,10 @@ function(mdt_collect_shared_libraries_dependencies out_var)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT TARGET ${ARG_TARGET})
-    message(FATAL_ERROR "mdt_collect_shared_libraries_dependencies(): ${ARG_TARGET} is not a valid target")
+    message(FATAL_ERROR "mdt_collect_libraries_dependencies(): ${ARG_TARGET} is not a valid target")
   endif()
   if(ARG_UNPARSED_ARGUMENTS)
-    message(FATAL_ERROR "mdt_collect_shared_libraries_dependencies(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+    message(FATAL_ERROR "mdt_collect_libraries_dependencies(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
   set(targetList)
@@ -337,15 +337,44 @@ function(mdt_collect_shared_libraries_dependencies out_var)
   if(interfaceLinkDependencies)
     foreach(interfaceLinkDependency ${interfaceLinkDependencies})
       if(TARGET ${interfaceLinkDependency})
-        mdt_target_is_shared_library(interfaceLinkDependencyIsSharedLibrary TARGET ${interfaceLinkDependency})
-        if(interfaceLinkDependencyIsSharedLibrary)
-          list(APPEND targetList ${interfaceLinkDependency})
-        endif()
+        list(APPEND targetList ${interfaceLinkDependency})
       endif()
     endforeach()
   endif(interfaceLinkDependencies)
 
   set(${out_var} ${targetList} PARENT_SCOPE)
+
+endfunction()
+
+
+function(mdt_collect_libraries_dependencies_transitively out_var)
+
+  set(options "")
+  set(oneValueArgs TARGET)
+  set(multiValueArgs "")
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_collect_libraries_dependencies_transitively(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_collect_libraries_dependencies_transitively(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(allDependencies)
+  mdt_collect_libraries_dependencies(directDependencies TARGET ${ARG_TARGET})
+  list(APPEND allDependencies ${directDependencies})
+  foreach(directDependency ${directDependencies})
+    mdt_collect_libraries_dependencies_transitively(dependencies TARGET ${directDependency})
+    list(APPEND allDependencies ${dependencies})
+  endforeach()
+
+  list(LENGTH allDependencies listLen)
+  if(listLen GREATER 1)
+    list(REMOVE_DUPLICATES allDependencies)
+  endif()
+
+  set(${out_var} ${allDependencies} PARENT_SCOPE)
 
 endfunction()
 
@@ -365,19 +394,24 @@ function(mdt_collect_shared_libraries_dependencies_transitively out_var)
   endif()
 
   set(allDependencies)
-  mdt_collect_shared_libraries_dependencies(directDependencies TARGET ${ARG_TARGET})
-  list(APPEND allDependencies ${directDependencies})
-  foreach(directDependency ${directDependencies})
-    mdt_collect_shared_libraries_dependencies_transitively(dependencies TARGET ${directDependency})
-    list(APPEND allDependencies ${dependencies})
+  get_target_property(linkLibrariesDependencies ${ARG_TARGET} LINK_LIBRARIES)
+  foreach(linkLibraryDependency ${linkLibrariesDependencies})
+    if(TARGET ${linkLibraryDependency})
+      list(APPEND allDependencies ${linkLibraryDependency})
+      mdt_collect_libraries_dependencies_transitively(interfaceLinkLibrariesDependencies TARGET ${linkLibraryDependency})
+      list(APPEND allDependencies ${interfaceLinkLibrariesDependencies})
+    endif()
   endforeach()
 
-  list(LENGTH allDependencies listLen)
-  if(listLen GREATER 1)
-    list(REMOVE_DUPLICATES allDependencies)
-  endif()
+  set(allSharedLibrariesDependencies)
+  foreach(dependency ${allDependencies})
+    mdt_target_is_shared_library(dependencyIsSharedLibrary TARGET ${dependency})
+    if(dependencyIsSharedLibrary)
+      list(APPEND allSharedLibrariesDependencies ${dependency})
+    endif()
+  endforeach()
 
-  set(${out_var} ${allDependencies} PARENT_SCOPE)
+  set(${out_var} ${allSharedLibrariesDependencies} PARENT_SCOPE)
 
 endfunction()
 
@@ -396,24 +430,10 @@ function(mdt_target_libraries_to_library_env_path out_var)
     message(FATAL_ERROR "mdt_target_libraries_to_library_env_path(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  # Collect the list of dependencies
-  set(targetList)
-  get_target_property(directDependencies ${ARG_TARGET} LINK_LIBRARIES)
-  if(directDependencies)
-    foreach(directDependency ${directDependencies})
-      if(TARGET ${directDependency})
-        mdt_target_is_shared_library(directDependencyIsSharedLibrary TARGET ${directDependency})
-        if(directDependencyIsSharedLibrary)
-          list(APPEND targetList ${directDependency})
-        endif()
-        mdt_collect_shared_libraries_dependencies_transitively(interfaceLinkDependencies TARGET ${directDependency})
-        list(APPEND targetList ${interfaceLinkDependencies})
-      endif()
-    endforeach()
-  endif(directDependencies)
+  mdt_collect_shared_libraries_dependencies_transitively(sharedLibrariesDependencies TARGET ${ARG_TARGET})
 
-  foreach(target ${targetList})
-    list(APPEND pathList "$<SHELL_PATH:$<TARGET_FILE_DIR:${target}>>")
+  foreach(sharedLibraryDependency ${sharedLibrariesDependencies})
+    list(APPEND pathList "$<SHELL_PATH:$<TARGET_FILE_DIR:${sharedLibraryDependency}>>")
   endforeach()
 
   # TODO: s.a. WINEPATH
