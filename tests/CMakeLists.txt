@@ -323,6 +323,43 @@ add_test(NAME BuildAndTest_TableEditorGlIssue4
 
 set_tests_properties(BuildAndTest_TableEditorGlIssue4 PROPERTIES DEPENDS Install_MdtItemEditor)
 
+#######################################################################
+# gl_issue4 - New case from 21.07.2020
+# libs
+#   |-Core
+#   |   |-src
+#   |   |-tests
+#   |-Domain
+#   |   |-src
+#   |-TestLib
+#       |-src
+#
+# In Core, we tests that have a PUBLIC dependency on TestLib.
+# TestLib also has a PUBLIC dependency on Domain.
+# Domain has a PUBLIC dependency on Mdt0::PlainText_QtCore.
+#
+# To summarize:
+# CoreTests -> TestLib -> Domain -> Mdt0::PlainText_QtCore
+#
+# Here we will replace Mdt0::PlainText_QtCore by Mdt0::ItemModel:
+# CoreTests -> TestLib -> Domain -> Mdt0::ItemModel
+#######################################################################
+
+add_test(NAME BuildAndTest_GlIssue4CoreTestLibDomain
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/GlIssue4CoreTestLibDomain" "${CMAKE_CURRENT_BINARY_DIR}/buildGlIssue4CoreTestLibDomain"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+
+set_tests_properties(BuildAndTest_GlIssue4CoreTestLibDomain PROPERTIES DEPENDS Install_MdtItemEditor)
+
 
 ########################################
 # Test building a superproject
