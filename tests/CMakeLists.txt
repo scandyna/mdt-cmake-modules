@@ -360,6 +360,8 @@ add_test(NAME BuildAndTest_GlIssue4CoreTestLibDomain
 
 set_tests_properties(BuildAndTest_GlIssue4CoreTestLibDomain PROPERTIES DEPENDS Install_MdtItemEditor)
 
+# See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/4
+set_tests_properties(BuildAndTest_GlIssue4CoreTestLibDomain PROPERTIES DISABLED YES)
 
 ########################################
 # Test building a superproject
