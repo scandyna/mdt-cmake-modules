@@ -167,5 +167,11 @@ function(mdt_add_test)
 
   mdt_set_test_library_env_path(NAME ${ARG_NAME} TARGET ${ARG_TARGET})
 
+#   set_property(TEST ${ARG_NAME} PROPERTY TEST_TARGET ${ARG_TARGET})
+  set_tests_properties(${ARG_NAME} PROPERTIES TEST_TARGET "${ARG_TARGET}")
+  set_property(GLOBAL APPEND PROPERTY MDT_TESTS ${ARG_NAME})
+
+  set_property(GLOBAL APPEND PROPERTY MDT_TEST_TARGETS ${ARG_TARGET})
+
 endfunction()
 

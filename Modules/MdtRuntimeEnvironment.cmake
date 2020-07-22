@@ -5,6 +5,9 @@
 # MdtRuntimeEnvironment
 # ---------------------
 #
+# .. contents:: Summary
+#    :local:
+#
 # Some test utilities
 # ^^^^^^^^^^^^^^^^^^^
 #
@@ -23,6 +26,72 @@
 # The `VARIABLES_STRING` is not parsed, but appended as is to the ``ENVIRONMENT`` property of the test.
 # See next sections to understand this choice.
 #
+# .. command:: mdt_set_test_library_env_path
+#
+# Set the ``ENVIRONMENT`` property to a test with paths
+# to the libraries the test links to::
+#
+#   mdt_set_test_library_env_path(NAME <test-name> TARGET <test-target>)
+#
+# Will get the libraries defined in the ``LINK_LIBRARIES`` property of ``test-target``,
+# then the ``INTERFACE_LINK_LIBRARIES`` for each dependency.
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   add_executable(myApp main.cpp)
+#
+#   target_link_libraries(myApp
+#     PRIVATE Mdt0::ItemEditor
+#   )
+#
+#   add_test(NAME RunMyApp COMMAND myApp)
+#   mdt_set_test_library_env_path(NAME RunMyApp TARGET myApp)
+#
+# This will set the ``ENVIRONMENT`` property to the test like this:
+#
+# .. code-block:: cmake
+#
+#   set_tests_properties(RunMyApp
+#     PROPERTIES
+#       ENVIRONMENT
+#         "LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}"
+#   )
+#
+# Note: this will only work once all targets the test depends on have been entirely processed.
+#
+# A workaround is to add the missing dependencies directly to the test executable.
+#
+# A attempt to provide a function that sets the ``ENVIRONMENT`` for each tests that have been added to a project was made.
+# Sadly, I found no way to set a test property to a test defined in a other directory than the test was created from.
+#
+# See also https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/4
+#
+#
+# .. command:: mdt_set_all_tests_library_env_path
+#
+# Will call `mdt_set_test_library_env_path()` for each test that have been added.
+#
+#   mdt_set_all_tests_library_env_path(ALL_TESTS_VARIABLE <variable>)
+#
+# Example of a top-level `CMakeLists.txt`:
+#
+# .. code-block:: cmake
+#
+#   # Each of this library will add their own tests using mdt_add_test()
+#   add_subdirectory(libs/Core)
+#   add_subdirectory(libs/Domain)
+#   add_subdirectory(libs/TestLib)
+#
+#   mdt_set_all_tests_library_env_path(ALL_TESTS_VARIABLE MDT_ALL)
+#
+# Note: when using CMake prior to version 3.12,
+# you will have to add the ... <- DIRECTORY property..
+#
+# TODO: maybe mdt_set_tests_library_env_path(TESTS ${MDT_ALL_TESTS})
+# also see how to build a list of tests and get their attributes back,
+# tipically its target name !
 #
 # Using installed shared libraries in your development
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -220,40 +289,6 @@
 # See also: https://cmake.org/pipermail/cmake/2009-May/029425.html
 #
 #
-# .. command:: mdt_set_test_library_env_path
-#
-# Set the ``ENVIRONMENT`` property to a test with paths
-# to the libraries the test links to::
-#
-#   mdt_set_test_library_env_path(NAME <test-name> TARGET <test-target>)
-#
-# Will get the libraries defined in the ``LINK_LIBRARIES`` property of ``test-target``,
-# then the ``INTERFACE_LINK_LIBRARIES`` for each dependency.
-#
-# Example:
-#
-# .. code-block:: cmake
-#
-#   add_executable(myApp main.cpp)
-#
-#   target_link_libraries(myApp
-#     PRIVATE Mdt0::ItemEditor
-#   )
-#
-#   add_test(NAME RunMyApp COMMAND myApp)
-#   mdt_set_test_library_env_path(NAME RunMyApp TARGET myApp)
-#
-# This will set the ``ENVIRONMENT`` property to the test like this:
-#
-# .. code-block:: cmake
-#
-#   set_tests_properties(RunMyApp
-#     PROPERTIES
-#       ENVIRONMENT
-#         "LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}"
-#   )
-#
-#
 # Using environment path in the terminal
 # """"""""""""""""""""""""""""""""""""""
 #
@@ -334,6 +369,9 @@ function(mdt_collect_libraries_dependencies out_var)
 
   set(targetList)
   get_target_property(interfaceLinkDependencies ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
+  
+  message("   -> INTERFACE_LINK_LIBRARIES for ${ARG_TARGET}: ${interfaceLinkDependencies}")
+  
   if(interfaceLinkDependencies)
     foreach(interfaceLinkDependency ${interfaceLinkDependencies})
       if(TARGET ${interfaceLinkDependency})
@@ -393,13 +431,25 @@ function(mdt_collect_shared_libraries_dependencies_transitively out_var)
     message(FATAL_ERROR "mdt_collect_shared_libraries_dependencies_transitively(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
+  message("Collect deps for ${ARG_TARGET} ...")
+  
+  get_target_property(linkDeps ${ARG_TARGET} LINK_LIBRARIES)
+  get_target_property(interfaceLinkDeps ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
+  
+  message(" - LINK_LIBRARIES: ${linkDeps}")
+  message(" - INTERFACE_LINK_LIBRARIES: ${interfaceLinkDeps}")
+  
   set(allDependencies)
   get_target_property(linkLibrariesDependencies ${ARG_TARGET} LINK_LIBRARIES)
   foreach(linkLibraryDependency ${linkLibrariesDependencies})
+    message(" -> try ${linkLibraryDependency} ...")
     if(TARGET ${linkLibraryDependency})
+      message("  -> found: ${linkLibraryDependency}")
       list(APPEND allDependencies ${linkLibraryDependency})
       mdt_collect_libraries_dependencies_transitively(interfaceLinkLibrariesDependencies TARGET ${linkLibraryDependency})
       list(APPEND allDependencies ${interfaceLinkLibrariesDependencies})
+    else()
+      message("  -> ${linkLibraryDependency} is not a TARGET")
     endif()
   endforeach()
 
@@ -410,6 +460,8 @@ function(mdt_collect_shared_libraries_dependencies_transitively out_var)
       list(APPEND allSharedLibrariesDependencies ${dependency})
     endif()
   endforeach()
+  
+  message("Collected for ${ARG_TARGET}: ${allSharedLibrariesDependencies}")
 
   set(${out_var} ${allSharedLibrariesDependencies} PARENT_SCOPE)
 
