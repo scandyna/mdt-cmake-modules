@@ -140,7 +140,7 @@ test_linux_clang6.0_x86_64_libc++_debug:
     - .windows_runner
   script:
     - cd build
-    - ctest --output-on-failure --verbose --build-config $BUILD_TYPE .
+    - ctest --output-on-failure --verbose --build-config $env:BUILD_TYPE .
 
 
 build_windows_gcc7_x86_64_debug:
