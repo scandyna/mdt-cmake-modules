@@ -549,8 +549,8 @@ set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtIt
 
 if(BUILD_CONAN_TESTS)
 
-#   include(conan.cmake)
-#   conan_cmake_settings(conanSettings)
+  include(conan.cmake)
+  conan_cmake_settings(conanSettings)
 
   # Build and install MdtCMakeModules
   add_test(NAME Conan_Create_MdtCMakeModules

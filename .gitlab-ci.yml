@@ -124,7 +124,8 @@ test_linux_clang6.0_x86_64_libc++_debug:
   script:
     - mkdir build
     - cd build
-    - cmake -G"$CMAKE_GENERATOR" $CMAKE_GENERATOR_EXTRA_ARGS -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE -DWARNING_AS_ERROR=ON
+    - echo "$BUILD_TYPE"
+    - cmake -G"$CMAKE_GENERATOR" $CMAKE_GENERATOR_EXTRA_ARGS "-DCMAKE_BUILD_TYPE=$env:BUILD_TYPE" -DWARNING_AS_ERROR=ON
             -DCMAKE_PREFIX_PATH="$QT_PREFIX_PATH"
             -DBUILD_TESTS=ON -DBUILD_CONAN_TESTS=ON -DBUILD_QT_TESTS=ON ..
     - cmake --build . --config $env:BUILD_TYPE -j4
