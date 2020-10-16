@@ -7,7 +7,7 @@ class MdtCMakeModulesConan(ConanFile):
   license = "BSD 3-Clause"
   url = "https://gitlab.com/scandyna/mdt-cmake-modules"
   description = "Some CMake modules used in \"Multi Dev Tools\" projects"
-  generators = "cmake_paths"
+  generators = "cmake", "cmake_paths"
   exports_sources = "Modules/*", "CMakeLists.txt", "MdtCMakeModulesConfig.cmake.in", "LICENSE"
 
   # TODO should fail if no tag found ?

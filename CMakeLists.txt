@@ -25,6 +25,16 @@ unset(INITIAL_PROJECT_VERSION)
 
 message(STATUS "PROJECT_VERSION: ${PROJECT_VERSION}")
 
+#######################
+# Conan
+#######################
+
+if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  conan_basic_setup(NO_OUTPUT_DIRS)
+endif()
+
+
 # TODO shared libraries !!
 
 option(BUILD_TESTS "Build the tests" OFF)
