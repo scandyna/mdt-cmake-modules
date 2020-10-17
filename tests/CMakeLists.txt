@@ -569,7 +569,7 @@ if(BUILD_CONAN_TESTS)
       ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtHeaderOnly PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
-  mdt_append_test_environment_variables_string(Conan_Create_MdtHeaderOnly "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CONAN_CMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}")
+  mdt_append_test_environment_variables_string(Conan_Create_MdtHeaderOnly "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
 
   # Build and install MdtItemModel
   add_test(NAME Conan_Create_MdtItemModel
@@ -578,7 +578,7 @@ if(BUILD_CONAN_TESTS)
       ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtHeaderOnly)
-  mdt_append_test_environment_variables_string(Conan_Create_MdtItemModel "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CONAN_CMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}")
+  mdt_append_test_environment_variables_string(Conan_Create_MdtItemModel "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
 
   # Build and install MdtItemEditor
   add_test(NAME Conan_Create_MdtItemEditor
@@ -587,7 +587,7 @@ if(BUILD_CONAN_TESTS)
       ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtItemEditor PROPERTIES DEPENDS Conan_Create_MdtItemModel)
-  mdt_append_test_environment_variables_string(Conan_Create_MdtItemEditor "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CONAN_CMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}")
+  mdt_append_test_environment_variables_string(Conan_Create_MdtItemEditor "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
 
   # Build TableEditor with Conan + run the app
   add_test(NAME Conan_Install_TableEditor_dependecies

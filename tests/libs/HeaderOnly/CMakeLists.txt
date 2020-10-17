@@ -36,3 +36,5 @@ if(INSTALL_NAMESPACE_PACKAGE_CONFIG_FILES)
     COMPONENT Mdt_Dev
   )
 endif()
+
+message(STATUS "PATH: $ENV{PATH}")
