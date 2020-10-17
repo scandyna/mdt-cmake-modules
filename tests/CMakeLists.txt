@@ -4,6 +4,7 @@
 include(AddQt5ToCMakePrefixPath)
 include(MdtPackageConfigHelpers)
 include(MdtAddTest)
+include(MdtRuntimeEnvironment)
 
 
 #######################################################
@@ -558,7 +559,8 @@ if(BUILD_CONAN_TESTS)
       create "${CMAKE_SOURCE_DIR}" "0.2@MdtCMakeModules_tests/testing"
       ${conanSettings}
   )
-  set_tests_properties(Conan_Create_MdtCMakeModules PROPERTIES ENVIRONMENT "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
+#   set_tests_properties(Conan_Create_MdtCMakeModules PROPERTIES ENVIRONMENT "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
+  mdt_append_test_environment_variables_string(Conan_Create_MdtCMakeModules "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
 
   # Build and install MdtHeaderOnly
   add_test(NAME Conan_Create_MdtHeaderOnly
@@ -566,11 +568,8 @@ if(BUILD_CONAN_TESTS)
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/HeaderOnly" "0.1@MdtCMakeModules_tests/testing"
       ${conanSettings}
   )
-  set_tests_properties(Conan_Create_MdtHeaderOnly
-    PROPERTIES
-      DEPENDS Conan_Create_MdtCMakeModules
-      ENVIRONMENT "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}"
-  )
+  set_tests_properties(Conan_Create_MdtHeaderOnly PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
+  mdt_append_test_environment_variables_string(Conan_Create_MdtHeaderOnly "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
 
   # Build and install MdtItemModel
   add_test(NAME Conan_Create_MdtItemModel
@@ -578,11 +577,8 @@ if(BUILD_CONAN_TESTS)
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemModel" "0.1@MdtCMakeModules_tests/testing"
       ${conanSettings}
   )
-  set_tests_properties(Conan_Create_MdtItemModel
-    PROPERTIES
-      DEPENDS Conan_Create_MdtHeaderOnly
-      ENVIRONMENT "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}"
-  )
+  set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtHeaderOnly)
+  mdt_append_test_environment_variables_string(Conan_Create_MdtItemModel "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
 
   # Build and install MdtItemEditor
   add_test(NAME Conan_Create_MdtItemEditor
@@ -590,11 +586,8 @@ if(BUILD_CONAN_TESTS)
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemEditor" "0.1@MdtCMakeModules_tests/testing"
       ${conanSettings}
   )
-  set_tests_properties(Conan_Create_MdtItemEditor
-    PROPERTIES
-      DEPENDS Conan_Create_MdtItemModel
-      ENVIRONMENT "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}"
-  )
+  set_tests_properties(Conan_Create_MdtItemEditor PROPERTIES DEPENDS Conan_Create_MdtItemModel)
+  mdt_append_test_environment_variables_string(Conan_Create_MdtItemEditor "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
 
   # Build TableEditor with Conan + run the app
   add_test(NAME Conan_Install_TableEditor_dependecies
