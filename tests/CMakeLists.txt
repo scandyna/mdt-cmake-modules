@@ -569,7 +569,7 @@ if(BUILD_CONAN_TESTS)
       ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtHeaderOnly PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
-  mdt_append_test_environment_variables_string(Conan_Create_MdtHeaderOnly "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
+  mdt_append_test_environment_variables_string(Conan_Create_MdtHeaderOnly "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CONAN_PRINT_RUN_COMMANDS=1")
 
   # Build and install MdtItemModel
   add_test(NAME Conan_Create_MdtItemModel
