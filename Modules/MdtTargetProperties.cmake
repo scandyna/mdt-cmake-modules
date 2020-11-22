@@ -162,10 +162,10 @@
 #   # myLib will have the INSTALL_RPATH property set to $ORIGIN
 #
 #   mdt_set_target_install_rpath_property(
-#     TARGET myLib
+#     TARGET myApp
 #     PATHS . ../lib
 #   )
-#   # myLib will have the INSTALL_RPATH property set to $ORIGIN;$ORIGIN/../lib
+#   # myApp will have the INSTALL_RPATH property set to $ORIGIN;$ORIGIN/../lib
 #
 #
 # .. command:: mdt_set_target_default_library_rpath_property
