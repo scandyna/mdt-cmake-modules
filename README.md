@@ -196,7 +196,7 @@ This will break if the internal directory organisation changes.
 
 To use Conan, create a conanfile.txt:
 ```conan
-[requires]
+[build_requires]
 MdtCMakeModules/[>=0.11.0]@scandyna/testing
 
 [generators]
