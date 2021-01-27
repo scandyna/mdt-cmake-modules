@@ -5,9 +5,191 @@
 # MdtInstallLibrary
 # -----------------
 #
-# These commands are available:
-#  - :command:`mdt_install_interface_library()`
-#  - :command:`mdt_install_library()`
+# .. contents:: Summary
+#    :local:
+#
+# Introduction
+# ^^^^^^^^^^^^
+#
+# As example, we have 2 libraries that will be installed:
+#
+# - ItemModel: provide some models based on Qt's Item/View framework
+# - ItemEditor: provide some helpers for edition in the ItemView framework
+#
+# Both libraries are separate projects.
+#
+# Finally, a application will use those libraries.
+#
+# To simplify the case, and also to expose some issue,
+# both libraries depends on QtCore
+# (in practice, ItemEditor will probably also depend on QtWidgets).
+#
+# The example are incomplete and only focuses on library installation.
+#
+# Here is ItemModel:
+#
+# .. code-block:: cmake
+#
+#   find_package(Qt5 COMPONENTS Core REQUIRED)
+#
+#   add_library(Mdt_ItemModel
+#     Mdt/ItemModel/sourc1.cpp
+#     Mdt/ItemModel/sourc2.cpp
+#     ...
+#   )
+#
+#   include(GenerateExportHeader)
+#   generate_export_header(Mdt_ItemModel)
+#
+#   target_link_libraries(Mdt_ItemModel
+#     PUBLIC
+#       Qt5::Core
+#   )
+#
+#   target_include_directories(Mdt_ItemModel
+#     PUBLIC
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#     PRIVATE
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Impl>
+#   )
+#
+#   # This should be set at the top level CMakeLists.txt
+#   set(MDT_INSTALL_PACKAGE_NAME Mdt0)
+#   include(GNUInstallDirs)
+#   include(MdtInstallDirs)
+#
+#   mdt_install_library(
+#     TARGET Mdt_ItemModel
+#     RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR}
+#     LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     ARCHIVE_DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     INCLUDES_DIRECTORY .
+#     INCLUDES_FILE_WITHOUT_EXTENSION
+#     ADDITIONAL_INCLUDES_FILES "${CMAKE_CURRENT_BINARY_DIR}/mdt_itemmodel_export.h"
+#     INCLUDES_DESTINATION ${MDT_INSTALL_INCLUDEDIR}
+#     EXPORT_NAME ItemModel
+#     EXPORT_NAMESPACE Mdt0::
+#     INSTALL_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
+#     FIND_PACKAGE_PATHS ..
+#     INSTALL_IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
+#     VERSION ${PROJECT_VERSION}
+#     SOVERSION ${PROJECT_VERSION_MAJOR}
+#     VERSION_COMPATIBILITY ExactVersion
+#     RUNTIME_COMPONENT ${PROJECT_NAME}_Runtime
+#     DEVELOPMENT_COMPONENT ${PROJECT_NAME}_Dev
+#   )
+#
+# Here is a extract of ItemEditor (not working):
+#
+# .. code-block:: cmake
+#
+#   find_package(Mdt0 COMPONENTS ItemModel REQUIRED)
+#
+#   add_library(Mdt_ItemEditor
+#     Mdt/ItemEditor/sourc1.cpp
+#     Mdt/ItemEditor/sourc2.cpp
+#     ...
+#   )
+#
+#   target_link_libraries(Mdt_ItemEditor
+#     PUBLIC
+#       Mdt0::ItemModel
+#   )
+#
+# With above example, CMake will probably generate a error,
+# because ItemEditor depends on ItemModel, which depends on Qt5::Core.
+# The problem is that a call to ``find_package(Qt5 COMPONENTS Core REQUIRED)`` is missing.
+#
+# We will see later that transitive dependencies,
+# including calls to :command:`find_package()`,
+# are supported when using :command:`mdt_install_library()`,
+# but some informations needs to be attached as target properties to make it work.
+# Because the used mechanism is not standard CMake,
+# Qt5 does not provide the meta informations to call :command:`find_package()` automatically.
+# For more technical details, see below and also :command:`mdt_install_package_config_file()`.
+#
+# Here is ItemEditor:
+#
+# .. code-block:: cmake
+#
+#   # We have to call find_package() for Qt5 here
+#   find_package(Qt5 COMPONENTS Core REQUIRED)
+#   find_package(Mdt0 COMPONENTS ItemModel REQUIRED)
+#
+#   add_library(Mdt_ItemEditor
+#     Mdt/ItemEditor/sourc1.cpp
+#     Mdt/ItemEditor/sourc2.cpp
+#     ...
+#   )
+#
+#   include(GenerateExportHeader)
+#   generate_export_header(Mdt_ItemEditor)
+#
+#   # We don't need to express the dependency to Qt5::Core here
+#   # (at this level, transitive dependency is standard CMake)
+#   target_link_libraries(Mdt_ItemEditor
+#     PUBLIC
+#       Mdt0::ItemModel
+#   )
+#
+#   target_include_directories(Mdt_ItemEditor
+#     PUBLIC
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+#     PRIVATE
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Impl>
+#   )
+#
+#   # This should be set at the top level CMakeLists.txt
+#   set(MDT_INSTALL_PACKAGE_NAME Mdt0)
+#   include(GNUInstallDirs)
+#   include(MdtInstallDirs)
+#
+#   mdt_install_library(
+#     TARGET Mdt_ItemEditor
+#     RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR}
+#     LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     ARCHIVE_DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     INCLUDES_DIRECTORY .
+#     INCLUDES_FILE_WITHOUT_EXTENSION
+#     ADDITIONAL_INCLUDES_FILES "${CMAKE_CURRENT_BINARY_DIR}/mdt_itemeditor_export.h"
+#     INCLUDES_DESTINATION ${MDT_INSTALL_INCLUDEDIR}
+#     EXPORT_NAME ItemEditor
+#     EXPORT_NAMESPACE Mdt0::
+#     INSTALL_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
+#     FIND_PACKAGE_PATHS ..
+#     INSTALL_IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
+#     VERSION ${PROJECT_VERSION}
+#     SOVERSION ${PROJECT_VERSION_MAJOR}
+#     VERSION_COMPATIBILITY ExactVersion
+#     RUNTIME_COMPONENT ${PROJECT_NAME}_Runtime
+#     DEVELOPMENT_COMPONENT ${PROJECT_NAME}_Dev
+#   )
+#
+# Here is the final application that uses ItemEditor:
+#
+# .. code-block:: cmake
+#
+#   find_package(Qt5 COMPONENTS Core REQUIRED)
+#   find_package(Mdt0 COMPONENTS ItemEditor REQUIRED)
+#
+#   add_executable(myApp myApp.cpp)
+#
+#   target_link_libraries(myApp
+#     PRIVATE
+#       Mdt0::ItemEditor
+#   )
+#
+# In above example, `myApp` cares about ItemEditor.
+# There is no care to take about libraries
+# `ItemEditor` depends on, as long as they are installed
+# using :command:`mdt_install_library()`.
+# But, as explained before,
+# we have to explicitly call :command:`find_package()`
+# for libraries, used by `ItemEditor`,
+# like Qt5, Boost, etc..
+#
 #
 # Install a interface library
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
