@@ -85,11 +85,10 @@ deploy_conan:
     - if: $CI_COMMIT_TAG
       when: on_success
     - when: never
-  before_script:
-    - conan user -p $BINTRAY_API_KEY -r scandyna scandyna
   script:
-    - conan create . scandyna/testing
-    - conan upload MdtCMakeModules/*@scandyna/testing -r scandyna --all -c
+    - conan create . scandyna+packages/testing
+    - conan user --password ${CI_JOB_TOKEN} --remote gitlab ci_user
+    - conan upload MdtCMakeModules/*@scandyna+packages/testing --remote gitlab --all -c
 
 
 ###############################
