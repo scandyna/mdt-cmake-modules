@@ -90,7 +90,7 @@ deploy_conan:
     #- conan remote add artifactory https://scandyna.jfrog.io/artifactory/api/conan/conan
     - conan remote add scandyna https://gitlab.com/api/v4/projects/25668674/packages/conan
     - conan create . scandyna/testing
-    - conan user --password ${CI_JOB_TOKEN} --remote gitlab ci_user
+    - conan user --password ${CI_JOB_TOKEN} --remote scandyna ci_user
     - conan upload MdtCMakeModules/*@scandyna/testing --remote scandyna --all -c
     #- conan user --password ${ARTIFACTORY_API_PASSWORD} --remote artifactory ${ARTIFACTORY_API_USER}
     #- conan user --password ${CI_JOB_TOKEN} --remote gitlab ci_user
