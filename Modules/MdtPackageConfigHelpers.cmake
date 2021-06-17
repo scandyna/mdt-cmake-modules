@@ -604,7 +604,7 @@ function(mdt_install_package_config_file)
     endif()
   endforeach()
 
-  # Write the package onfig file
+  # Write the package config file
   set(packageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_FILE}")
   file(WRITE "${packageConfigFile}" "${packageConfigFileContent}")
 
