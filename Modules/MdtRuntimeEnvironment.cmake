@@ -222,13 +222,18 @@
 #
 #   set(myAppEnv)
 #   mdt_target_libraries_to_library_env_path(myAppEnv TARGET myApp)
+#   if(WIN32)
+#     string(REPLACE ";" "\\;" myAppEnv "${myAppEnv}")
+#   endif()
 #
 #   add_custom_target(
 #     runMyApp ALL
-#     COMMAND "${CMAKE_COMMAND}" -E env ${envPath} $<TARGET_FILE:myApp>
+#     COMMAND "${CMAKE_COMMAND}" -E env ${myAppEnv} $<TARGET_FILE:myApp>
 #   )
 #   add_dependencies(runMyApp myApp)
 #
+# Notice that we have to replace the ``;`` by ``\;`` on Windows.
+# To know why, see below.
 #
 # See also: :command:`mdt_set_test_library_env_path()`
 #
@@ -285,6 +290,27 @@
 #
 # See also: https://cmake.org/pipermail/cmake/2009-May/029425.html
 #
+# It was also tempted to do the replace in :command:`mdt_target_libraries_to_library_env_path()`,
+# but this did not work, because CMake removes the ``\``.
+#
+# Here is a example to demonstrate that:
+#
+# .. code-block:: cmake
+#
+#   function(try_replace out_var)
+#
+#     set(someVar "A;B;C")
+#     string(REPLACE ";" "\\;" someVar "${someVar}")
+#
+#     set(${out_var} ${someVar} PARENT_SCOPE)
+#
+#   endfunction()
+#
+#   set(testVar)
+#   try_replace(testVar)
+#   message(testVar: ${testVar})
+#
+# Above example will print ``A;B;C``, or ``ABC``, but not ``A\;B\;C``.
 #
 # Using environment path in the terminal
 # """"""""""""""""""""""""""""""""""""""
@@ -512,10 +538,6 @@ function(mdt_target_libraries_to_library_env_path out_var)
     set(envPath "${pathName}=${currentEnvPath}")
   endif()
 
-  if(WIN32)
-    string(REPLACE ";" "\\;" envPath "${envPath}")
-  endif()
-
   set(${out_var} ${envPath} PARENT_SCOPE)
 
 endfunction()
@@ -539,9 +561,9 @@ function(mdt_set_test_library_env_path)
   endif()
 
   mdt_target_libraries_to_library_env_path(envPath TARGET ${ARG_TARGET})
-#   if(WIN32)
-#     string(REPLACE ";" "\\;" envPath "${envPath}")
-#   endif()
+  if(WIN32)
+    string(REPLACE ";" "\\;" envPath "${envPath}")
+  endif()
   if(envPath)
 #     set_tests_properties(${ARG_NAME} PROPERTIES ENVIRONMENT "${envPath}")
     mdt_append_test_environment_variables_string(${ARG_NAME} "${envPath}")

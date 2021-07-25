@@ -16,6 +16,9 @@ mdt_set_test_library_env_path(NAME RunTableEditor TARGET tableEditor)
 
 set(envPath)
 mdt_target_libraries_to_library_env_path(envPath TARGET tableEditor)
+if(WIN32)
+  string(REPLACE ";" "\\;" envPath "${envPath}")
+endif()
 
 add_custom_target(
   runTableEditor_ENV_TGT ALL
