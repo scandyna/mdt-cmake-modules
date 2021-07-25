@@ -512,6 +512,10 @@ function(mdt_target_libraries_to_library_env_path out_var)
     set(envPath "${pathName}=${currentEnvPath}")
   endif()
 
+  if(WIN32)
+    string(REPLACE ";" "\\;" envPath "${envPath}")
+  endif()
+
   set(${out_var} ${envPath} PARENT_SCOPE)
 
 endfunction()
@@ -535,9 +539,9 @@ function(mdt_set_test_library_env_path)
   endif()
 
   mdt_target_libraries_to_library_env_path(envPath TARGET ${ARG_TARGET})
-  if(WIN32)
-    string(REPLACE ";" "\\;" envPath "${envPath}")
-  endif()
+#   if(WIN32)
+#     string(REPLACE ";" "\\;" envPath "${envPath}")
+#   endif()
   if(envPath)
 #     set_tests_properties(${ARG_NAME} PROPERTIES ENVIRONMENT "${envPath}")
     mdt_append_test_environment_variables_string(${ARG_NAME} "${envPath}")
