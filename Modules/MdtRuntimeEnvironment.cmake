@@ -209,6 +209,27 @@
 #
 #   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>;$ENV{PATH}
 #
+#
+# Example using cmake -E env:
+#
+# .. code-block:: cmake
+#
+#   add_executable(myApp main.cpp)
+#
+#   target_link_libraries(myApp
+#     PRIVATE Mdt0::ItemEditor
+#   )
+#
+#   set(myAppEnv)
+#   mdt_target_libraries_to_library_env_path(myAppEnv TARGET myApp)
+#
+#   add_custom_target(
+#     runMyApp ALL
+#     COMMAND "${CMAKE_COMMAND}" -E env ${envPath} $<TARGET_FILE:myApp>
+#   )
+#   add_dependencies(runMyApp myApp)
+#
+#
 # See also: :command:`mdt_set_test_library_env_path()`
 #
 # Note about the implementation
@@ -222,7 +243,7 @@
 #
 #   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>$<SEMICOLON>$<TARGET_FILE_DIR:Mdt0::ItemModel>$<SEMICOLON>$ENV{PATH}>
 #
-# With above expression, problems beginn when we want to attach it to a property:
+# With above expression, problems begin when we want to attach it to a property:
 #
 # .. code-block:: cmake
 #
@@ -485,6 +506,7 @@ function(mdt_target_libraries_to_library_env_path out_var)
   if(envPathList AND currentEnvPath)
     set(envPath "${pathName}=${envPathList}${pathSeparator}${currentEnvPath}")
   elseif(envPathList)
+    set(envPath "${envPathList}")
     set(envPath "${pathName}=${envPathList}")
   elseif(currentEnvPath)
     set(envPath "${pathName}=${currentEnvPath}")

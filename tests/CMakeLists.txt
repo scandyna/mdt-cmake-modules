@@ -539,7 +539,7 @@ add_test(NAME BuildAndRun_TableEditor_CL
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
       "-DCMAKE_INSTALL_PREFIX=/usr"
       "-DBUILD_SHARED_LIBS=ON"
-    --test-command "${CMAKE_CTEST_COMMAND}"
+    --test-command "${CMAKE_CTEST_COMMAND}" -V
 )
 set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtItemEditor_CL)
 
