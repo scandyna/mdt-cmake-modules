@@ -171,13 +171,12 @@
 # Using environment path as CMake property
 # """"""""""""""""""""""""""""""""""""""""
 #
-# TODO: should add a option to use / alos on Windows
 #
 # .. command:: mdt_target_libraries_to_library_env_path
 #
 # Get a list of generator expression that will expand to the directory for each dependency of a target::
 #
-#   mdt_target_libraries_to_library_env_path(<out_var> TARGET <target>)
+#   mdt_target_libraries_to_library_env_path(<out_var> TARGET <target> [ALWAYS_USE_SLASHES])
 #
 # Example:
 #
@@ -212,6 +211,11 @@
 #   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>;$ENV{PATH}
 #
 #
+# If the ``ALWAYS_USE_SLASHES`` is present, the resulting environment variable will have slahes as separators on Windows.
+# This can be used to prevent `Invalid escape sequence \\U` warning
+# (see also https://stackoverflow.com/questions/13737370/cmake-error-invalid-escape-sequence-u/28565713).
+#
+#
 # Example using cmake -E env:
 #
 # .. code-block:: cmake
@@ -223,7 +227,7 @@
 #   )
 #
 #   set(myAppEnv)
-#   mdt_target_libraries_to_library_env_path(myAppEnv TARGET myApp)
+#   mdt_target_libraries_to_library_env_path(myAppEnv TARGET myApp ALWAYS_USE_SLASHES)
 #   if(WIN32)
 #     string(REPLACE ";" "\\;" myAppEnv "${myAppEnv}")
 #   endif()
@@ -234,7 +238,7 @@
 #   )
 #   add_dependencies(runMyApp myApp)
 #
-# Notice that we have to replace the ``;`` by ``\;`` on Windows.
+# Notice that we have to replace the ``;`` by ``\\;`` on Windows.
 # To know why, see below.
 #
 # See also: :command:`mdt_set_test_library_env_path()`
@@ -480,7 +484,7 @@ endfunction()
 
 function(mdt_target_libraries_to_library_env_path out_var)
 
-  set(options "")
+  set(options ALWAYS_USE_SLASHES)
   set(oneValueArgs TARGET)
   set(multiValueArgs "")
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -491,9 +495,6 @@ function(mdt_target_libraries_to_library_env_path out_var)
   if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_target_libraries_to_library_env_path(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
-
-  # TODO must become a options
-  set(ARG_ALWAYS_USE_SLASHES TRUE)
 
   mdt_collect_shared_libraries_dependencies_transitively(sharedLibrariesDependencies TARGET ${ARG_TARGET})
 

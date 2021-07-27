@@ -15,7 +15,7 @@ mdt_set_test_library_env_path(NAME RunTableEditor TARGET tableEditor)
 # mdt_set_test_library_env_path(NAME printEnv TARGET tableEditor)
 
 set(envPath)
-mdt_target_libraries_to_library_env_path(envPath TARGET tableEditor)
+mdt_target_libraries_to_library_env_path(envPath TARGET tableEditor ALWAYS_USE_SLASHES)
 if(WIN32)
   string(REPLACE ";" "\\;" envPath "${envPath}")
 endif()
