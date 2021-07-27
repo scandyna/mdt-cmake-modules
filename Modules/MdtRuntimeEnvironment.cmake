@@ -171,6 +171,8 @@
 # Using environment path as CMake property
 # """"""""""""""""""""""""""""""""""""""""
 #
+# TODO: should add a option to use / alos on Windows
+#
 # .. command:: mdt_target_libraries_to_library_env_path
 #
 # Get a list of generator expression that will expand to the directory for each dependency of a target::
@@ -490,11 +492,20 @@ function(mdt_target_libraries_to_library_env_path out_var)
     message(FATAL_ERROR "mdt_target_libraries_to_library_env_path(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
+  # TODO must become a options
+  set(ARG_ALWAYS_USE_SLASHES TRUE)
+
   mdt_collect_shared_libraries_dependencies_transitively(sharedLibrariesDependencies TARGET ${ARG_TARGET})
 
-  foreach(sharedLibraryDependency ${sharedLibrariesDependencies})
-    list(APPEND pathList "$<SHELL_PATH:$<TARGET_FILE_DIR:${sharedLibraryDependency}>>")
-  endforeach()
+  if(WIN32 AND ARG_ALWAYS_USE_SLASHES)
+    foreach(sharedLibraryDependency ${sharedLibrariesDependencies})
+        list(APPEND pathList "$<TARGET_FILE_DIR:${sharedLibraryDependency}>")
+    endforeach()
+  else()
+    foreach(sharedLibraryDependency ${sharedLibrariesDependencies})
+      list(APPEND pathList "$<SHELL_PATH:$<TARGET_FILE_DIR:${sharedLibraryDependency}>>")
+    endforeach()
+  endif()
 
   # TODO: s.a. WINEPATH
   set(pathName)
@@ -516,6 +527,9 @@ function(mdt_target_libraries_to_library_env_path out_var)
   endif()
 
   set(currentEnvPath "$ENV{${pathName}}")
+  if(WIN32 AND ARG_ALWAYS_USE_SLASHES)
+    string(REPLACE "\\" "/" currentEnvPath "${currentEnvPath}")
+  endif()
 
   set(envPathList)
   list(LENGTH pathList pathListSize)
