@@ -99,6 +99,17 @@ add_test(NAME BuildAndRun_HelloASan
 )
 set_tests_properties(BuildAndRun_HelloASan PROPERTIES DEPENDS Install_MdtCMakeModules)
 
+# TODO: re-enable once docker-images for MSVC have AddressSanitizer installed
+# In current CI, MSVC 16.10 is now installed,
+# so the ASAN support is detected as available.
+# The build fails, probably because the ASAN module is not installed.
+# See:
+# - https://gitlab.com/scandyna/mdt-cmake-modules/-/jobs/1456056553
+# - https://docs.microsoft.com/en-us/cpp/sanitizers/asan?view=msvc-160
+# - https://gitlab.com/scandyna/docker-images/-/issues/2
+if(MSVC)
+  set_tests_properties(BuildAndRun_HelloASan PROPERTIES DISABLED YES)
+endif()
 
 add_test(NAME BuildAndRun_HelloMSan
   COMMAND "${CMAKE_CTEST_COMMAND}"
