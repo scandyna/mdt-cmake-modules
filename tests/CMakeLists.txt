@@ -446,6 +446,86 @@ set_tests_properties(Install_MdtCMakeModules_CL_opt
     ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
 )
 
+# gl_issue3: configure and install a INTERFACE library
+
+add_test(NAME ConfigureAndTest_HeaderOnly_CL_opt
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/HeaderOnly" "${CMAKE_CURRENT_BINARY_DIR}/build/HeaderOnly_CL_opt"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt"
+      "-DCMAKE_INSTALL_PREFIX=/opt"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(ConfigureAndTest_HeaderOnly_CL_opt PROPERTIES DEPENDS Build_MdtCMakeModules_CL_opt)
+
+add_test(NAME Install_HeaderOnly_CL_opt
+  COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/HeaderOnly_CL_opt" --target install --config $<CONFIG>
+)
+set_tests_properties(Install_HeaderOnly_CL_opt
+  PROPERTIES
+    DEPENDS ConfigureAndTest_HeaderOnly_CL_opt
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+# Build + install MdtItemModel
+
+add_test(NAME Build_MdtItemModel_CL_opt
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemModel" "${CMAKE_CURRENT_BINARY_DIR}/build/MdtItemModel_CL_opt"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt"
+      "-DCMAKE_INSTALL_PREFIX=/opt"
+      "-DBUILD_SHARED_LIBS=ON"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(Build_MdtItemModel_CL_opt PROPERTIES DEPENDS Install_HeaderOnly_CL_opt)
+
+add_test(NAME Install_MdtItemModel_CL_opt
+  COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/MdtItemModel_CL_opt" --target install --config $<CONFIG>
+)
+set_tests_properties(Install_MdtItemModel_CL_opt
+  PROPERTIES
+    DEPENDS Build_MdtItemModel_CL_opt
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+# Build + install MdtItemEditor
+
+add_test(NAME Build_MdtItemEditor_CL_opt
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemEditor" "${CMAKE_CURRENT_BINARY_DIR}/build/MdtItemEditor_CL_opt"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt"
+      "-DCMAKE_INSTALL_PREFIX=/opt"
+      "-DBUILD_SHARED_LIBS=ON"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(Build_MdtItemEditor_CL_opt PROPERTIES DEPENDS Install_MdtItemModel_CL_opt)
+
+add_test(NAME Install_MdtItemEditor_CL_opt
+  COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/MdtItemEditor_CL_opt" --target install --config $<CONFIG>
+)
+set_tests_properties(Install_MdtItemEditor_CL_opt
+  PROPERTIES
+    DEPENDS Build_MdtItemEditor_CL_opt
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
 
 ####################################
 # Test installing in common location
