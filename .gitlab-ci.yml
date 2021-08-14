@@ -46,6 +46,12 @@ stages:
   script:
     - cd build
     - ctest --output-on-failure --verbose .
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - build
+
 
 
 build_linux_gcc7_x86_64_debug:
@@ -126,6 +132,12 @@ deploy_conan:
   script:
     - cd build
     - ctest --output-on-failure --verbose --build-config $env:BUILD_TYPE .
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - build
+
 
 
 build_windows_gcc7_x86_64_debug:
