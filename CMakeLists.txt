@@ -1,7 +1,7 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 ##################################################################
 # Project definition with versionning got from git tag or by Conan
@@ -110,6 +110,7 @@ install(
     "Modules/MdtInstallDirs.cmake"
     "Modules/MdtInstallLibrary.cmake"
     "Modules/MdtInstallMdtLibrary.cmake"
+    "Modules/MdtInstallExecutable.cmake"
     "Modules/MdtPackageConfigHelpers.cmake"
     "Modules/MdtTargetPackageProperties.cmake"
     "Modules/MdtTargetProperties.cmake"

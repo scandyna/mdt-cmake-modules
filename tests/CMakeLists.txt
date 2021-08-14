@@ -716,6 +716,122 @@ add_test(NAME BuildAndRun_TableEditor_CL
 )
 set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtItemEditor_CL)
 
+#########################################################################
+# mdt_install_executable() test
+#
+# Use a simple executable that depends on ItemEditor test library.
+# We not add other non std dependencies, like Qt.
+# (installing required dependencies
+#  is done by mdt_deploy_application() from MdtDeployUtils)
+#
+# A user project will then be build.
+# This user project will use the above app as a CMake imported target.
+# The user project also has a simple test
+# that will run the app without any special environment.
+#
+# One goal ist to check that RPATH are set correctly for Unixes
+# (note that RPATH will be empty on UNIX system wide install)
+#
+# A other goal is to check that the app is installed correctly and
+# that the CMake package files are generated and installed correctly.
+#
+# To make the test run, also on Windows,
+# we install the libraries and the app in a common prefix.
+#
+# Also check UNIX system wide install without RPATH
+# (must be a real system wide install),
+# but also non system wide install, with RPATH
+#
+# Steps:
+# - Build the app
+# - Install the app
+# - Build and run the user project
+#########################################################################
+
+# Build and install TableEditor for /opt
+
+add_test(NAME Build_TableEditor_CL_opt
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditor_CL_opt"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt"
+      "-DCMAKE_INSTALL_PREFIX=/opt"
+      "-DBUILD_SHARED_LIBS=ON"
+)
+set_tests_properties(Build_TableEditor_CL_opt PROPERTIES DEPENDS Install_MdtItemEditor_CL_opt)
+
+add_test(NAME Install_TableEditor_CL_opt
+  COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditor_CL_opt" --target install --config $<CONFIG>
+)
+set_tests_properties(Install_TableEditor_CL_opt
+  PROPERTIES
+    DEPENDS Build_TableEditor_CL_opt
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+# Build and run the user project
+
+add_test(NAME BuildAndRun_TableEditorUserProject_CL_opt
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditorUserProject" "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditorUserProject_CL_opt"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}" -V
+)
+set_tests_properties(BuildAndRun_TableEditorUserProject_CL_opt PROPERTIES DEPENDS Install_TableEditor_CL_opt)
+
+# Build and install TableEditor for /usr
+
+if(BUILD_REAL_INSTALL_TESTS)
+
+  add_test(NAME Build_TableEditor_CL_usr
+    COMMAND "${CMAKE_CTEST_COMMAND}"
+      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditor_CL_usr"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+      --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+      --build-config $<CONFIG>
+      --build-options
+        "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+        "-DCMAKE_INSTALL_PREFIX=/usr"
+        "-DBUILD_SHARED_LIBS=ON"
+  )
+  set_tests_properties(Build_TableEditor_CL_usr PROPERTIES DEPENDS Install_MdtItemEditor_CL_usr_Real)
+
+  add_test(NAME Install_TableEditor_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditor_CL_usr" --target install --config $<CONFIG>
+  )
+  set_tests_properties(Install_TableEditor_CL_usr_Real
+    PROPERTIES
+      DEPENDS Build_TableEditor_CL_usr
+  )
+
+  # Build and run the user project
+
+  add_test(NAME BuildAndRun_TableEditorUserProject_CL_usr_Real
+    COMMAND "${CMAKE_CTEST_COMMAND}"
+      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditorUserProject" "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditorUserProject_CL_usr"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+      --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+      --build-config $<CONFIG>
+      --build-options
+        "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+        "-DBUILD_SHARED_LIBS=ON"
+      --test-command "${CMAKE_CTEST_COMMAND}" -V
+  )
+  set_tests_properties(BuildAndRun_TableEditorUserProject_CL_usr_Real PROPERTIES DEPENDS Install_TableEditor_CL_usr_Real)
+
+endif()
 
 ####################################
 # Test installing with Conan

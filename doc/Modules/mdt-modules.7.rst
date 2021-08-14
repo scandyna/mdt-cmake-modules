@@ -14,6 +14,7 @@ All Modules
    MdtInstallIncludes.rst
    MdtInstallLibrary.rst
    MdtInstallMdtLibrary.rst
+   MdtInstallExecutable.rst
    MdtRuntimeEnvironment.rst
    MdtSanitizers.rst
    MdtInstallDirs.rst
