@@ -423,6 +423,37 @@ set_tests_properties(BuildAndRun_TableEditor_Mdt PROPERTIES DEPENDS Install_Mult
 # Test installing in common location
 ####################################
 
+# Build and install MdtCMakeModules
+
+add_test(NAME Build_MdtCMakeModules_CL_opt
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/build/MdtCMakeModules_CL_opt"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_INSTALL_PREFIX=/opt"
+)
+
+add_test(NAME Install_MdtCMakeModules_CL_opt
+  COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/MdtCMakeModules_CL_opt" --target install --config $<CONFIG>
+)
+
+set_tests_properties(Install_MdtCMakeModules_CL_opt
+  PROPERTIES
+    DEPENDS Build_MdtCMakeModules_CL_opt
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+
+####################################
+# Test installing in common location
+#
+# This set of tests will also check
+# UNIX system wide installations
+####################################
+
 
 # Build and install MdtCMakeModules
 
@@ -449,6 +480,18 @@ set_tests_properties(Install_MdtCMakeModules_CL
     ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
 )
 
+if(BUILD_REAL_INSTALL_TESTS)
+
+  add_test(NAME Install_MdtCMakeModules_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL" --target install --config $<CONFIG>
+  )
+
+  set_tests_properties(Install_MdtCMakeModules_CL_usr_Real
+    PROPERTIES
+      DEPENDS Build_MdtCMakeModules_CL
+  )
+
+endif()
 
 # gl_issue3: configure and install a INTERFACE library
 
@@ -477,6 +520,19 @@ set_tests_properties(Install_HeaderOnly_CL
     DEPENDS ConfigureAndTest_HeaderOnly_CL
     ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
 )
+
+if(BUILD_REAL_INSTALL_TESTS)
+
+  add_test(NAME Install_HeaderOnly_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL" --target install --config $<CONFIG>
+  )
+
+  set_tests_properties(Install_HeaderOnly_CL_usr_Real
+    PROPERTIES
+      DEPENDS ConfigureAndTest_HeaderOnly_CL
+  )
+
+endif()
 
 
 # Build + install MdtItemModel
@@ -508,6 +564,19 @@ set_tests_properties(Install_MdtItemModel_CL
     ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
 )
 
+if(BUILD_REAL_INSTALL_TESTS)
+
+  add_test(NAME Install_MdtItemModel_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL" --target install --config $<CONFIG>
+  )
+
+  set_tests_properties(Install_MdtItemModel_CL_usr_Real
+    PROPERTIES
+      DEPENDS Build_MdtItemModel_CL
+  )
+
+endif()
+
 # Build + install MdtItemEditor
 
 add_test(NAME Build_MdtItemEditor_CL
@@ -536,6 +605,19 @@ set_tests_properties(Install_MdtItemEditor_CL
     DEPENDS Build_MdtItemEditor_CL
     ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
 )
+
+if(BUILD_REAL_INSTALL_TESTS)
+
+  add_test(NAME Install_MdtItemEditor_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL" --target install --config $<CONFIG>
+  )
+
+  set_tests_properties(Install_MdtItemEditor_CL_usr_Real
+    PROPERTIES
+      DEPENDS Build_MdtItemEditor_CL
+  )
+
+endif()
 
 # Build + run TableEditor app
 

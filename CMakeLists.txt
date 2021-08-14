@@ -44,6 +44,14 @@ if(BUILD_QT_TESTS)
 endif()
 
 if(BUILD_TESTS)
+  option(
+    BUILD_REAL_INSTALL_TESTS
+    "Build tests that installs components system wide. This should only be enabled in virtualized environment, like a Docker image."
+    OFF
+  )
+endif()
+
+if(BUILD_TESTS)
   enable_testing()
   add_subdirectory("tests")
 endif()
