@@ -26,7 +26,7 @@ On Windows, libMyLib.dll is wrong
 # Component install
 
 mdt_install_library():
- - DEVELOPMENT_COMPONENT should default to ${PROJECT_NAME}_Dev
+ - DEVELOPMENT_COMPONENT should default to ${PROJECT_NAME}_Dev  , or not
 
 # dll debug env
 
