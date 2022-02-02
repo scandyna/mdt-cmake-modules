@@ -24,7 +24,7 @@
 #       file2.cpp
 #   )
 #
-# Will a executable target named ``target`` using :command:`add_executable()`,
+# Will add a executable target named ``target`` using :command:`add_executable()`,
 # then add a test using :command:`add_test()`.
 #
 # See also :command:`mdt_set_test_library_env_path()`.
