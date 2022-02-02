@@ -27,6 +27,7 @@
 #     [INSTALL_IS_UNIX_SYSTEM_WIDE [TRUE|FALSE]]
 #     [RUNTIME_COMPONENT <component-name>]
 #     [DEVELOPMENT_COMPONENT <component-name>]
+#     [EXCLUDE_FROM_ALL]
 #   )
 #
 # Will install the executable `target` to ``CMAKE_INSTALL_PREFIX``
@@ -49,6 +50,7 @@
 #
 # If ``DEVELOPMENT_COMPONENT`` is specified, the CMake exports and package config files installation will be part of it.
 #
+# During a full installation all components are installed unless marked with ``EXCLUDE_FROM_ALL`` .
 #
 # See also :command:`mdt_deploy_application()`
 #
@@ -204,7 +206,7 @@ include(MdtTargetProperties)
 
 function(mdt_install_executable)
 
-  set(options NO_PACKAGE_CONFIG_FILE)
+  set(options NO_PACKAGE_CONFIG_FILE EXCLUDE_FROM_ALL)
   set(oneValueArgs TARGET RUNTIME_DESTINATION LIBRARY_DESTINATION EXPORT_NAME EXPORT_NAMESPACE EXPORT_DIRECTORY INSTALL_IS_UNIX_SYSTEM_WIDE RUNTIME_COMPONENT DEVELOPMENT_COMPONENT)
   set(multiValueArgs)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -242,6 +244,11 @@ function(mdt_install_executable)
     )
   endif()
 
+  set(excludeFromAllArgument)
+  if(ARG_EXCLUDE_FROM_ALL)
+    set(excludeFromAllArgument EXCLUDE_FROM_ALL)
+  endif()
+
   if(ARG_EXPORT_NAME AND ARG_EXPORT_NAMESPACE)
 
     if(ARG_EXPORT_DIRECTORY)
@@ -263,6 +270,7 @@ function(mdt_install_executable)
       RUNTIME
         DESTINATION "${ARG_RUNTIME_DESTINATION}"
         ${runtimeComponentArguments}
+        ${excludeFromAllArgument}
     )
 
     install(
@@ -271,6 +279,7 @@ function(mdt_install_executable)
       NAMESPACE ${ARG_EXPORT_NAMESPACE}::
       FILE ${targetExportName}.cmake
       ${developmentComponentArguments}
+      ${excludeFromAllArgument}
     )
 
     if(NOT ARG_NO_PACKAGE_CONFIG_FILE)
@@ -285,6 +294,7 @@ function(mdt_install_executable)
         FILES ${cmakePackageConfigFile}
         DESTINATION "${cmakePackageFilesDir}"
         ${developmentComponentArguments}
+        ${excludeFromAllArgument}
       )
 
     endif()
@@ -296,6 +306,7 @@ function(mdt_install_executable)
       RUNTIME
         DESTINATION "${ARG_RUNTIME_DESTINATION}"
         ${runtimeComponentArguments}
+        ${excludeFromAllArgument}
     )
 
   endif()
