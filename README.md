@@ -205,7 +205,7 @@ cmake_paths
 
 Add the remote:
 ```bash
-conan remote add scandyna https://api.bintray.com/conan/scandyna/public-conan
+conan remote add gitlab https://gitlab.com/api/v4/projects/25668674/packages/conan
 ```
 
 Install the dependencies:
