@@ -41,6 +41,7 @@ class MdtCMakeModulesConan(ConanFile):
     # I don't know how to avoid that
     # But, at least, tell conan to add the Modules
     # to CMAKE_MODULE_PATH (and also CMAKE_PREFIX_PATH)
-    self.cpp_info.builddirs = ["Modules"]
+    #self.cpp_info.builddirs = ["Modules"]
+    self.cpp_info.builddirs = [".","Modules"]
 
 # See: https://bincrafters.readthedocs.io/en/latest/contributing_to_packages/package_guidelines_required.html
