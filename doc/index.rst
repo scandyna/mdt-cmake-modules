@@ -9,6 +9,7 @@ Mdt CMake Modules documentation
    :caption: Contents:
 
    Modules/mdt-modules.7
+   ConanAndCMake.rst
 
 
 Indices and tables
