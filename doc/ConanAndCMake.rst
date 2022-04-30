@@ -127,9 +127,9 @@ MdtCMakeModules
 """""""""""""""
 
 `MdtCMakeModules <https://gitlab.com/scandyna/mdt-cmake-modules>`_
-is a set of CMake modules I use in evry projects.
+is a set of CMake modules I use in every projects.
 
-After searching for houres, my first attempt was this:
+After searching for hours, my first attempt was this:
 
 .. code-block:: Python
 
@@ -151,7 +151,7 @@ and it adds the required path to ``CMAKE_MODULE_PATH``.
 
 When using a new generator, like ``CMakeDeps``,
 the conan generated MdtCMakeModulesConfig.cmake
-was found, wihich one added the required path to ``CMAKE_MODULE_PATH``.
+was found, which  added the required path to ``CMAKE_MODULE_PATH``.
 
 On the CI, all tests passed, seems ok.
 
@@ -165,7 +165,7 @@ For more info, see :command:`mdt_install_namespace_package_config_file()`.
 
 While working on a project using MdtCMakeModules,
 using conan's ``CMakeDeps`` generator,
-the Mdt0Config.cmake was picked up, producing a error.
+this upstream Mdt0Config.cmake was picked up, producing a error.
 
 This is because the path to MdtCMakeModules
 was before the root of the build tree in the ``CMAKE_PREFIX_PATH``
@@ -178,6 +178,69 @@ but must remove the path to them
 when using a new conan generator.
 
 This will be explained below.
+
+Should package root be removed ?
+""""""""""""""""""""""""""""""""
+
+This is a discussion about removing the package root from ``CMAKE_PREFIX_PATH``
+when using generators like cmake_find_package_multi or CMakeDeps.
+
+Those generators will generate CMake package config files
+in the build folder of the user.
+
+They should create TARGETS and attach the required properties,
+like ``INTERFACE_INCLUDE_DIRECTORIES``.
+
+Looking at conan's CMakeDeps generated package config files,
+the root of the package will be added to ``CMAKE_PREFIX_PATH``
+(and also to ``CMAKE_MODULE_PATH``).
+
+Exampe of a generated MdtCMakeModules-debug-x86_64-data.cmake (partial extract):
+
+.. code-block:: CMake
+
+  set(MdtCMakeModules_PACKAGE_FOLDER_DEBUG "/home/me/.conan/data/MdtCMakeModules/0.0.0/scandyna/testing/package/5ab8jkhkjsfe1f23c4fae0ab88f26e3a3963jkjl")
+  set(MdtCMakeModules_INCLUDE_DIRS_DEBUG "${MdtCMakeModules_PACKAGE_FOLDER_DEBUG}/include")
+  set(MdtCMakeModules_BUILD_DIRS_DEBUG "${MdtCMakeModules_PACKAGE_FOLDER_DEBUG}/")
+
+Exampe of a generated MdtCMakeModules-Target-debug.cmake (partial extract):
+
+.. code-block:: CMake
+
+  # FIXME: What is the result of this for multi-config? All configs adding themselves to path?
+  set(CMAKE_MODULE_PATH ${MdtCMakeModules_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
+  set(CMAKE_PREFIX_PATH ${MdtCMakeModules_BUILD_DIRS_DEBUG} ${CMAKE_PREFIX_PATH})
+
+  set_property(TARGET MdtCMakeModules::MdtCMakeModules
+              PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+              $<$<CONFIG:Debug>:${MdtCMakeModules_INCLUDE_DIRS_DEBUG}> APPEND)
+
+Note: attaching ``INTERFACE_INCLUDE_DIRECTORIES`` to MdtCMakeModules has no sense,
+but that's all I have as example for now.
+
+As we can see, adding the package root folder to ``CMAKE_PREFIX_PATH`` seems not so usefull
+as long as we use the generated TARGETS (and we should).
+
+
+MdtDeployUtils
+''''''''''''''
+
+`MdtSharedLibrariesDepencyHelpers <https://scandyna.gitlab.io/mdtdeployutils/cmake-api/Modules/MdtSharedLibrariesDepencyHelpers.html>`_
+is a CMake helper module from
+`MdtDeployUtils <https://gitlab.com/scandyna/mdtdeployutils>`_
+to deal with shared libraries.
+
+Current implementation uses ``CMAKE_PREFIX_PATH`` to find shared libraries
+when rpath informations are missing.
+
+This should be fixed.
+
+Before ``CMAKE_PREFIX_PATH``, it should use a list of paths
+created from all imported targets, using ``$<TARGET_FILE:tgt>``.
+
+Important: it should only add paths to shared libraries,
+and only imported targets.
+Static libraries, executables and test targets have to be excluded.
 
 Using custom CMake modules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -201,7 +264,7 @@ There are 2 main problems to solve here:
 
 - It seems not possible to tell Conan to add a path to ``CMAKE_MODULE_PATH``.
   Each module must be a path the the CMake module file.
-  Each module will be include using :command:`include()`.
+  Each module will be included using :command:`include()`.
   See also `Can I pass CMake variables from a package using CMakeDeps / CMakeToolchain? #10976 <https://github.com/conan-io/conan/issues/10976>`_
 - The path to any given CMake module must be lower case.
   So, reusing existing CamelCase.cmake modules seems not possible.
@@ -216,11 +279,15 @@ Also, what about name clashes ?
 Looking in the Qt recipe,
 it seems that some workaround is possible.
 
-First, create a file, for example ``my-project-conan-cmake-modules.cmake``:
+
+A first simple example
+""""""""""""""""""""""
+
+First, create a file, for example ``my_project-conan-cmake-modules.cmake``:
 
 .. code-block:: CMake
 
-  # This file is only used by conan generators the generates CMake package config files
+  # This file is only used by conan generators that generates CMake package config files
 
   # TODO: must I remove this ?
   # TODO: below does not work
@@ -228,21 +295,125 @@ First, create a file, for example ``my-project-conan-cmake-modules.cmake``:
 
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 
-Then, in the recipe:
+
+In the recipe:
 
 .. code-block:: Python
 
-  def package_info(self):
+  class MyProjectConan(ConanFile):
 
-    build_modules = ["my-project-conan-cmake-modules.cmake"]
+    exports_sources = "usual files", "my_project-conan-cmake-modules.cmake"
 
-    # This will be used by CMakeDeps
-    self.cpp_info.set_property("cmake_build_modules", build_modules)
+    def package(self):
+      cmake = self._configure_cmake()
+      cmake.install()
+      self.copy("my_project-conan-cmake-modules.cmake")
 
-    # This must be added for other generators
-    # TODO: cmake paths ??
-    self.cpp_info.build_modules["cmake_paths"] = build_modules
-    self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules
+    def package_info(self):
+
+      build_modules = ["my_project-conan-cmake-modules.cmake"]
+
+      # This will be used by CMakeDeps
+      self.cpp_info.set_property("cmake_build_modules", build_modules)
+
+      # This must be added for other generators
+      # TODO: cmake paths ??
+      self.cpp_info.build_modules["cmake_paths"] = build_modules
+      self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules
+
+
+In above example, ``my_project-conan-cmake-modules.cmake``
+is at the root of the source tree, relative to the ``conanfile.py``.
+
+in the ``package()`` method, ``my_project-conan-cmake-modules.cmake``
+will be installed to the root of the package.
+See also the documentation of the `package() <https://docs.conan.io/en/latest/reference/conanfile/methods.html#package>`_
+method to understand ``copy()``.
+
+In the ``package_info()`` method,
+we define to find ``my_project-conan-cmake-modules.cmake`` at the root of the package.
+
+In this example, ``my_project-conan-cmake-modules.cmake`` is installed by Conan,
+which makes it clear where to find this file in ``package_info()``.
+
+A more flexible example ?
+"""""""""""""""""""""""""
+
+In above example, the ``my_project-conan-cmake-modules.cmake`` file
+assumes that the CMake modules are allways installed in a predefined path
+relative to the package root.
+
+Looking at
+`GNUInstallDirs <https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html>`_
+,
+`MdtInstallDirs <https://scandyna.gitlab.io/mdt-cmake-modules/Modules/MdtInstallDirs.html>`_
+and
+`MdtInstallCMakeModules <https://scandyna.gitlab.io/mdt-cmake-modules/Modules/MdtInstallCMakeModules.html>`_
+we can see that the cmake modules could be installed in a different subdirectory
+in the install tree.
+
+But, we can also see the the exception is when installing to a UNIX system wide path,
+which will not happen when using Conan packages.
+
+Because we are talcking about a Conan specific case,
+we should not care here.
+
+Using a custom CMake modules install function
+"""""""""""""""""""""""""""""""""""""""""""""
+
+It can be usefull to use a custom function to install CMake modules,
+like `MdtInstallCMakeModules <https://scandyna.gitlab.io/mdt-cmake-modules/Modules/MdtInstallCMakeModules.html>`_ .
+
+Despite this is somewhat overengineering, and adds some coupling,
+we could generate ``my_project-conan-cmake-modules.cmake``.
+
+This generated file will probably have the same logic as the generated ``MyProjectCMakeModules.cmake`` one, for example.
+Note: here we talck about our CMake function generated files, not Conan generated file.
+
+Because ``my_project-conan-cmake-modules.cmake`` is generated by CMake,
+it has to be installed by CMake.
+
+Here, the helper function should be clear about where ``my_project-conan-cmake-modules.cmake``
+will be installed.
+
+The simplest is to put it at the root of the package.
+
+In this case, the interresting parts of the ``conanfile.py`` could look like:
+
+.. code-block:: Python
+
+  class MyProjectConan(ConanFile):
+
+    exports_sources = "usual files"
+
+    def package(self):
+      cmake = self._configure_cmake()
+      cmake.install()
+
+    def package_info(self):
+
+      build_modules = ["my_project-conan-cmake-modules.cmake"]
+
+      # This will be used by CMakeDeps
+      self.cpp_info.set_property("cmake_build_modules", build_modules)
+
+      # This must be added for other generators
+      # TODO: cmake paths ??
+      self.cpp_info.build_modules["cmake_paths"] = build_modules
+      self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules
+
+In the CMakeLists.txt:
+
+TODO:
+should have a my_project-conan-cmake-modules.cmake.in
+then use configure_package_config_file(),
+this way we don't depend on the package layout.
+
+.. code-block:: CMake
+
+  # TODO: maybe put in some cmake sub-dir (have somewhat clean installs)
+  install(FILES "my_project-conan-cmake-modules.cmake" DESTINATION .)
+
 
 
 Tool requirements
