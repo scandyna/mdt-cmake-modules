@@ -402,19 +402,6 @@ In this case, the interresting parts of the ``conanfile.py`` could look like:
       self.cpp_info.build_modules["cmake_paths"] = build_modules
       self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules
 
-In the CMakeLists.txt:
-
-TODO:
-should have a my_project-conan-cmake-modules.cmake.in
-then use configure_package_config_file(),
-this way we don't depend on the package layout.
-
-.. code-block:: CMake
-
-  # TODO: maybe put in some cmake sub-dir (have somewhat clean installs)
-  install(FILES "my_project-conan-cmake-modules.cmake" DESTINATION .)
-
-
 
 Tool requirements
 ^^^^^^^^^^^^^^^^^
