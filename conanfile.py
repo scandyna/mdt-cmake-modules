@@ -7,7 +7,6 @@ class MdtCMakeModulesConan(ConanFile):
   url = "https://gitlab.com/scandyna/mdt-cmake-modules"
   description = "Some CMake modules used in \"Multi Dev Tools\" projects"
   exports_sources = "Modules/*", "CMakeLists.txt", "MdtCMakeModulesConfig.cmake.in", "LICENSE", "mdt_cmake_modules-conan-cmake-modules.cmake"
-  generators = "virtualenv"
 
   # TODO: maybe ue package_id() , sa generate()
 
