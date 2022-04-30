@@ -11,12 +11,20 @@ class MdtCMakeModulesConan(ConanFile):
 
   # TODO: maybe ue package_id() , sa generate()
 
+  # The version can be set on the command line:
+  # conan create . x.y.z@scandyna/testing ...
+  # It can also be set by a git tag (case of deploy in the CI/CD)
+  # The version should usually not be revelant when installing dependencies to build this project:
+  # conan install path/to/srouces ...
+  # But it can be required. See https://docs.conan.io/en/latest/reference/conanfile/attributes.html#version
   def set_version(self):
     if not self.version:
-      if not os.path.exists(".git"):
-        raise ConanInvalidConfiguration("could not get version from git tag.")
-      git = tools.Git()
-      self.version = "%s" % (git.get_tag())
+      if os.path.exists(".git"):
+        git = tools.Git()
+        self.version = "%s" % (git.get_tag())
+      else:
+        self.version = "0.0.0"
+    self.output.info( "%s: version is %s" % (self.name, self.version) )
 
   def _configure_cmake(self):
     cmake = CMake(self)
