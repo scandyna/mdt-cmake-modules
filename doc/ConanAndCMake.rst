@@ -289,9 +289,13 @@ First, create a file, for example ``my_project-conan-cmake-modules.cmake``:
 
   # This file is only used by conan generators that generates CMake package config files
 
-  # TODO: must I remove this ?
-  # TODO: below does not work
-  # list(REMOVE_ITEM CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}")
+  # Remove the root of the package from CMAKE_PREFIX_PATH
+  # to avoid clashes when using Conan generated CMake package config files
+  # We could have a trailing slash, or not, in CMAKE_PREFIX_PATH
+  list(REMOVE_ITEM CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/")
+  list(REMOVE_ITEM CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}")
+  # Should also handle Windows back-slash case (on Windows build machine)
+  # Did not put it here because Sphinx does not like back-slashes
 
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
 
@@ -317,8 +321,7 @@ In the recipe:
       self.cpp_info.set_property("cmake_build_modules", build_modules)
 
       # This must be added for other generators
-      # TODO: cmake paths ??
-      self.cpp_info.build_modules["cmake_paths"] = build_modules
+      self.cpp_info.build_modules["cmake_find_package"] = build_modules
       self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules
 
 
@@ -398,8 +401,7 @@ In this case, the interresting parts of the ``conanfile.py`` could look like:
       self.cpp_info.set_property("cmake_build_modules", build_modules)
 
       # This must be added for other generators
-      # TODO: cmake paths ??
-      self.cpp_info.build_modules["cmake_paths"] = build_modules
+      self.cpp_info.build_modules["cmake_find_package"] = build_modules
       self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules
 
 
