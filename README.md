@@ -2,6 +2,9 @@
 
 Some CMake modules used in my projects
 
+[![pipeline status](https://gitlab.com/scandyna/mdt-cmake-modules/badges/experimental/pipeline.svg)](https://gitlab.com/scandyna/mdt-cmake-modules/-/pipelines/latest)
+
+
 For the available CMake modules and their usage,
 see the [documentation page](https://scandyna.gitlab.io/mdt-cmake-modules)
 
