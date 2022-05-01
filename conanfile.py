@@ -1,4 +1,5 @@
-from conans import ConanFile, CMake, tools
+from conans import ConanFile, tools
+from conan.tools.cmake import CMake, CMakeToolchain
 import os
 
 class MdtCMakeModulesConan(ConanFile):
@@ -6,9 +7,13 @@ class MdtCMakeModulesConan(ConanFile):
   license = "BSD 3-Clause"
   url = "https://gitlab.com/scandyna/mdt-cmake-modules"
   description = "Some CMake modules used in \"Multi Dev Tools\" projects"
+  # Using CMakeToolchain and the new CMake helper
+  # should help to have a more unified build.
+  # But, it requires the settings.
+  # So, add them here and erase them in the package_id()
+  settings = "os", "arch", "compiler", "build_type"
   exports_sources = "Modules/*", "CMakeLists.txt", "MdtCMakeModulesConfig.cmake.in", "LICENSE", "mdt_cmake_modules-conan-cmake-modules.cmake"
-
-  # TODO: maybe ue package_id() , sa generate()
+  generators = "CMakeToolchain"
 
   # The version can be set on the command line:
   # conan create . x.y.z@scandyna/testing ...
@@ -25,22 +30,23 @@ class MdtCMakeModulesConan(ConanFile):
         self.version = "0.0.0"
     self.output.info( "%s: version is %s" % (self.name, self.version) )
 
-  def _configure_cmake(self):
-    cmake = CMake(self)
-    cmake.definitions["FROM_CONAN_PROJECT_VERSION"] = self.version
-
-    return cmake
+  def generate(self):
+    tc = CMakeToolchain(self)
+    tc.variables["FROM_CONAN_PROJECT_VERSION"] = self.version
+    tc.generate()
 
   def build(self):
-    cmake = self._configure_cmake()
+    cmake = CMake(self)
     cmake.configure()
     cmake.build()
-    #cmake.install()
 
   def package(self):
-    cmake = self._configure_cmake()
+    cmake = CMake(self)
     cmake.install()
     self.copy("mdt_cmake_modules-conan-cmake-modules.cmake")
+
+  def package_id(self):
+    self.info.header_only()
 
   def package_info(self):
 
