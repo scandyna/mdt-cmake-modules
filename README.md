@@ -4,9 +4,58 @@ Some CMake modules used in my projects
 
 [![pipeline status](https://gitlab.com/scandyna/mdt-cmake-modules/badges/experimental/pipeline.svg)](https://gitlab.com/scandyna/mdt-cmake-modules/-/pipelines/latest)
 
+[[_TOC_]]
+
+# Usage
+
+Add the following to your ``CMakeLists.txt``:
+```cmake
+find_package(MdtCMakeModules REQUIRED)
+```
+
+This will also add the path to the installed MdtCMakeModules
+to ``CMAKE_MODULE_PATH`` (if not allready exists).
+
+Then the required modules can be used:
+```cmake
+include(AddQt5ToCMakePrefixPath)
+```
 
 For the available CMake modules and their usage,
 see the [documentation page](https://scandyna.gitlab.io/mdt-cmake-modules)
+
+## Project using Conan
+
+If you use [Conan](https://conan.io/),
+add MdtCMakeModules as requirement:
+```conan
+[tool_requires]
+MdtCMakeModules/x.y.z@scandyna/testing
+
+[generators]
+CMakeDeps
+CMakeToolchain
+```
+
+Add the remote:
+```bash
+conan remote add gitlab https://gitlab.com/api/v4/projects/25668674/packages/conan
+```
+
+## Manual install
+
+It is also possible to install MdtCMakeModules locally.
+See [INSTALL](INSTALL.md).
+
+Then, configure your project and specify
+the path of the installed MdtCMakeModules:
+```bash
+cmake -DCMAKE_PREFIX_PATH=/some/path/MdtCMakeModules ..
+```
+
+# Contribute
+
+See [BUILD](BUILD.md).
 
 # Install
 
