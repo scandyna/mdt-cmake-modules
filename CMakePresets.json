@@ -1,0 +1,87 @@
+{
+  "version": 4,
+  "configurePresets": [
+    {
+      "name": "dev_base",
+      "hidden": true,
+      "cacheVariables": {
+        "BUILD_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "BUILD_QT_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "BUILD_CONAN_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "BUILD_DOCS": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      }
+    },
+    {
+      "name": "dev_unix_makefiles",
+      "inherits": "dev_base",
+      "displayName": "Dev Unix Makefiles",
+      "description": "Developper build using Unix Makefiles",
+      "generator": "Unix Makefiles"
+    },
+    {
+      "name": "dev_mingw_makefiles",
+      "inherits": "dev_base",
+      "displayName": "Dev MinGW Makefiles",
+      "description": "Developper build using MinGW Makefiles",
+      "generator": "MinGW Makefiles"
+    },
+    {
+      "name": "dev_msvc_15_2017_x64",
+      "inherits": "dev_base",
+      "displayName": "Dev Visual Studio 15 2017",
+      "description": "Developper build using Visual Studio 15 2017",
+      "generator": "Visual Studio 15 2017",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      }
+    },
+    {
+      "name": "dev_msvc_16_2019_x64",
+      "inherits": "dev_base",
+      "displayName": "Dev Visual Studio 16 2019",
+      "description": "Developper build using Visual Studio 16 2019",
+      "generator": "Visual Studio 16 2019",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      }
+    },
+    {
+      "name": "linux_doc",
+      "displayName": "Doc Unix Makefiles",
+      "description": "Build documentation using Unix Makefiles",
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "BUILD_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "BUILD_QT_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "BUILD_CONAN_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "BUILD_DOCS": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
+    }
+  ]
+}
