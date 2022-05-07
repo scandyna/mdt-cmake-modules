@@ -42,6 +42,32 @@ Add the remote:
 conan remote add gitlab https://gitlab.com/api/v4/projects/25668674/packages/conan
 ```
 
+Install the dependencies:
+```bash
+mkdir build && cd build
+conan install .. --profile your_profile -s build_type=Debug
+```
+
+Configure your project:
+```bash
+cmake -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake ..
+```
+
+Maybe adjust some settings:
+```bash
+cmake-gui .
+```
+
+Build:
+```bash
+cmake --build . --config Debug
+```
+
+To run the tests:
+```bash
+ctest --output-on-failure -C Debug -j4 .
+```
+
 ## Manual install
 
 It is also possible to install MdtCMakeModules locally.
@@ -53,165 +79,7 @@ the path of the installed MdtCMakeModules:
 cmake -DCMAKE_PREFIX_PATH=/some/path/MdtCMakeModules ..
 ```
 
-# Contribute
-
-See [BUILD](BUILD.md).
-
-# Install
-
-Some tools are required to install MdtCMakeModules:
- - Git
- - CMake
- - Conan - Optional, only required to create a Conan package
-
-Additional tool are required to generate the documentation:
- - Make
- - Sphinx
-
-To run the unit tests, those libraries and tools are also required:
- - Gcc
- - Qt - Optional (only required when BUILD_QT_TESTS is ON)
- - Conan - Optional (only required when BUILD_CONAN_TESTS is ON)
-
-For a overview how to install them, see https://gitlab.com/scandyna/build-and-install-cpp
-
-MdtCMakeModules can be installed by using CMake directly,
-or the Conan package manager.
-
-In this section, a build folder is assumed to be in the source tree,
-which is only for simplicity.
-
-## Get the source code
-
-Get the sources:
-```bash
-git clone https://github.com/scandyna/mdt-cmake-modules.git
-```
-
-## Install using CMake on Linux (Makefiles)
-
-Configure:
-```bash
-mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=/some/path ..
-```
-
-The install prefix path could be Linux system wide:
-```bash
-cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-```
-
-Example for a stand-alone install:
-```bash
-cmake -DCMAKE_INSTALL_PREFIX=~/opt/MdtCMakeModules ..
-```
-
-The configuration could also be done using cmake-gui:
-```bash
-cmake-gui .
-```
-
-To generate the documentation and the tests, run the build:
-```bash
-make -j4
-```
-
-To run the tests:
-```bash
-ctest --output-on-failure -j4 .
-```
-
-Install the modules:
-```bash
-make install
-```
-
-## Install using CMake on Windows MinGW
-
-Open a terminal that has gcc and mingw32-make in the PATH.
-
-Configure:
-```bash
-mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=C:\some\path ..
-```
-
-The configuration could also be done using cmake-gui:
-```bash
-cmake-gui .
-```
-
-To generate the documentation and the tests, run the build:
-```bash
-mingw32-make -j4
-```
-
-To run the tests:
-```bash
-ctest --output-on-failure -j4 .
-```
-
-Install the modules:
-```bash
-mingw32-make install
-```
-
-## Install using CMake on Windows MSVC
-
-Configure:
-```cmd
-mkdir build && cd build
-cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=C:\some\path ..
-```
-
-The configuration could also be done using cmake-gui:
-```bash
-cmake-gui .
-```
-
-To generate the tests, run the build:
-```bash
-cmake --build . --config Release
-```
-
-To run the tests:
-```bash
-ctest --output-on-failure -C Release -j4 .
-```
-
-Install the modules:
-```cmd
-cmake --build . --target INSTALL --config Release
-```
-
-## Create a Conan package
-
-Get the sources:
-```bash
-git clone https://github.com/scandyna/mdt-cmake-modules.git
-```
-
-Create the package:
-```bash
-conan create mdt-cmake-modules user/channel
-```
-
-# Usage
-
-Add the following to your ``CMakeLists.txt``:
-```cmake
-find_package(MdtCMakeModules REQUIRED)
-```
-
-This will also add the path to the installed MdtCMakeModules
-to CMAKE_MODULE_PATH (if not allready exists).
-
-Then the required modules can be used:
-```cmake
-include(AddQt5ToCMakePrefixPath)
-```
-
-## Find MdtCMakeModules with CMake
+### Find MdtCMakeModules with CMake
 
 In your CMakeLists.txt you can provide a cache variable:
 ```cmake
@@ -244,30 +112,6 @@ This last method requires to specify exactly where the modules are located.
 This will break if the internal directory organisation changes.
 
 
-## Find MdtCMakeModules with Conan
+# Contribute
 
-To use Conan, create a conanfile.txt:
-```conan
-[build_requires]
-MdtCMakeModules/[>=0.11.0]@scandyna/testing
-
-[generators]
-cmake_paths
-```
-
-Add the remote:
-```bash
-conan remote add gitlab https://gitlab.com/api/v4/projects/25668674/packages/conan
-```
-
-Install the dependencies:
-```bash
-mkdir build && cd build
-conan install ..
-```
-
-Configure your project:
-```bash
-cmake -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake ..
-cmake-gui .
-```
+See [BUILD](BUILD.md).
