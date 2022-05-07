@@ -28,6 +28,9 @@ message(STATUS "PROJECT_VERSION: ${PROJECT_VERSION}")
 
 # TODO shared libraries !!
 
+include(MdtBuildOptionsUtils)
+
+mdt_set_available_build_types(Release Debug)
 option(BUILD_TESTS "Build the tests" OFF)
 option(BUILD_CONAN_TESTS "Build packaging with Conan tests" OFF)
 option(BUILD_QT_TESTS "Build the tests depending on Qt" OFF)
