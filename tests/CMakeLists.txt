@@ -848,8 +848,15 @@ if(BUILD_CONAN_TESTS)
       create "${CMAKE_SOURCE_DIR}" "0.2@MdtCMakeModules_tests/testing"
       ${conanSettings}
   )
-#   set_tests_properties(Conan_Create_MdtCMakeModules PROPERTIES ENVIRONMENT "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
-  mdt_append_test_environment_variables_string(Conan_Create_MdtCMakeModules "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
+  # Using the CMakeToolchain conan generator (see project's conanfile.py),
+  # the CMAKE_C_COMPILER and CMAKE_CXX_COMPILER are not set in the conan_toolchain.cmake
+  # So, we have to specify them here
+  # See:
+  #  https://github.com/conan-io/conan/issues/9962
+  #  https://github.com/conan-io/conan/issues/8122
+  mdt_append_test_environment_variables_string(Conan_Create_MdtCMakeModules
+    "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER}"
+  )
 
   # Build and install MdtHeaderOnly
   add_test(NAME Conan_Create_MdtHeaderOnly
