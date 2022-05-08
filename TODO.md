@@ -4,6 +4,11 @@
 Add for clang / libc++
 Or, toolchainfile ?
 
+# Install - presets + doc
+
+Maybe: CMake presets for Ninja
+If yes, also update doc
+
 # MdtBuildOptionsUtils
 
 Remove sanitizers !
