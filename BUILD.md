@@ -34,10 +34,16 @@ git clone https://github.com/scandyna/mdt-cmake-modules.git
 
 ## Build on Linux using Makefiles
 
-Configure:
+Configure using the default compiler (gcc):
 ```bash
 mkdir build && cd build
 cmake --preset dev_unix_makefiles -DCMAKE_BUILD_TYPE=Debug ..
+```
+
+Configure using Clang 6.0 and libc++
+```bash
+mkdir build && cd build
+cmake --preset dev_unix_makefiles_clang_6_0_x86_64_libcpp -DCMAKE_BUILD_TYPE=Debug ..
 ```
 
 This will use the system wide installed Qt,

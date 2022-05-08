@@ -31,6 +31,14 @@
       "generator": "Unix Makefiles"
     },
     {
+      "name": "dev_unix_makefiles_clang_6_0_x86_64_libcpp",
+      "inherits": "dev_base",
+      "displayName": "Dev Unix Makefiles Clang 6.0 libc++",
+      "description": "Developper build using Unix Makefiles with Clang 6.0 x86_64 libc++",
+      "generator": "Unix Makefiles",
+      "toolchainFile": "${sourceDir}/linux_clang6.0_x86_64_libc++_toolchain.cmake"
+    },
+    {
       "name": "dev_mingw_makefiles",
       "inherits": "dev_base",
       "displayName": "Dev MinGW Makefiles",
