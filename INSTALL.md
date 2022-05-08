@@ -61,7 +61,7 @@ cmake-gui .
 ## Configure using CMake on Windows MSVC
 
 Configure:
-```cmd
+```bash
 mkdir build && cd build
 cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=C:\some\path ..
 ```
