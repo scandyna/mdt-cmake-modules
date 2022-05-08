@@ -23,6 +23,7 @@ class MdtCMakeModulesTestConan(ConanFile):
 
 
   def build(self):
+    self.output.info("Building with cmake_paths")
     cmake = CMake(self)
     cmake.definitions["CMAKE_MESSAGE_LOG_LEVEL"] = "DEBUG"
     cmake.definitions["CMAKE_TOOLCHAIN_FILE"] = "%s/conan_paths.cmake" % (self.build_folder)
