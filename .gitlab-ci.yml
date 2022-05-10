@@ -99,11 +99,11 @@ test_linux_clang6.0_x86_64_libc++_debug:
   stage: build
   script:
     - !reference [.setup_conan, script]
-    - conan create . 0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE --test-folder None
-    - conan test test_package MdtCMakeModules/0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE
-    - conan test test_cmake MdtCMakeModules/0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE
-    - conan test test_cmake_find_package_multi MdtCMakeModules/0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE
-    - conan test test_cmakedeps MdtCMakeModules/0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE
+    - conan create packaging/conan 0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE --test-folder None
+    - conan test packaging/conan/test_package MdtCMakeModules/0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE
+    - conan test packaging/conan/test_cmake MdtCMakeModules/0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE
+    - conan test packaging/conan/test_cmake_find_package_multi MdtCMakeModules/0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE
+    - conan test packaging/conan/test_cmakedeps MdtCMakeModules/0.0.0@scandyna/testing --profile:build $CONAN_PROFILE --profile:host $CONAN_PROFILE -s build_type=$BUILD_TYPE
 
 conan_linux_debug:
   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-cpp:latest
@@ -135,7 +135,7 @@ deploy_conan:
     - when: never
   script:
     - !reference [.setup_conan, script]
-    - conan create . scandyna/testing
+    - conan create packaging/conan scandyna/testing
     - conan user --password ${CI_JOB_TOKEN} --remote scandyna ci_user
     - conan upload MdtCMakeModules/*@scandyna/testing --remote scandyna --all -c
 

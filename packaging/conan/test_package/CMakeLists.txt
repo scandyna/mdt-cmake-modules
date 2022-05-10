@@ -29,3 +29,9 @@ include(MdtPackageConfigHelpers)
 include(MdtTargetProperties)
 include(MdtTargetPackageProperties)
 include(MdtVersionUtils)
+
+# TODO: compnent syntax was never tested.
+#       the generated CMake package configs are wrong for this syntax,
+#       also, conanfile must be adjusted ass well
+#       Once all is done, enable this line to test that
+# find_package(Mdt0 COMPONENTS CMakeModules REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH)

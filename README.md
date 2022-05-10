@@ -112,6 +112,12 @@ This last method requires to specify exactly where the modules are located.
 This will break if the internal directory organisation changes.
 
 
-# Contribute
+# Work on MdtCMakeModules
+
+## Build
 
 See [BUILD](BUILD.md).
+
+## Create Conan package
+
+See [README](packaging/conan/README.md) in the conan packaging folder.

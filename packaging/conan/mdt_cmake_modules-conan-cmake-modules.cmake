@@ -13,7 +13,7 @@ message(DEBUG "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 # We could have a trailing slash, or not, in CMAKE_PREFIX_PATH
 list(REMOVE_ITEM CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/")
 list(REMOVE_ITEM CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}")
-# On Windows build, we could be a trailing slash or backslash
+# On Windows build, we could have a trailing slash or backslash
 if(WIN32)
   list(REMOVE_ITEM CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}\\")
 endif()

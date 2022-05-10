@@ -12,7 +12,7 @@ class MdtCMakeModulesConan(ConanFile):
   # But, it requires the settings.
   # So, add them here and erase them in the package_id()
   settings = "os", "arch", "compiler", "build_type"
-  exports_sources = "Modules/*", "CMakeLists.txt", "MdtCMakeModulesConfig.cmake.in", "LICENSE", "mdt_cmake_modules-conan-cmake-modules.cmake"
+  #exports_sources = "Modules/*", "CMakeLists.txt", "MdtCMakeModulesConfig.cmake.in", "LICENSE", "mdt_cmake_modules-conan-cmake-modules.cmake"
   generators = "CMakeToolchain"
 
   # The version can be set on the command line:
@@ -29,6 +29,16 @@ class MdtCMakeModulesConan(ConanFile):
       else:
         self.version = "0.0.0"
     self.output.info( "%s: version is %s" % (self.name, self.version) )
+
+  # The export exports_sources attributes does not work if the conanfile.py is in a sub-folder.
+  # See https://github.com/conan-io/conan/issues/3635
+  # and https://github.com/conan-io/conan/pull/2676
+  def export_sources(self):
+    self.copy("*", src="../../Modules", dst="Modules")
+    self.copy("CMakeLists.txt", src="../../", dst=".")
+    self.copy("MdtCMakeModulesConfig.cmake.in", src="../../", dst=".")
+    self.copy("LICENSE", src="../../", dst=".")
+    self.copy("mdt_cmake_modules-conan-cmake-modules.cmake", src=".", dst=".")
 
   def generate(self):
     tc = CMakeToolchain(self)
