@@ -845,7 +845,7 @@ if(BUILD_CONAN_TESTS)
   # Build and install MdtCMakeModules
   add_test(NAME Conan_Create_MdtCMakeModules
     COMMAND "${CONAN_COMMAND}"
-      create "${CMAKE_SOURCE_DIR}" "0.2@MdtCMakeModules_tests/testing"
+      create "${CMAKE_SOURCE_DIR}/packaging/conan" "0.2@MdtCMakeModules_tests/testing"
       ${conanSettings}
   )
   # Using the CMakeToolchain conan generator (see project's conanfile.py),
