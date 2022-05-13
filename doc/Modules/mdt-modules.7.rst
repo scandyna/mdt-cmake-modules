@@ -11,6 +11,7 @@ All Modules
    MdtBuildOptionsUtils.rst
    MdtAddLibrary.rst
    MdtAddTest.rst
+   MdtFindPathInList.rst
    MdtInstallIncludes.rst
    MdtInstallLibrary.rst
    MdtInstallMdtLibrary.rst
