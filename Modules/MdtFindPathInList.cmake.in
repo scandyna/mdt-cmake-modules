@@ -171,8 +171,30 @@
 # In both include MdtFindPathInList_impl.cmake ( mdt_find_path_in_list_impl() ) ?
 #
 
-function(mdt_find_path_in_list)
+function(@MdtFindPathInList_FUNCTION_NAME@)
 
-  set(${ARGV2} 1 PARENT_SCOPE)
+  if( NOT (${ARGC} EQUAL 3) )
+    message(FATAL_ERROR "@MdtFindPathInList_FUNCTION_NAME@(): expected 3 arguments (<list> <path> <index-output-variable>), got ${ARGC}")
+  endif()
+
+  list(FIND ${ARGV0} "${ARGV1}" INDEX)
+
+  # Maybe the path has a trailing slash in given list
+  if(${INDEX} LESS 0)
+    list(FIND ${ARGV0} "${ARGV1}/" INDEX)
+  endif()
+
+  # Maybe the path has a trailing slash or backslash, but not in the list
+  if(${INDEX} LESS 0)
+    string(REGEX REPLACE "[/\\]$" "" path "${ARGV1}")
+    list(FIND ${ARGV0} "${path}" INDEX)
+  endif()
+
+  # Maybe the path has a trailing backslash in given list
+  if(${INDEX} LESS 0)
+    list(FIND ${ARGV0} "${ARGV1}\\" INDEX)
+  endif()
+
+  set(${ARGV2} ${INDEX} PARENT_SCOPE)
 
 endfunction()

@@ -1,1 +1,1 @@
-.. cmake-module:: ../../Modules/MdtFindPathInList.cmake
+.. cmake-module:: ../../Modules/MdtFindPathInList.cmake.in

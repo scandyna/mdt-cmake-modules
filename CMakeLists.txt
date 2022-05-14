@@ -35,6 +35,13 @@ option(BUILD_TESTS "Build the tests" OFF)
 option(BUILD_CONAN_TESTS "Build packaging with Conan tests" OFF)
 option(BUILD_QT_TESTS "Build the tests depending on Qt" OFF)
 
+# MdtFindPathInList
+# See its documentation to understang why it is generated
+set(MdtFindPathInList_FUNCTION_NAME mdt_find_path_in_list)
+configure_file(Modules/MdtFindPathInList.cmake.in MdtFindPathInList.cmake @ONLY)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}")
+
+
 if(BUILD_CONAN_TESTS)
   find_program(CONAN_COMMAND NAMES conan)
 endif()
