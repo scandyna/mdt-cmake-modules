@@ -6,6 +6,12 @@ include(MdtPackageConfigHelpers)
 include(MdtAddTest)
 include(MdtRuntimeEnvironment)
 
+#######################################################
+# Add static tests
+# Those are tests that runs at configuration time
+#######################################################
+
+add_subdirectory(static)
 
 #######################################################
 # Build a simple Qt executable

@@ -8,11 +8,64 @@
 # .. contents:: Summary
 #    :local:
 #
-# Explain problem
+# Introduction
+# ^^^^^^^^^^^^
 #
+# Consider we have to add some path to ``CMAKE_MODULE_PATH`` if it does not already exists:
+#
+# .. code-block:: cmake
+#
+#   list(FIND CMAKE_MODULE_PATH "${MY_CMAKE_MODULE_PATH}" MY_CMAKE_MODULE_PATH_INDEX)
+#   if(${MY_CMAKE_MODULE_PATH_INDEX} LESS 0)
+#     list(APPEND CMAKE_MODULE_PATH "${MY_CMAKE_MODULE_PATH}")
+#   endif()
+#
+# above code could work, but have good chances to finally add ``MY_CMAKE_MODULE_PATH``
+# to ``CMAKE_MODULE_PATH``, despite it allready exists.
+#
+# Example of the content of ``CMAKE_MODULE_PATH``:
+#
+# .. code-block:: cmake
+#
+#   /home/me/opt/LibA/cmake/Modules;/home/me/opt/MyCMakeModules/cmake/Modules
+#
+# If above code runs, and ``MY_CMAKE_MODULE_PATH`` contains ``/home/me/opt/MyCMakeModules/cmake/Modules``,
+# then all is fine.
+# But, if ``MY_CMAKE_MODULE_PATH`` contains ``/home/me/opt/MyCMakeModules/cmake/Modules/``,
+# ``CMAKE_MODULE_PATH`` will ending with our path 2 times:
+#
+# .. code-block:: cmake
+#
+#   /home/me/opt/LibA/cmake/Modules;/home/me/opt/MyCMakeModules/cmake/Modules;/home/me/opt/MyCMakeModules/cmake/Modules/
+#
+# And why ?
+# This is just due to a trailing slash.
+#
+# We should not have to care about such detail,
+# and this is what this module tries to solve.
 #
 # Usage
 # ^^^^^
+#
+# .. command:: mdt_find_path_in_list
+#
+# Find a path in a list::
+#
+#   mdt_find_path_in_list(<list> <path> <index-output-variable>)
+#
+# Returns the index of the element specified in the list or -1 if it wasn't found.
+#
+# Given path does not have to be a real or existing path.
+#
+# Example:
+#
+# .. code-block:: cmake
+#
+#   mdt_find_path_in_list(CMAKE_MODULE_PATH "${MY_CMAKE_MODULE_PATH}" MY_CMAKE_MODULE_PATH_INDEX)
+#   if(${MY_CMAKE_MODULE_PATH_INDEX} LESS 0)
+#     list(APPEND CMAKE_MODULE_PATH "${MY_CMAKE_MODULE_PATH}")
+#   endif()
+#
 #
 # Internal usage for package config files
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -117,3 +170,9 @@
 #
 # In both include MdtFindPathInList_impl.cmake ( mdt_find_path_in_list_impl() ) ?
 #
+
+function(mdt_find_path_in_list)
+
+  set(${ARGV2} 1 PARENT_SCOPE)
+
+endfunction()
