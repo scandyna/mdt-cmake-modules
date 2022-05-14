@@ -71,6 +71,18 @@ add_test(NAME MdtFindPathInList_Usage
 )
 set_tests_properties(MdtFindPathInList_Usage PROPERTIES DEPENDS Install_MdtCMakeModules)
 
+add_test(NAME MdtFindPathInList_UsageInPackageConfig
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/MdtFindPathInList/UsageInPackageConfig" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtFindPathInList_UsageInPackageConfig"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(MdtFindPathInList_UsageInPackageConfig PROPERTIES DEPENDS Install_MdtCMakeModules)
 
 #################################################
 # Simple app that only depends on MdtCMakeModules

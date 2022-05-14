@@ -67,9 +67,66 @@
 #   endif()
 #
 #
-# Internal usage for package config files
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Usage for package config files
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
+# :command:`mdt_find_path_in_list()` could be used in a CMake package config file.
+# To avoid any function name clash, it should be named in a project specific way
+# (the reason is explained below).
+#
+# As example, install cmake modules for a project, named ``MyLib``.
+#
+# ``MyLibConfig.cmake.in`` could look like this:
+#
+# .. code-block:: cmake
+#
+#   @PACKAGE_INIT@
+#
+#   include("${CMAKE_CURRENT_LIST_DIR}/MyLibMdtFindPathInList.cmake")
+#
+#   # Add to CMAKE_MODULE_PATH if not allready
+#   MyLib_mdt_find_path_in_list(CMAKE_MODULE_PATH "${PACKAGE_PREFIX_DIR}/@MY_CMAKE_MODULES_INSTALL_DIR@" MY_CMAKE_MODULES_PATH_INDEX)
+#   if(${MY_CMAKE_MODULES_PATH_INDEX} LESS 0)
+#     list(APPEND CMAKE_MODULE_PATH "${PACKAGE_PREFIX_DIR}/@MY_CMAKE_MODULES_INSTALL_DIR@")
+#   endif()
+#
+#   unset(MY_CMAKE_MODULES_PATH_INDEX)
+#
+# In the (main) ``CMakeLists.txt``, some steps have to be done.
+#
+# First, generate the project specific ``MyLib_mdt_find_path_in_list()``:
+#
+# .. code-block:: cmake
+#
+#   set(MdtFindPathInList_FUNCTION_NAME MyLib_mdt_find_path_in_list)
+#   configure_file("${MDT_CMAKE_MODULES_PATH}/MdtFindPathInList.cmake.in" MyLibMdtFindPathInList.cmake @ONLY)
+#
+# Then, generate ``MyLibConfig.cmake``:
+#
+# .. code-block:: cmake
+#
+#   include(CMakePackageConfigHelpers)
+#   configure_package_config_file(
+#     MyLibConfig.cmake.in
+#     ${CMAKE_CURRENT_BINARY_DIR}/MyLibConfig.cmake
+#     INSTALL_DESTINATION "lib/cmake"
+#     NO_SET_AND_CHECK_MACRO
+#     NO_CHECK_REQUIRED_COMPONENTS_MACRO
+#   )
+#
+# Finally, install the package config files:
+#
+# .. code-block:: cmake
+#
+#   install(
+#     FILES
+#       "${CMAKE_CURRENT_BINARY_DIR}/MyLibConfig.cmake"
+#       "${CMAKE_BINARY_DIR}/MyLibMdtFindPathInList.cmake"
+#     DESTINATION "lib/cmake"
+#   )
+#
+#
+# TODO: also reference mdt_install_cmake_modules()
 #
 # Deploy details
 # ^^^^^^^^^^^^^^

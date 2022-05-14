@@ -129,6 +129,7 @@ install(
     "Modules/MdtVersionUtils.cmake"
     "Modules/MdtBuildOptionsUtils.cmake"
     "Modules/MdtAddTest.cmake"
+    "Modules/MdtFindPathInList.cmake.in"
     "${CMAKE_BINARY_DIR}/MdtFindPathInList.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
 )
@@ -143,7 +144,9 @@ configure_package_config_file(
   MdtCMakeModulesConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesConfig.cmake
   INSTALL_DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
-  PATH_VARS MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR
+#   PATH_VARS MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR
+  NO_SET_AND_CHECK_MACRO
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
 
 install(
