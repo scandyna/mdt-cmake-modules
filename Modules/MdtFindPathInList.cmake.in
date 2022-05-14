@@ -164,12 +164,6 @@
 # with a newer version of ``MdtCMakeModules``, that fixes the bug.
 # The newly generated ``LibAMdtFindPathInList.cmake`` will then also have a correct implementation of :command:`LibA_mdt_find_path_in_list()`.
 #
-#
-# TODO TRY: implement in a MdtFindPathInList.cmake.in then generate with configure_file(),
-#  so function name can be changed.
-#
-# In both include MdtFindPathInList_impl.cmake ( mdt_find_path_in_list_impl() ) ?
-#
 
 function(@MdtFindPathInList_FUNCTION_NAME@)
 

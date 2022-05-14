@@ -53,6 +53,24 @@ add_test(NAME Install_MdtCMakeModules
 )
 set_tests_properties(Install_MdtCMakeModules PROPERTIES DEPENDS Build_MdtCMakeModules)
 
+#################################################
+# Project that only depends on MdtCMakeModules
+# MdtFindPathInList
+#################################################
+
+add_test(NAME MdtFindPathInList_Usage
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/MdtFindPathInList/Usage" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtFindPathInList_Usage"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(MdtFindPathInList_Usage PROPERTIES DEPENDS Install_MdtCMakeModules)
+
 
 #################################################
 # Simple app that only depends on MdtCMakeModules
@@ -467,7 +485,7 @@ add_test(NAME ConfigureAndTest_HeaderOnly_CL_opt
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
-set_tests_properties(ConfigureAndTest_HeaderOnly_CL_opt PROPERTIES DEPENDS Build_MdtCMakeModules_CL_opt)
+set_tests_properties(ConfigureAndTest_HeaderOnly_CL_opt PROPERTIES DEPENDS Install_MdtCMakeModules_CL_opt)
 
 add_test(NAME Install_HeaderOnly_CL_opt
   COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/HeaderOnly_CL_opt" --target install --config $<CONFIG>

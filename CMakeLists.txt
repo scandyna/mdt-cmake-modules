@@ -107,7 +107,6 @@ set(MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR "${MDT_INSTALL_DATADIR}/cmake")
 # message("MDT_CMAKE_MODULE_INSTALL_MODULES_DIR: ${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}")
 # message("MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR: ${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}")
 
-
 #
 # Modules installation
 #
@@ -130,8 +129,14 @@ install(
     "Modules/MdtVersionUtils.cmake"
     "Modules/MdtBuildOptionsUtils.cmake"
     "Modules/MdtAddTest.cmake"
+    "${CMAKE_BINARY_DIR}/MdtFindPathInList.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
 )
+
+# MdtFindPathInList
+# See its documentation to understang why it is generated
+set(MdtFindPathInList_FUNCTION_NAME MdtCMakeModules_mdt_find_path_in_list)
+configure_file(Modules/MdtFindPathInList.cmake.in MdtCMakeModulesMdtFindPathInList.cmake @ONLY)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
@@ -145,6 +150,7 @@ install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesConfig.cmake"
 #   "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesVersion.cmake"
+    "${CMAKE_BINARY_DIR}/MdtCMakeModulesMdtFindPathInList.cmake"
   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
 )
 
