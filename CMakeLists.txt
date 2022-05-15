@@ -34,6 +34,7 @@ mdt_set_available_build_types(Release Debug)
 option(BUILD_TESTS "Build the tests" OFF)
 option(BUILD_CONAN_TESTS "Build packaging with Conan tests" OFF)
 option(BUILD_QT_TESTS "Build the tests depending on Qt" OFF)
+option(INSTALL_CONAN_PACKAGE_FILES "Install files required for recent conan generators, like CMakeDeps" OFF)
 
 # MdtFindPathInList
 # See its documentation to understang why it is generated
@@ -163,6 +164,19 @@ if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
     INSTALL_NAMESPACE Mdt0
     DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
   )
+endif()
+
+if(INSTALL_CONAN_PACKAGE_FILES)
+
+  set(MdtFindPathInList_FUNCTION_NAME MdtCMakeModulesConan_mdt_find_path_in_list)
+  configure_file("${CMAKE_SOURCE_DIR}/Modules/MdtFindPathInList.cmake.in" MdtCMakeModulesConanMdtFindPathInList.cmake @ONLY)
+
+  install(
+    FILES
+      "${CMAKE_BINARY_DIR}/MdtCMakeModulesConanMdtFindPathInList.cmake"
+    DESTINATION .
+  )
+
 endif()
 
 #

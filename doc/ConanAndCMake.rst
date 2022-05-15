@@ -271,7 +271,7 @@ There are 2 main problems to solve here:
   Note that I'm possibly wrong here.
   See also `Case insensitive filesystem can't manage this" #1557 <https://github.com/conan-io/conan/issues/1557>`_
 
-So, I don't want to include every CMake modules.
+Also, I don't want to include every CMake modules.
 To use a function, it must be included explicitly by the user,
 or a error is thrown by CMake.
 Also, what about name clashes ?
@@ -360,6 +360,93 @@ which will not happen when using Conan packages.
 
 Because we are talking about a Conan specific case,
 we should not care here.
+
+Example using a helper function to find paths in a list
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+For above example, in ``my_project-conan-cmake-modules.cmake``,
+we had to deal with paths ending with trailing slashes.
+We could have paths ending with a slash in the list,
+but not in the given path to find, or the reverse case.
+We also have to deal with backslashes.
+
+It can be difficult to maintain such code all over the place.
+We should use a helper function, like :command:`mdt_find_path_in_list()`.
+
+This adds some packaging complexity explained in the :module:`MdtFindPathInList` module.
+
+Now update ``my_project-conan-cmake-modules.cmake``:
+
+.. code-block:: CMake
+
+  # This file is only used by conan generators that generates CMake package config files
+
+  include("${CMAKE_CURRENT_LIST_DIR}/MyProjectConanMdtFindPathInList.cmake")
+
+  # Remove the root of the package from CMAKE_PREFIX_PATH
+  # to avoid clashes when using Conan generated CMake package config files
+  MyProjectConan_mdt_find_path_in_list(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}" PATH_INDEX)
+  if(${PATH_INDEX} GREATER_EQUAL 0)
+    list(REMOVE_AT CMAKE_PREFIX_PATH ${PATH_INDEX})
+  endif()
+
+  # Add the path to our CMake modules if not already
+  MyProjectConan_mdt_find_path_in_list(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules" PATH_INDEX)
+  if(${PATH_INDEX} LESS 0)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/Modules")
+  endif()
+
+  unset(PATH_INDEX)
+
+Update the (main) ``CMakeLists.txt``:
+
+.. code-block:: CMake
+
+  option(INSTALL_CONAN_PACKAGE_FILES "Install files required for recent conan generators, like CMakeDeps" OFF)
+
+  if(INSTALL_CONAN_PACKAGE_FILES)
+
+    set(MdtFindPathInList_FUNCTION_NAME MyProjectConan_mdt_find_path_in_list)
+    configure_file("${MDT_CMAKE_MODULES_PATH}/MdtFindPathInList.cmake.in" MyProjectConanMdtFindPathInList.cmake @ONLY)
+
+    install(
+      FILES
+        "${CMAKE_BINARY_DIR}/MyProjectConanMdtFindPathInList.cmake"
+      DESTINATION .
+    )
+
+  endif()
+
+Update the recipe:
+
+.. code-block:: Python
+
+  from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps
+
+  class MyProjectConan(ConanFile):
+
+    exports_sources = "usual files", "my_project-conan-cmake-modules.cmake"
+    generators = "CMakeToolchain", "CMakeDeps"
+
+    def generate(self):
+      tc = CMakeToolchain(self)
+      tc.variables["INSTALL_CONAN_PACKAGE_FILES"] = "ON"
+      tc.generate()
+
+    def package(self):
+      cmake = CMake(self)
+      cmake.install()
+
+    def package_info(self):
+
+      build_modules = ["my_project-conan-cmake-modules.cmake"]
+
+      # This will be used by CMakeDeps
+      self.cpp_info.set_property("cmake_build_modules", build_modules)
+
+      # This must be added for other generators
+      self.cpp_info.build_modules["cmake_find_package"] = build_modules
+      self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules
 
 Using a custom CMake modules install function
 """""""""""""""""""""""""""""""""""""""""""""

@@ -43,6 +43,7 @@ class MdtCMakeModulesConan(ConanFile):
   def generate(self):
     tc = CMakeToolchain(self)
     tc.variables["FROM_CONAN_PROJECT_VERSION"] = self.version
+    tc.variables["INSTALL_CONAN_PACKAGE_FILES"] = "ON"
     tc.generate()
 
   def build(self):
