@@ -12,6 +12,7 @@ All Modules
    MdtAddLibrary.rst
    MdtAddTest.rst
    MdtFindPathInList.rst
+   MdtInstallCMakeModules.rst
    MdtInstallIncludes.rst
    MdtInstallLibrary.rst
    MdtInstallMdtLibrary.rst
