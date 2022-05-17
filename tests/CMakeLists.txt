@@ -41,7 +41,7 @@ add_test(NAME Build_MdtCMakeModules
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
       "-DCMAKE_CONFIGURATION_TYPES=Debug"
       "-DBUILD_TESTS=OFF"
 )
@@ -66,7 +66,7 @@ add_test(NAME MdtFindPathInList_Usage
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 set_tests_properties(MdtFindPathInList_Usage PROPERTIES DEPENDS Install_MdtCMakeModules)
@@ -79,7 +79,7 @@ add_test(NAME MdtFindPathInList_UsageInPackageConfig
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 set_tests_properties(MdtFindPathInList_UsageInPackageConfig PROPERTIES DEPENDS Install_MdtCMakeModules)
@@ -96,7 +96,7 @@ add_test(NAME BuildAndRun_Hello
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 set_tests_properties(BuildAndRun_Hello PROPERTIES DEPENDS Install_MdtCMakeModules)
@@ -111,7 +111,7 @@ add_test(NAME BuildAndRun_HelloCompileOptions
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 set_tests_properties(BuildAndRun_HelloCompileOptions PROPERTIES DEPENDS Install_MdtCMakeModules)
@@ -128,7 +128,7 @@ add_test(NAME BuildAndRun_HelloASan
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
       "-DTEST_ADDRESS_SANITIZER=ON"
       "-DCMAKE_BUILD_TYPE=Debug"
     --test-command "${CMAKE_CTEST_COMMAND}"
@@ -155,7 +155,7 @@ add_test(NAME BuildAndRun_HelloMSan
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
       "-DTEST_MEMORY_SANITIZER=ON"
       "-DCMAKE_BUILD_TYPE=Debug"
     --test-command "${CMAKE_CTEST_COMMAND}"
@@ -171,7 +171,7 @@ add_test(NAME BuildAndRun_HelloUBSan
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
       "-DTEST_UNDEFINED_SANITIZER=ON"
       "-DCMAKE_BUILD_TYPE=Debug"
     --test-command "${CMAKE_CTEST_COMMAND}"
@@ -187,7 +187,7 @@ add_test(NAME BuildAndRun_HelloTSan
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
       "-DTEST_THREAD_SANITIZER=ON"
       "-DCMAKE_BUILD_TYPE=Debug"
     --test-command "${CMAKE_CTEST_COMMAND}"
@@ -208,8 +208,8 @@ add_test(NAME Build_MultiDevTools_Static
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MultiDevTools"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MultiDevTools"
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=OFF"
     --test-command "${CMAKE_CTEST_COMMAND}"
@@ -237,8 +237,8 @@ add_test(NAME ConfigureAndTest_HeaderOnly
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtHeaderOnly"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtHeaderOnly"
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
@@ -262,8 +262,8 @@ add_test(NAME Build_MdtItemModel
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtHeaderOnly"
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtHeaderOnly"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtItemModel"
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
@@ -287,8 +287,8 @@ add_test(NAME Build_MdtItemEditor
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel"
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemEditor"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtItemModel"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtItemEditor"
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=ON"
       "-DBUILD_TESTS=ON"
@@ -315,7 +315,7 @@ add_test(NAME BuildAndRun_TableEditor
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemEditor"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtItemModel;${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtItemEditor"
       "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/TableEditor"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
@@ -364,7 +364,7 @@ add_test(NAME BuildAndTest_TableEditorGlIssue4
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemEditor"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtItemModel;${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtItemEditor"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
@@ -401,7 +401,7 @@ add_test(NAME BuildAndTest_GlIssue4CoreTestLibDomain
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MdtItemModel"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtItemModel"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
@@ -423,8 +423,8 @@ add_test(NAME Build_MultiDevTools
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules"
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/MultiDevTools"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MultiDevTools"
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
@@ -447,8 +447,8 @@ add_test(NAME BuildAndRun_TableEditor_Mdt
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/opt/MultiDevTools"
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/opt/TableEditor_Mdt"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MultiDevTools"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/TableEditor_Mdt"
       "-DBUILD_SHARED_LIBS=ON"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
