@@ -25,7 +25,7 @@
 #     EXPORT_NAME <export-name>
 #     EXPORT_NAMESPACE <export-namespace>
 #     [NO_PACKAGE_CONFIG_FILE]
-#     [EXPORT_DIRECTORY <dir>]
+#     [EXPORT_DIRECTORY <dir>] TODO: should be EXPORT_DESTINATION
 #     [INSTALL_IS_UNIX_SYSTEM_WIDE [TRUE|FALSE]]
 #     [COMPONENT <component-name>]
 #     [MODULES_PATH_VARIABLE_NAME <variable-name>]
@@ -34,13 +34,16 @@
 # Install the CMake modules designated by ``files`` using :command:`install(FILES)`.
 #
 # By default, the destination is relative to ``CMAKE_INSTALL_PREFIX`` and depends on ``INSTALL_IS_UNIX_SYSTEM_WIDE``:
-# if it is ``TRUE``, it will be ``${CMAKE_INSTALL_DATADIR}/<package-name>/Modules``, otherwise ``cmake/Modules``.
+# if it is ``TRUE``, it will be ``${CMAKE_INSTALL_DATADIR}/<package-name>/Modules``, otherwise ``Modules``.
 # Here, ``<package-name>`` is ``${EXPORT_NAMESPACE}${EXPORT_NAME}``.
 #
 # Alternatively, it is possible to specify a directory (or a relative path) using the ``DESTINATION`` argument.
-# In that case, the files will be installed to ``${DESTINATION}/cmake/Modules``,
-# relative to ``CMAKE_INSTALL_PREFIX``.
-# When using ``DESTINATION``, ``INSTALL_IS_UNIX_SYSTEM_WIDE`` is ignored.
+# In that case, the files will be installed to ``${DESTINATION}``, relative to ``CMAKE_INSTALL_PREFIX``.
+#
+# When using ``DESTINATION``, ``INSTALL_IS_UNIX_SYSTEM_WIDE`` is not used to compute the destination.
+# You should then care for Unix system wide install.
+# As example, you can use variables like ``CMAKE_INSTALL_LIBDIR`` or :variable:`MDT_INSTALL_DATADIR`
+# from the :module:`MdtInstallDirs` module.
 #
 # A CMake package file, named ``${EXPORT_NAMESPACE}${EXPORT_NAME}.cmake``, is generated.
 # This file adds the location of the installed modules to ``CMAKE_MODULE_PATH``.
@@ -48,12 +51,19 @@
 # If ``NO_PACKAGE_CONFIG_FILE`` is not set,
 # a package config file, named ``${EXPORT_NAMESPACE}${EXPORT_NAME}Config.cmake``, is also generated.
 #
-# By default, the package config files are installed to a subdirectory named ``${EXPORT_NAMESPACE}${EXPORT_NAME}``,
-# which correspond to a location :command:`find_package()` uses.
+# By default, the CMake package files are installed to a subdirectory which correspond to a location :command:`find_package()` uses.
+# If ``INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be ``${CMAKE_INSTALL_DATADIR}/<package-name>/cmake``, otherwise ``cmake``.
 #
+# TODO: wrong:
 # If this default location does not match the required one,
 # the ``EXPORT_DIRECTORY`` can be used.
 # In that case, the package config file will be installed to a subdirectory named ``${EXPORT_NAMESPACE}${EXPORT_DIRECTORY}``.
+#
+# If this default location does not match the required one, ``EXPORT_DESTINATION`` can be used.
+# In that case, the CMake package files are installed to ``${EXPORT_DESTINATION}``, relative to ``CMAKE_INSTALL_PREFIX``.
+#
+# When using ``EXPORT_DESTINATION``, ``INSTALL_IS_UNIX_SYSTEM_WIDE`` is not used to compute the destination.
+# You should then care for Unix system wide install, the same ways as when using ``DESTINATION`` described above.
 #
 # If ``MODULES_PATH_VARIABLE_NAME`` is defined,
 # a variable named `<variable-name>` will be created in the generated CMake package file.
@@ -111,7 +121,6 @@
 # .. code-block:: cmake
 #
 #   # This should be set at the top level CMakeLists.txt
-#   set(MDT_INSTALL_PACKAGE_NAME Mdt0)
 #   include(GNUInstallDirs)
 #   include(MdtInstallDirs)
 #
@@ -120,7 +129,7 @@
 #       Modules/ModuleA.cmake
 #       Modules/ModuleB.cmake
 #     EXPORT_NAME CMakeModules
-#     EXPORT_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
+#     EXPORT_NAMESPACE Mdt0
 #     INSTALL_IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
 #   )
 #
@@ -129,12 +138,11 @@
 #
 #   ${CMAKE_INSTALL_PREFIX}
 #     |-cmake
-#        |-Modules
-#        |  |-ModuleA.cmake
-#        |  |-ModuleB.cmake
-#        |-Mdt0CMakeModules
-#             |-Mdt0CMakeModules.cmake
-#             |-Mdt0CMakeModulesConfig.cmake
+#     |  |-Mdt0CMakeModules.cmake
+#     |  |-Mdt0CMakeModulesConfig.cmake
+#     |-Modules
+#        |-ModuleA.cmake
+#        |-ModuleB.cmake
 #
 #
 # Example of a system wide install on a Debian MultiArch (``CMAKE_INSTALL_PREFIX=/usr``)::
@@ -142,13 +150,12 @@
 #   /usr
 #     |-share
 #         |-Mdt0CMakeModules
-#         |   |-Modules
-#         |      |-ModuleA.cmake
-#         |      |-ModuleB.cmake
-#         |-cmake
-#             |-Mdt0CMakeModules
-#                 |-Mdt0CMakeModules.cmake
-#                 |-Mdt0CMakeModulesConfig.cmake
+#             |-cmake
+#             |   |-Mdt0CMakeModules.cmake
+#             |   |-Mdt0CMakeModulesConfig.cmake
+#             |-Modules
+#                 |-ModuleA.cmake
+#                 |-ModuleB.cmake
 #
 #
 # Once the project is installed,
@@ -171,19 +178,18 @@
 # .. code-block:: cmake
 #
 #   # This should be set at the top level CMakeLists.txt
-#   set(MDT_INSTALL_PACKAGE_NAME Mdt0)
 #   include(GNUInstallDirs)
-#   include(MdtInstallDirs)
 #
 #   mdt_install_cmake_modules(
 #     FILES
 #       Modules/ModuleA.cmake
 #       Modules/ModuleB.cmake
-#     DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Modules
 #     EXPORT_NAME DeployUtilsCMakeModules
-#     EXPORT_NAMESPACE ${MDT_INSTALL_PACKAGE_NAME}
+#     EXPORT_NAMESPACE Mdt0
 #     NO_PACKAGE_CONFIG_FILE
 #     EXPORT_DIRECTORY DeployUtils
+#     TODO: should be EXPORT_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0DeployUtils
 #     COMPONENT ${PROJECT_NAME}_Runtime
 #   )
 #
@@ -340,8 +346,7 @@
 #
 #
 
-
-# include(CMakePackageConfigHelpers)
+include(CMakePackageConfigHelpers)
 
 function(mdt_install_cmake_modules)
 
