@@ -2,7 +2,6 @@
 # file Copyright.txt or https://cmake.org/licensing for details.
 
 # TODO: document, implement
-# TODO: should go to MdtCMakeModules
 
 #.rst:
 # MdtInstallCMakeModules
@@ -25,7 +24,7 @@
 #     EXPORT_NAME <export-name>
 #     EXPORT_NAMESPACE <export-namespace>
 #     [NO_PACKAGE_CONFIG_FILE]
-#     [EXPORT_DIRECTORY <dir>] TODO: should be EXPORT_DESTINATION
+#     [EXPORT_DESTINATION <dir>]
 #     [INSTALL_IS_UNIX_SYSTEM_WIDE [TRUE|FALSE]]
 #     [COMPONENT <component-name>]
 #     [MODULES_PATH_VARIABLE_NAME <variable-name>]
@@ -53,11 +52,6 @@
 #
 # By default, the CMake package files are installed to a subdirectory which correspond to a location :command:`find_package()` uses.
 # If ``INSTALL_IS_UNIX_SYSTEM_WIDE`` is ``TRUE``, it will be ``${CMAKE_INSTALL_DATADIR}/<package-name>/cmake``, otherwise ``cmake``.
-#
-# TODO: wrong:
-# If this default location does not match the required one,
-# the ``EXPORT_DIRECTORY`` can be used.
-# In that case, the package config file will be installed to a subdirectory named ``${EXPORT_NAMESPACE}${EXPORT_DIRECTORY}``.
 #
 # If this default location does not match the required one, ``EXPORT_DESTINATION`` can be used.
 # In that case, the CMake package files are installed to ``${EXPORT_DESTINATION}``, relative to ``CMAKE_INSTALL_PREFIX``.
@@ -188,8 +182,7 @@
 #     EXPORT_NAME DeployUtilsCMakeModules
 #     EXPORT_NAMESPACE Mdt0
 #     NO_PACKAGE_CONFIG_FILE
-#     EXPORT_DIRECTORY DeployUtils
-#     TODO: should be EXPORT_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0DeployUtils
+#     EXPORT_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0DeployUtils
 #     COMPONENT ${PROJECT_NAME}_Runtime
 #   )
 #
@@ -351,7 +344,7 @@ include(CMakePackageConfigHelpers)
 function(mdt_install_cmake_modules)
 
   set(options NO_PACKAGE_CONFIG_FILE)
-  set(oneValueArgs DESTINATION EXPORT_NAME EXPORT_NAMESPACE EXPORT_DIRECTORY INSTALL_IS_UNIX_SYSTEM_WIDE COMPONENT MODULES_PATH_VARIABLE_NAME)
+  set(oneValueArgs DESTINATION EXPORT_NAME EXPORT_NAMESPACE EXPORT_DESTINATION INSTALL_IS_UNIX_SYSTEM_WIDE COMPONENT MODULES_PATH_VARIABLE_NAME)
   set(multiValueArgs FILES)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -375,22 +368,32 @@ function(mdt_install_cmake_modules)
 
   set(packageName "${ARG_EXPORT_NAMESPACE}${ARG_EXPORT_NAME}")
 
-  if(ARG_EXPORT_DIRECTORY)
-    set(packageConfigInstallDirName "${ARG_EXPORT_NAMESPACE}${ARG_EXPORT_DIRECTORY}")
-  else()
-    set(packageConfigInstallDirName "${packageName}")
-  endif()
+#   if(ARG_EXPORT_DESTINATION)
+#     set(packageConfigInstallDirName "${ARG_EXPORT_NAMESPACE}${ARG_EXPORT_DESTINATION}")
+#   else()
+#     set(packageConfigInstallDirName "${packageName}")
+#   endif()
 
   if(ARG_DESTINATION)
-    set(modulesInstallDir "${ARG_DESTINATION}/cmake/Modules")
-    set(packageConfigInstallDir "${ARG_DESTINATION}/cmake/${packageConfigInstallDirName}")
+    set(modulesInstallDir "${ARG_DESTINATION}")
+#     set(packageConfigInstallDir "${ARG_DESTINATION}/cmake/${packageConfigInstallDirName}")
   else()
     if(ARG_INSTALL_IS_UNIX_SYSTEM_WIDE)
       set(modulesInstallDir "${CMAKE_INSTALL_DATADIR}/${packageName}/Modules")
-      set(packageConfigInstallDir "${CMAKE_INSTALL_DATADIR}/cmake/${packageConfigInstallDirName}")
+#       set(packageConfigInstallDir "${CMAKE_INSTALL_DATADIR}/${packageName}/cmake")
     else()
-      set(modulesInstallDir "cmake/Modules")
-      set(packageConfigInstallDir "cmake/${packageConfigInstallDirName}")
+      set(modulesInstallDir "Modules")
+#       set(packageConfigInstallDir "cmake")
+    endif()
+  endif()
+
+  if(ARG_EXPORT_DESTINATION)
+    set(packageConfigInstallDir "${ARG_EXPORT_DESTINATION}")
+  else()
+    if(ARG_INSTALL_IS_UNIX_SYSTEM_WIDE)
+      set(packageConfigInstallDir "${CMAKE_INSTALL_DATADIR}/${packageName}/cmake")
+    else()
+      set(packageConfigInstallDir "cmake")
     endif()
   endif()
 
