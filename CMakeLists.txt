@@ -81,6 +81,8 @@ set(MDT_INSTALL_PACKAGE_NAME MdtCMakeModules)
 include(GNUInstallDirs)
 include(MdtInstallDirs)
 
+include(MdtInstallCMakeModules)
+
 # message("Main: CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 # message(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE: ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE})
 
@@ -112,11 +114,12 @@ set(MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR "${MDT_INSTALL_DATADIR}/cmake")
 # Modules installation
 #
 
-install(
+mdt_install_cmake_modules(
   FILES
     "Modules/AddQt5ToCMakePrefixPath.cmake"
     "Modules/FindSphinx.cmake"
     "Modules/MdtAddLibrary.cmake"
+    "Modules/MdtInstallCMakeModules.cmake"
     "Modules/MdtInstallDirs.cmake"
     "Modules/MdtInstallLibrary.cmake"
     "Modules/MdtInstallMdtLibrary.cmake"
@@ -132,31 +135,57 @@ install(
     "Modules/MdtAddTest.cmake"
     "Modules/MdtFindPathInList.cmake.in"
     "${CMAKE_BINARY_DIR}/MdtFindPathInList.cmake"
-  DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
+  EXPORT_NAME CMakeModules
+  EXPORT_NAMESPACE Mdt
+  INSTALL_IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
+  MODULES_PATH_VARIABLE_NAME MDT_CMAKE_MODULES_PATH
 )
+
+# install(
+#   FILES
+#     "Modules/AddQt5ToCMakePrefixPath.cmake"
+#     "Modules/FindSphinx.cmake"
+#     "Modules/MdtAddLibrary.cmake"
+#     "Modules/MdtInstallDirs.cmake"
+#     "Modules/MdtInstallLibrary.cmake"
+#     "Modules/MdtInstallMdtLibrary.cmake"
+#     "Modules/MdtInstallExecutable.cmake"
+#     "Modules/MdtPackageConfigHelpers.cmake"
+#     "Modules/MdtTargetPackageProperties.cmake"
+#     "Modules/MdtTargetProperties.cmake"
+#     "Modules/MdtInstallIncludes.cmake"
+#     "Modules/MdtRuntimeEnvironment.cmake"
+#     "Modules/MdtSanitizers.cmake"
+#     "Modules/MdtVersionUtils.cmake"
+#     "Modules/MdtBuildOptionsUtils.cmake"
+#     "Modules/MdtAddTest.cmake"
+#     "Modules/MdtFindPathInList.cmake.in"
+#     "${CMAKE_BINARY_DIR}/MdtFindPathInList.cmake"
+#   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_MODULES_DIR}"
+# )
 
 # MdtFindPathInList
 # See its documentation to understang why it is generated
-set(MdtFindPathInList_FUNCTION_NAME MdtCMakeModules_mdt_find_path_in_list)
-configure_file(Modules/MdtFindPathInList.cmake.in MdtCMakeModulesMdtFindPathInList.cmake @ONLY)
+# set(MdtFindPathInList_FUNCTION_NAME MdtCMakeModules_mdt_find_path_in_list)
+# configure_file(Modules/MdtFindPathInList.cmake.in MdtCMakeModulesMdtFindPathInList.cmake @ONLY)
 
-include(CMakePackageConfigHelpers)
-configure_package_config_file(
-  MdtCMakeModulesConfig.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesConfig.cmake
-  INSTALL_DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
-#   PATH_VARS MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR
-  NO_SET_AND_CHECK_MACRO
-  NO_CHECK_REQUIRED_COMPONENTS_MACRO
-)
+# include(CMakePackageConfigHelpers)
+# configure_package_config_file(
+#   MdtCMakeModulesConfig.cmake.in
+#   ${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesConfig.cmake
+#   INSTALL_DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
+# #   PATH_VARS MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR
+#   NO_SET_AND_CHECK_MACRO
+#   NO_CHECK_REQUIRED_COMPONENTS_MACRO
+# )
 
-install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesConfig.cmake"
-#   "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesVersion.cmake"
-    "${CMAKE_BINARY_DIR}/MdtCMakeModulesMdtFindPathInList.cmake"
-  DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
-)
+# install(
+#   FILES
+#     "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesConfig.cmake"
+# #   "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeModulesVersion.cmake"
+#     "${CMAKE_BINARY_DIR}/MdtCMakeModulesMdtFindPathInList.cmake"
+#   DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
+# )
 
 include(MdtPackageConfigHelpers)
 if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
