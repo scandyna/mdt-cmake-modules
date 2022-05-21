@@ -178,7 +178,7 @@
 #     FILES
 #       Modules/ModuleA.cmake
 #       Modules/ModuleB.cmake
-#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Modules
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Mdt0DeployUtils/Modules
 #     EXPORT_NAME DeployUtilsCMakeModules
 #     EXPORT_NAMESPACE Mdt0
 #     NO_PACKAGE_CONFIG_FILE
@@ -192,17 +192,21 @@
 # will write a package configuration file, named ``Mdt0DeployUtilsConfig.cmake``,
 # that will include ``Mdt0DeployUtilsCMakeModules.cmake``.
 #
+# We choosed to install the modules into the ``Mdt0DeployUtils`` subdirectory.
+# This could look a bit strange, but it will also work for a Unix system wide install,
+# without adding complexity to the ``CMakeLists.txt``.
+#
 # On a non system wide Linux installation, the result will be::
 #
 #   ${CMAKE_INSTALL_PREFIX}
 #     lib
 #      |-cmake
-#         |-Modules
-#         |  |-ModuleA.cmake
-#         |  |-ModuleB.cmake
 #         |-Mdt0DeployUtils
 #              |-Mdt0DeployUtilsCMakeModules.cmake
 #              |-Mdt0DeployUtilsConfig.cmake
+#              |-Modules
+#                 |-ModuleA.cmake
+#                 |-ModuleB.cmake
 #
 #
 # Example of a system wide install on a Debian MultiArch (``CMAKE_INSTALL_PREFIX=/usr``)::
@@ -211,12 +215,12 @@
 #       |-lib
 #          |-x86_64-linux-gnu
 #             |-cmake
-#                |-Modules
-#                |  |-ModuleA.cmake
-#                |  |-ModuleB.cmake
 #                |-Mdt0DeployUtils
 #                     |-Mdt0DeployUtilsCMakeModules.cmake
 #                     |-Mdt0DeployUtilsConfig.cmake
+#                     |-Modules
+#                        |-ModuleA.cmake
+#                        |-ModuleB.cmake
 #
 #
 # Once the project is installed,
@@ -368,22 +372,13 @@ function(mdt_install_cmake_modules)
 
   set(packageName "${ARG_EXPORT_NAMESPACE}${ARG_EXPORT_NAME}")
 
-#   if(ARG_EXPORT_DESTINATION)
-#     set(packageConfigInstallDirName "${ARG_EXPORT_NAMESPACE}${ARG_EXPORT_DESTINATION}")
-#   else()
-#     set(packageConfigInstallDirName "${packageName}")
-#   endif()
-
   if(ARG_DESTINATION)
     set(modulesInstallDir "${ARG_DESTINATION}")
-#     set(packageConfigInstallDir "${ARG_DESTINATION}/cmake/${packageConfigInstallDirName}")
   else()
     if(ARG_INSTALL_IS_UNIX_SYSTEM_WIDE)
       set(modulesInstallDir "${CMAKE_INSTALL_DATADIR}/${packageName}/Modules")
-#       set(packageConfigInstallDir "${CMAKE_INSTALL_DATADIR}/${packageName}/cmake")
     else()
       set(modulesInstallDir "Modules")
-#       set(packageConfigInstallDir "cmake")
     endif()
   endif()
 
