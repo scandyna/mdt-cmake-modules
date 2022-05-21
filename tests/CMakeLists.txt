@@ -85,6 +85,57 @@ add_test(NAME MdtFindPathInList_UsageInPackageConfig
 set_tests_properties(MdtFindPathInList_UsageInPackageConfig PROPERTIES DEPENDS Install_MdtCMakeModules)
 
 #################################################
+# Project that installs its CMake modules
+# in non default destination
+# (CMake modules part of a other project)
+#
+# This checks mdt_install_cmake_modules()
+# with custom destinations
+#################################################
+
+# TODO: The test project should maybe use MDT_CMAKE_MODULES_PATH
+
+add_test(NAME MdtInstallCMakeModules_custom_DeployUtils_Configure
+  COMMAND "${CMAKE_COMMAND}"
+    -S "${CMAKE_CURRENT_SOURCE_DIR}/MdtInstallCMakeModules_custom/MdtDeployUtils"
+    -B "${CMAKE_CURRENT_BINARY_DIR}/build/MdtInstallCMakeModules_custom/MdtDeployUtils"
+    -G "${CMAKE_GENERATOR}"
+    -A "${CMAKE_GENERATOR_PLATFORM}"
+    -T "${CMAKE_GENERATOR_TOOLSET}"
+    -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG
+    "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
+    "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtDeployUtils"
+)
+set_tests_properties(MdtInstallCMakeModules_custom_DeployUtils_Configure PROPERTIES DEPENDS Install_MdtCMakeModules)
+
+add_test(NAME MdtInstallCMakeModules_custom_DeployUtils_Build
+  COMMAND "${CMAKE_COMMAND}"
+    --build "${CMAKE_CURRENT_BINARY_DIR}/build/MdtInstallCMakeModules_custom/MdtDeployUtils"
+    --config $<CONFIG>
+)
+set_tests_properties(MdtInstallCMakeModules_custom_DeployUtils_Build PROPERTIES DEPENDS MdtInstallCMakeModules_custom_DeployUtils_Configure)
+
+add_test(NAME MdtInstallCMakeModules_custom_DeployUtils_Install
+  COMMAND "${CMAKE_COMMAND}"
+    --install "${CMAKE_CURRENT_BINARY_DIR}/build/MdtInstallCMakeModules_custom/MdtDeployUtils"
+    --config $<CONFIG>
+)
+set_tests_properties(MdtInstallCMakeModules_custom_DeployUtils_Install PROPERTIES DEPENDS MdtInstallCMakeModules_custom_DeployUtils_Build)
+
+
+add_test(NAME MdtInstallCMakeModules_custom_user_Configure
+  COMMAND "${CMAKE_COMMAND}"
+    -S "${CMAKE_CURRENT_SOURCE_DIR}/MdtInstallCMakeModules_custom/user"
+    -B "${CMAKE_CURRENT_BINARY_DIR}/build/MdtInstallCMakeModules_custom/user"
+    -G "${CMAKE_GENERATOR}"
+    -A "${CMAKE_GENERATOR_PLATFORM}"
+    -T "${CMAKE_GENERATOR_TOOLSET}"
+    -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG
+    "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtDeployUtils"
+)
+set_tests_properties(MdtInstallCMakeModules_custom_user_Configure PROPERTIES DEPENDS MdtInstallCMakeModules_custom_DeployUtils_Install)
+
+#################################################
 # Simple app that only depends on MdtCMakeModules
 #################################################
 
