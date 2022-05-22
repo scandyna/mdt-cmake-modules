@@ -404,11 +404,6 @@ function(mdt_install_cmake_modules)
   )
 
   # TODO: maybe warn if user passes TOOLS and NO_PACKAGE_CONFIG_FILES
-  # TODO: maybe allways generate package config file ?
-
-  # NOTE: The generated file will be distributed by the caller's prject
-  #       So, the module and function name should use packageName,
-  #       (i.e. given EXPORT_NAMESPACE and EXPORT_NAME)
 
   set(findPathInListFileName ${packageName}MdtFindPathInList.cmake)
 
@@ -425,16 +420,12 @@ function(mdt_install_cmake_modules)
 
   set(cmakePackageFileInContent "@PACKAGE_INIT@\n\n")
   string(APPEND cmakePackageFileInContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/${findPathInListFileName}\")\n\n")
-#   string(APPEND cmakePackageFileInContent "set(MDT_CMAKE_MODULE_PATH \"@PACKAGE_modulesInstallDir@\")\n\n")
   string(APPEND cmakePackageFileInContent "# Add to CMAKE_MODULE_PATH if not allready\n")
   string(APPEND cmakePackageFileInContent "${MdtFindPathInList_FUNCTION_NAME}(CMAKE_MODULE_PATH \"@PACKAGE_modulesInstallDir@\" MDT_CMAKE_MODULES_PATH_INDEX)\n")
   string(APPEND cmakePackageFileInContent "if(\${MDT_CMAKE_MODULES_PATH_INDEX} LESS 0)\n")
   string(APPEND cmakePackageFileInContent "  list(APPEND CMAKE_MODULE_PATH \"@PACKAGE_modulesInstallDir@\")\n")
   string(APPEND cmakePackageFileInContent "endif()\n\n")
   string(APPEND cmakePackageFileInContent "unset(MDT_CMAKE_MODULES_PATH_INDEX)\n")
-#   string(APPEND cmakePackageFileInContent "if(NOT \"\${MDT_CMAKE_MODULE_PATH}\" IN_LIST CMAKE_MODULE_PATH)\n")
-#   string(APPEND cmakePackageFileInContent "  list(APPEND CMAKE_MODULE_PATH \"\${MDT_CMAKE_MODULE_PATH}\")\n")
-#   string(APPEND cmakePackageFileInContent "endif()\n")
   if(ARG_MODULES_PATH_VARIABLE_NAME)
     string(APPEND cmakePackageFileInContent "\n# Make path to the modules available to the users of this package\n")
     string(APPEND cmakePackageFileInContent "set(${ARG_MODULES_PATH_VARIABLE_NAME} \"@PACKAGE_modulesInstallDir@\")\n")
