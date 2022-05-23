@@ -1,8 +1,6 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-# TODO: document, implement
-
 #.rst:
 # MdtInstallCMakeModules
 # ----------------------
@@ -25,6 +23,7 @@
 #     EXPORT_NAMESPACE <export-namespace>
 #     [NO_PACKAGE_CONFIG_FILE]
 #     [EXPORT_DESTINATION <dir>]
+#     [INSTALL_CONAN_CMAKE_PACKAGE_FILE [TRUE|FALSE]]
 #     [INSTALL_IS_UNIX_SYSTEM_WIDE [TRUE|FALSE]]
 #     [COMPONENT <component-name>]
 #     [MODULES_PATH_VARIABLE_NAME <variable-name>]
@@ -64,47 +63,16 @@
 # The value of this variable will contain the path to the installed CMake modules
 # in a relocatable way.
 #
-# Install modules that generate scripts from input scripts
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# If ``INSTALL_CONAN_CMAKE_PACKAGE_FILE`` is ``TRUE``,
+# a file, named ``<package-name>-conan-cmake-modules.cmake``
+# will be generated and installed at the root of the package (i.e. to ``CMAKE_INSTALL_PREFIX``).
+# Here, <package-name> will be ``${EXPORT_NAMESPACE}${EXPORT_NAME}`` in lower case.
 #
-# For some cases, it is required to generate a script based on a input script.
+# Note: if ``INSTALL_CONAN_CMAKE_PACKAGE_FILE`` is ``TRUE``,
+# the classical CMake package files are still generated and installed regarding above arguments.
+# This is to be compatible with older Conan CMake generators.
 #
-# .. code-block:: cmake
-#
-#   set(inputScript ??)
-#   configure_file("${inputScript}" "${outputScript}" @ONLY)
-#
-# In above example, `inputScript` should refer to the input script,
-# for example `MyModuleScript.cmake.in`, once the module is installed.
-#
-# To locate it, a variable can be created, for example ``MY_INSTALLED_CMAKE_MODULES_PATH``.
-#
-# .. code-block:: cmake
-#
-#   set(inputScript "${MY_INSTALLED_CMAKE_MODULES_PATH}/MyModuleScript.cmake.in")
-#   configure_file("${inputScript}" "${outputScript}" @ONLY)
-#
-# If the package, including above module, has to be relocatable,
-# the variable ``MY_INSTALLED_CMAKE_MODULES_PATH`` should be created
-# in the package config file.
-#
-#
-# To create this ``MY_INSTALLED_CMAKE_MODULES_PATH`` variable,
-# pass its name to the ``MODULES_PATH_VARIABLE_NAME`` argument:
-#
-# .. code-block:: cmake
-#
-#   mdt_install_cmake_modules(
-#     FILES
-#       Modules/MyModule.cmake
-#       Modules/MyModuleScript.cmake.in
-#     EXPORT_NAME CMakeModules
-#     EXPORT_NAMESPACE MyLib
-#     MODULES_PATH_VARIABLE_NAME MY_INSTALLED_CMAKE_MODULES_PATH
-#   )
-#
-# See also
-# https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html#command:configure_package_config_file
+# For more details and to know what problem this is facing, see :ref:`conan-and-cmake`.
 #
 # Install a standalone CMake modules project
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -163,6 +131,48 @@
 #
 #   mdt_set_available_build_types(Debug Release RelWithDebInfo MinSizeRel Instrumented)
 #
+#
+# Install modules that generate scripts from input scripts
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# For some cases, it is required to generate a script based on a input script.
+#
+# .. code-block:: cmake
+#
+#   set(inputScript ??)
+#   configure_file("${inputScript}" "${outputScript}" @ONLY)
+#
+# In above example, `inputScript` should refer to the input script,
+# for example `MyModuleScript.cmake.in`, once the module is installed.
+#
+# To locate it, a variable can be created, for example ``MY_INSTALLED_CMAKE_MODULES_PATH``.
+#
+# .. code-block:: cmake
+#
+#   set(inputScript "${MY_INSTALLED_CMAKE_MODULES_PATH}/MyModuleScript.cmake.in")
+#   configure_file("${inputScript}" "${outputScript}" @ONLY)
+#
+# If the package, including above module, has to be relocatable,
+# the variable ``MY_INSTALLED_CMAKE_MODULES_PATH`` should be created
+# in the package config file.
+#
+#
+# To create this ``MY_INSTALLED_CMAKE_MODULES_PATH`` variable,
+# pass its name to the ``MODULES_PATH_VARIABLE_NAME`` argument:
+#
+# .. code-block:: cmake
+#
+#   mdt_install_cmake_modules(
+#     FILES
+#       Modules/MyModule.cmake
+#       Modules/MyModuleScript.cmake.in
+#     EXPORT_NAME CMakeModules
+#     EXPORT_NAMESPACE MyLib
+#     MODULES_PATH_VARIABLE_NAME MY_INSTALLED_CMAKE_MODULES_PATH
+#   )
+#
+# See also
+# https://cmake.org/cmake/help/latest/module/CMakePackageConfigHelpers.html#command:configure_package_config_file
 #
 # Install CMake modules part of a other project
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -235,6 +245,76 @@
 #   add_executable(myApp myApp.cpp)
 #   mdt_deploy_application(TARGET myApp ...)
 #
+#
+# Create packages that works with new Conan CMake generators
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# As described in :ref:`conan-and-cmake`,
+# new Conan CMake generators will not use upstream created CMake package config files,
+# but generate their own.
+#
+# Despite this has sense, the use case of CMake modules is not well integrated,
+# so we have to do some workaround.
+#
+# This example illustrates how to install the modules,
+# the related CMake package files and Conan specific files if required:
+#
+# .. code-block:: cmake
+#
+#   option(INSTALL_CONAN_PACKAGE_FILES "Install files required for recent conan generators, like CMakeDeps" OFF)
+#
+#   # This should be set at the top level CMakeLists.txt
+#   include(GNUInstallDirs)
+#   include(MdtInstallDirs)
+#
+#   mdt_install_cmake_modules(
+#     FILES
+#       Modules/ModuleA.cmake
+#       Modules/ModuleB.cmake
+#     EXPORT_NAME CMakeModules
+#     EXPORT_NAMESPACE Mdt0
+#     INSTALL_CONAN_CMAKE_PACKAGE_FILE ${INSTALL_CONAN_PACKAGE_FILES}
+#     INSTALL_IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
+#   )
+#
+# In above example, if ``INSTALL_CONAN_PACKAGE_FILES`` is ``ON``,
+# ``mdt0cmakemodules-conan-cmake-modules.cmake`` will be generated and installed to the root of the package.
+#
+# Here is a example of a ``conanfile.py`` recipe that uses the new generators:
+#
+# .. code-block:: Python
+#
+#   from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps
+#
+#   class MdtCMakeModulesConan(ConanFile):
+#
+#     exports_sources = "usual files"
+#     generators = "CMakeToolchain", "CMakeDeps"
+#
+#     def generate(self):
+#       tc = CMakeToolchain(self)
+#       tc.variables["INSTALL_CONAN_PACKAGE_FILES"] = "ON"
+#       tc.generate()
+#
+#     def package(self):
+#       cmake = CMake(self)
+#       cmake.install()
+#
+#     def package_info(self):
+#
+#       build_modules = ["mdt0cmakemodules-conan-cmake-modules.cmake"]
+#
+#       # This will be used by CMakeDeps
+#       self.cpp_info.set_property("cmake_build_modules", build_modules)
+#
+#       # This must be added for cmake_find_package generators
+#       self.cpp_info.build_modules["cmake_find_package"] = build_modules
+#       self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules
+#
+#
+# Above recipe is not complete, and it will not work,
+# because no settings are set.
+# You can take a look at `MdtCMakeModules <https://gitlab.com/scandyna/mdt-cmake-modules>`_ conanfile.py to see some details about that.
 #
 
 # Install modules that requires tools
@@ -348,7 +428,7 @@ include(CMakePackageConfigHelpers)
 function(mdt_install_cmake_modules)
 
   set(options NO_PACKAGE_CONFIG_FILE)
-  set(oneValueArgs DESTINATION EXPORT_NAME EXPORT_NAMESPACE EXPORT_DESTINATION INSTALL_IS_UNIX_SYSTEM_WIDE COMPONENT MODULES_PATH_VARIABLE_NAME)
+  set(oneValueArgs DESTINATION EXPORT_NAME EXPORT_NAMESPACE EXPORT_DESTINATION INSTALL_CONAN_CMAKE_PACKAGE_FILE INSTALL_IS_UNIX_SYSTEM_WIDE COMPONENT MODULES_PATH_VARIABLE_NAME)
   set(multiValueArgs FILES)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -462,8 +542,49 @@ function(mdt_install_cmake_modules)
     file(WRITE "${cmakePackageConfigFile}" "${cmakePackageConfigFileContent}")
 
     install(
-      FILES ${cmakePackageConfigFile}
+      FILES "${cmakePackageConfigFile}"
       DESTINATION "${packageConfigInstallDir}"
+      ${componentArguments}
+    )
+
+  endif()
+
+  if(ARG_INSTALL_CONAN_CMAKE_PACKAGE_FILE)
+
+    set(conanCmakePackageFileInContent "@PACKAGE_INIT@\n\n")
+    string(APPEND conanCmakePackageFileInContent "# This file is only used by conan generators that generates CMake package config files\n\n")
+    string(APPEND conanCmakePackageFileInContent "include(\"@PACKAGE_packageConfigInstallDir@/${findPathInListFileName}\")\n\n")
+    string(APPEND conanCmakePackageFileInContent "# Remove the root of the package from CMAKE_PREFIX_PATH\n")
+    string(APPEND conanCmakePackageFileInContent "# to avoid clashes when using Conan generated CMake package config files\n")
+    string(APPEND conanCmakePackageFileInContent "${MdtFindPathInList_FUNCTION_NAME}(CMAKE_PREFIX_PATH \"\${PACKAGE_PREFIX_DIR}\" PATH_INDEX)\n")
+    string(APPEND conanCmakePackageFileInContent "if(\${PATH_INDEX} GREATER_EQUAL 0)\n")
+    string(APPEND conanCmakePackageFileInContent "  list(REMOVE_AT CMAKE_PREFIX_PATH \${PATH_INDEX})\n")
+    string(APPEND conanCmakePackageFileInContent "endif()\n\n")
+    string(APPEND conanCmakePackageFileInContent "# Add the path to our CMake modules if not already\n")
+    string(APPEND conanCmakePackageFileInContent "${MdtFindPathInList_FUNCTION_NAME}(CMAKE_MODULE_PATH \"@PACKAGE_modulesInstallDir@\" PATH_INDEX)\n")
+    string(APPEND conanCmakePackageFileInContent "if(\${PATH_INDEX} LESS 0)\n")
+    string(APPEND conanCmakePackageFileInContent "  list(APPEND CMAKE_MODULE_PATH \"@PACKAGE_modulesInstallDir@\")\n")
+    string(APPEND conanCmakePackageFileInContent "endif()\n\n")
+    string(APPEND conanCmakePackageFileInContent "unset(PATH_INDEX)\n")
+
+    string(TOLOWER "${packageName}" packageNameLowerCase)
+    set(conanCmakePackageFileIn "${CMAKE_CURRENT_BINARY_DIR}/${packageNameLowerCase}-conan-cmake-modules.cmake.in")
+    set(conanCmakePackageFile "${CMAKE_CURRENT_BINARY_DIR}/${packageNameLowerCase}-conan-cmake-modules.cmake")
+
+    file(WRITE "${conanCmakePackageFileIn}" "${conanCmakePackageFileInContent}")
+
+    configure_package_config_file(
+      "${conanCmakePackageFileIn}"
+      "${conanCmakePackageFile}"
+      INSTALL_DESTINATION .
+      PATH_VARS packageConfigInstallDir modulesInstallDir
+      NO_SET_AND_CHECK_MACRO
+      NO_CHECK_REQUIRED_COMPONENTS_MACRO
+    )
+
+    install(
+      FILES "${conanCmakePackageFile}"
+      DESTINATION .
       ${componentArguments}
     )
 

@@ -87,7 +87,6 @@ include(MdtInstallCMakeModules)
 # message(MDT_INSTALL_IS_UNIX_SYSTEM_WIDE: ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE})
 
 
-# TODO: review UNIX system wide install. See ECM for example
 # set(MDT_CMAKE_MODULE_INSTALL_MODULES_DIR "${MDT_INSTALL_DATADIR}/Modules")
 set(MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR "${MDT_INSTALL_DATADIR}/cmake")
 
@@ -119,6 +118,7 @@ mdt_install_cmake_modules(
     "${CMAKE_BINARY_DIR}/MdtFindPathInList.cmake"
   EXPORT_NAME CMakeModules
   EXPORT_NAMESPACE Mdt
+  INSTALL_CONAN_CMAKE_PACKAGE_FILE ${INSTALL_CONAN_PACKAGE_FILES}
   INSTALL_IS_UNIX_SYSTEM_WIDE ${MDT_INSTALL_IS_UNIX_SYSTEM_WIDE}
   MODULES_PATH_VARIABLE_NAME MDT_CMAKE_MODULES_PATH
 )
@@ -129,19 +129,6 @@ if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
     INSTALL_NAMESPACE Mdt0
     DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
   )
-endif()
-
-if(INSTALL_CONAN_PACKAGE_FILES)
-
-  set(MdtFindPathInList_FUNCTION_NAME MdtCMakeModulesConan_mdt_find_path_in_list)
-  configure_file("${CMAKE_SOURCE_DIR}/Modules/MdtFindPathInList.cmake.in" MdtCMakeModulesConanMdtFindPathInList.cmake @ONLY)
-
-  install(
-    FILES
-      "${CMAKE_BINARY_DIR}/MdtCMakeModulesConanMdtFindPathInList.cmake"
-    DESTINATION .
-  )
-
 endif()
 
 #

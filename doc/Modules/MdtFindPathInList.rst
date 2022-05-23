@@ -122,7 +122,8 @@ Finally, install the package config files:
   )
 
 
-TODO: also reference mdt_install_cmake_modules()
+Note: if you have to use this function to install CMake modules,
+take a look at :command:`mdt_install_cmake_modules()` , which does all this steps.
 
 Deploy details
 ^^^^^^^^^^^^^^

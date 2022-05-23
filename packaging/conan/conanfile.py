@@ -36,9 +36,7 @@ class MdtCMakeModulesConan(ConanFile):
   def export_sources(self):
     self.copy("*", src="../../Modules", dst="Modules")
     self.copy("CMakeLists.txt", src="../../", dst=".")
-    self.copy("MdtCMakeModulesConfig.cmake.in", src="../../", dst=".")
     self.copy("LICENSE", src="../../", dst=".")
-    self.copy("mdt_cmake_modules-conan-cmake-modules.cmake", src=".", dst=".")
 
   def generate(self):
     tc = CMakeToolchain(self)
@@ -54,7 +52,7 @@ class MdtCMakeModulesConan(ConanFile):
   def package(self):
     cmake = CMake(self)
     cmake.install()
-    self.copy("mdt_cmake_modules-conan-cmake-modules.cmake")
+    #self.copy("mdt_cmake_modules-conan-cmake-modules.cmake")
 
   def package_id(self):
     self.info.header_only()
@@ -62,7 +60,7 @@ class MdtCMakeModulesConan(ConanFile):
   def package_info(self):
 
     self.cpp_info.includedirs = []
-    build_modules = ["mdt_cmake_modules-conan-cmake-modules.cmake"]
+    build_modules = ["mdtcmakemodules-conan-cmake-modules.cmake"]
 
     # This will be used by CMakeDeps
     self.cpp_info.set_property("cmake_build_modules", build_modules)

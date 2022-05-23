@@ -9,12 +9,14 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 endif()
 
 message(DEBUG "MdtCMakeModulesTest: CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(DEBUG "MdtCMakeModulesTest: CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 message(DEBUG "MdtCMakeModulesTest: call find_package() ...")
 
 find_package(MdtCMakeModules REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH)
 
 message(DEBUG "MdtCMakeModulesTest: CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(DEBUG "MdtCMakeModulesTest: CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 include(AddQt5ToCMakePrefixPath)
 include(MdtBuildOptionsUtils)
@@ -30,8 +32,8 @@ include(MdtTargetProperties)
 include(MdtTargetPackageProperties)
 include(MdtVersionUtils)
 
-# TODO: compnent syntax was never tested.
+# TODO: component syntax was never tested.
 #       the generated CMake package configs are wrong for this syntax,
-#       also, conanfile must be adjusted ass well
+#       also, conanfile must be adjusted as well
 #       Once all is done, enable this line to test that
 # find_package(Mdt0 COMPONENTS CMakeModules REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH)

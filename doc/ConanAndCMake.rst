@@ -1,3 +1,5 @@
+.. _conan-and-cmake:
+
 Conan and CMake
 ===============
 
@@ -279,6 +281,9 @@ Also, what about name clashes ?
 Looking in the Qt recipe,
 it seems that some workaround is possible.
 
+Note: below examples explains a solution to apply the workaround.
+To install your CMake modules, consider :command:`mdt_install_cmake_modules()`,
+which does all the CMake side stuff.
 
 A first simple example
 """"""""""""""""""""""
