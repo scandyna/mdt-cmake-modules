@@ -260,7 +260,7 @@ add_test(NAME Build_MultiDevTools_Static
     --build-config $<CONFIG>
     --build-options
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
-      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MultiDevTools"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MultiDevTools_static"
       "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
       "-DBUILD_SHARED_LIBS=OFF"
     --test-command "${CMAKE_CTEST_COMMAND}"

@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 project(TableEditor VERSION 0.0.1)
 
 message("tests TableEditor_Mdt CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
