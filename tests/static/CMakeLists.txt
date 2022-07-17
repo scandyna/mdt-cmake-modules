@@ -2,3 +2,4 @@
 # file Copyright.txt or https://cmake.org/licensing for details.
 
 add_subdirectory(MdtFindPathInList)
+add_subdirectory(MdtTargetDependenciesHelpers)
