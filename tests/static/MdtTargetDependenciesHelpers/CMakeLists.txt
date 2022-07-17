@@ -5,14 +5,24 @@ cmake_minimum_required(VERSION 3.15)
 
 project(MdtTargetDependenciesHelpersStaticTests LANGUAGES CXX)
 
-
-# require_list_contains()
-
-# add_custom_target(libA)
+include(MdtTargetDependenciesHelpers)
 
 #################################
-# Targets for tests
+# Test helpers
 #################################
+
+function(require_list_contains list value)
+
+  list(FIND ${list} ${value} index)
+  if(${index} LESS 0)
+    message(FATAL_ERROR "Test failed: list does not contain ${value}")
+  endif()
+
+endfunction()
+
+##########################################
+# Test based on the documentation example
+##########################################
 
 
 # TODO: does not work ! Shoud create some IMPL functions that does not speack targets ?
@@ -24,20 +34,10 @@ project(MdtTargetDependenciesHelpersStaticTests LANGUAGES CXX)
 # add_library(Mdt_Core SHARED "Core.cpp")
 # add_library(Mdt::Core ALIAS Mdt_Core)
 add_library(Mdt0::Core SHARED IMPORTED)
-# set_target_properties(Mdt0::Core
-#   PROPERTIES
-#     IMPORTED_LOCATION
-#       "/tmp"
-# )
 
 # add_library(Mdt_Widgets SHARED "Widgets.cpp")
 # add_library(Mdt::Widgets ALIAS Mdt_Widgets)
 add_library(Mdt0::Widgets SHARED IMPORTED)
-# set_target_properties(Mdt0::Widgets
-#   PROPERTIES
-#     IMPORTED_LOCATION
-#       "/tmp"
-# )
 
 # add_library(Mdt_ItemModel SHARED "ItemModel.cpp")
 # add_library(Mdt::ItemModel ALIAS Mdt_ItemModel)
@@ -51,15 +51,29 @@ set_target_properties(Mdt0::ItemModel
 add_library(Mdt0::ItemEditor SHARED IMPORTED)
 set_target_properties(Mdt0::ItemEditor
   PROPERTIES
-    INTERFACE_LINK_LIBRARIES Mdt0::Widgets
+    INTERFACE_LINK_LIBRARIES "Mdt0::Widgets;Mdt0::ItemModel"
 #     IMPORTED_LOCATION
 #       "/tmp"
 )
 
-# add_library(myAppLibrary SHARED "myAppLibrary.cpp")
-# target_link_libraries(myAppLibrary PUBLIC Mdt0::ItemEditor)
+add_library(myAppLibrary SHARED IMPORTED)
+set_target_properties(myAppLibrary
+  PROPERTIES
+    INTERFACE_LINK_LIBRARIES Mdt0::ItemEditor
+#     IMPORTED_LOCATION
+#       "/tmp"
+)
 
 # TODO APP
+
+message(VERBOSE "TEST mdt_collect_shared_libraries_targets_target_depends_on(): documentation example")
+
+mdt_collect_shared_libraries_targets_target_depends_on(dependencies TARGET myAppLibrary)
+require_list_contains(dependencies Mdt0::ItemEditor)
+require_list_contains(dependencies Mdt0::Widgets)
+require_list_contains(dependencies Mdt0::ItemModel)
+require_list_contains(dependencies Mdt0::Core)
+
 
 add_library(CircularA SHARED IMPORTED)
 add_library(CircularB SHARED IMPORTED)
@@ -80,3 +94,10 @@ set_target_properties(CircularB
 #     INTERFACE_LINK_LIBRARIES gg
 # )
 
+# TODO: no dependencies
+
+# TODO: non shared lib elements
+
+# TODO genex
+
+message(VERBOSE "TEST mdt_collect_shared_libraries_targets_target_depends_on(): all static tests passed")
