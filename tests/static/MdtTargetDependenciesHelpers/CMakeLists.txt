@@ -316,14 +316,4 @@ require_list_contains(dependencies CircularA)
 require_list_contains(dependencies CircularB)
 require_list_is_of_length(dependencies 2)
 
-
-# target_link_libraries(CircularA PUBLIC CircularB)
-# target_link_libraries(CircularB PUBLIC CircularA)
-
-# set_target_properties(libA
-#   PROPERTIES
-#     INTERFACE_LINK_LIBRARIES gg
-# )
-
-
 message(VERBOSE "TEST mdt_collect_shared_libraries_targets_target_depends_on(): all static tests passed")
