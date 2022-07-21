@@ -21,6 +21,7 @@ All Modules
    MdtSanitizers.rst
    MdtInstallDirs.rst
    MdtPackageConfigHelpers.rst
+   MdtTargetDependenciesHelpers.rst
    MdtTargetProperties.rst
    MdtTargetPackageProperties.rst
    MdtVersionUtils.rst

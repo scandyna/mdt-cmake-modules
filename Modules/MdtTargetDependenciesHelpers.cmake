@@ -40,17 +40,13 @@ function(mdt_get_target_shared_libraries_targets_direct_dependencies outDirectDe
   get_target_property(linkDependencies ${ARG_TARGET} LINK_LIBRARIES)
   if(linkDependencies)
     mdt_append_shared_libraries_targets_to_list(linkDependencies directDependencies)
-#     list(APPEND directDependencies ${linkDependencies})
   endif()
 
   get_target_property(interfaceLinkDependencies ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
   if(interfaceLinkDependencies)
     mdt_append_shared_libraries_targets_to_list(interfaceLinkDependencies directDependencies)
-#     list(APPEND directDependencies ${interfaceLinkDependencies})
   endif()
 
-  message("** directDependencies: ${directDependencies}")
-  
   set(${outDirectDependencies} ${directDependencies} PARENT_SCOPE)
 
 endfunction()
@@ -99,14 +95,6 @@ endfunction()
 #     if dependency is not in allTargets then
 #       recursively call DFS(dependency)
 #
-# TODO: have a particular case for the first target (App),
-#       then transitive resolution for each of its direct dependencies
-#
-#
-# TODO: are the discovered targets part of the end result ? i.e. the dependencies ?
-# NOTE: special case here: don't add App to the dependencies
-#
-# TODO: transform to our problem in pseudocode first
 
 macro(mdt_collect_shared_libraries_targets_target_depends_on_transitively allTargets)
 
@@ -122,24 +110,7 @@ macro(mdt_collect_shared_libraries_targets_target_depends_on_transitively allTar
     message(FATAL_ERROR "mdt_collect_shared_libraries_targets_target_depends_on_transitively(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  message("** processing ${ARG_TARGET}")
-  
-#   set(_allTargets ${${allTargetsVarName}})
-#   
-#   message("** _allTargets: ${_allTargets}")
-#   message("** ${allTargetsVarName}: ${${allTargetsVarName}}")
-
-  # TODO: fix must have local and PARENT_SCOPE vars
-#   list(APPEND _allTargets ${ARG_TARGET} ${${allTargetsVarName}})
-#   list(APPEND _allTargets ${ARG_TARGET})
-#   set(${allTargetsVarName} ${_allTargets} PARENT_SCOPE)
-#   set(${allTargetsVarName} "${${allTargetsVarName}};${ARG_TARGET}" PARENT_SCOPE)
-  
   list(APPEND ${allTargets} ${ARG_TARGET})
-  
-  
-  message("** all targets: ${${allTargets}}")
-#   message("**  all targets PARENT_SCOPE: ${${allTargetsVarName}}")
 
   mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET ${ARG_TARGET})
 
@@ -147,12 +118,9 @@ macro(mdt_collect_shared_libraries_targets_target_depends_on_transitively allTar
     list(FIND ${allTargets} ${dependency} index)
     if(${index} LESS 0)
       mdt_collect_shared_libraries_targets_target_depends_on_transitively(${allTargets} TARGET ${dependency})
-#       mdt_collect_shared_libraries_targets_target_depends_on_transitively(_allTargets TARGET ${dependency})
     endif()
   endforeach()
 
-#   set(${allTargetsVarName} ${_allTargets} PARENT_SCOPE)
-  
 endmacro()
 
 
@@ -171,62 +139,12 @@ function(mdt_collect_shared_libraries_targets_target_depends_on outDependencies)
   endif()
 
   set(foundDependnecies)
-  
-  message("* processing ${ARG_TARGET}")
-  
+
   mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET ${ARG_TARGET})
-  
+
   foreach(dependency ${directDependencies})
     mdt_collect_shared_libraries_targets_target_depends_on_transitively(foundDependnecies TARGET ${dependency})
   endforeach()
-  
-  message("* foundDependnecies: ${foundDependnecies}")
-  
-#   set(directDependencies)
-# 
-#   get_target_property(linkDependencies ${ARG_TARGET} LINK_LIBRARIES)
-#   if(linkDependencies)
-#     mdt_append_shared_libraries_targets_to_list(linkDependencies directDependencies)
-# #     list(APPEND directDependencies ${linkDependencies})
-#   endif()
-# 
-#   get_target_property(interfaceLinkDependencies ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
-#   if(interfaceLinkDependencies)
-#     mdt_append_shared_libraries_targets_to_list(interfaceLinkDependencies directDependencies)
-# #     list(APPEND directDependencies ${interfaceLinkDependencies})
-#   endif()
-# 
-#   set(foundDependnecies)
-#   foreach(dependency ${directDependencies})
-#     
-#     
-#     message("- dependency: ${dependency}")
-#     message("- foundDependnecies: ${foundDependnecies}")
-#     message("-   outDependencies: ${${outDependencies}}")
-#     
-#     
-# #     list(FIND ${outDependencies} ${dependency} index)
-# #     if(${index} LESS 0)
-# #       mdt_collect_shared_libraries_targets_target_depends_on(foundDependnecies TARGET ${dependency})
-# #     endif()
-#     
-#     list(FIND ${outDependencies} ${dependency} index)
-# #     list(FIND foundDependnecies ${dependency} index)
-#     if(${index} LESS 0)
-#     
-#       message("--> go childs")
-#     
-# #       mdt_collect_shared_libraries_targets_target_depends_on(childDependencies TARGET ${dependency})
-# #       list(APPEND foundDependnecies ${childDependencies})
-#       
-#       mdt_collect_shared_libraries_targets_target_depends_on(foundDependnecies TARGET ${dependency})
-#       list(APPEND foundDependnecies ${dependency})
-#       
-# #       message("- childDependencies: ${childDependencies}")
-#       
-#     endif()
-#     
-#   endforeach()
 
   set(${outDependencies} ${foundDependnecies} PARENT_SCOPE)
 
