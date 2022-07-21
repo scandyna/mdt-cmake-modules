@@ -106,6 +106,7 @@ mdt_install_cmake_modules(
     "Modules/MdtInstallMdtLibrary.cmake"
     "Modules/MdtInstallExecutable.cmake"
     "Modules/MdtPackageConfigHelpers.cmake"
+    "Modules/MdtTargetDependenciesHelpers.cmake"
     "Modules/MdtTargetPackageProperties.cmake"
     "Modules/MdtTargetProperties.cmake"
     "Modules/MdtInstallIncludes.cmake"
