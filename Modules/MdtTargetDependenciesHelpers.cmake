@@ -123,7 +123,6 @@ macro(mdt_collect_shared_libraries_targets_target_depends_on_transitively allTar
 
 endmacro()
 
-
 function(mdt_collect_shared_libraries_targets_target_depends_on outDependencies)
 
   set(options "")
@@ -138,6 +137,8 @@ function(mdt_collect_shared_libraries_targets_target_depends_on outDependencies)
     message(FATAL_ERROR "mdt_collect_shared_libraries_targets_target_depends_on(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
+  message(DEBUG "Collecting shared libraries targets ${ARG_TARGET} depends on")
+
   set(foundDependnecies)
 
   mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET ${ARG_TARGET})
@@ -145,6 +146,8 @@ function(mdt_collect_shared_libraries_targets_target_depends_on outDependencies)
   foreach(dependency ${directDependencies})
     mdt_collect_shared_libraries_targets_target_depends_on_transitively(foundDependnecies TARGET ${dependency})
   endforeach()
+
+  message(DEBUG "Found shared libraries targets for ${ARG_TARGET}: ${foundDependnecies}")
 
   set(${outDependencies} ${foundDependnecies} PARENT_SCOPE)
 
