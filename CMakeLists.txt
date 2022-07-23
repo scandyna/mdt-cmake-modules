@@ -62,11 +62,6 @@ if(BUILD_TESTS)
   )
 endif()
 
-if(BUILD_TESTS)
-  enable_testing()
-  add_subdirectory("tests")
-endif()
-
 option(BUILD_DOCS "Build the documentations" OFF)
 if(BUILD_DOCS)
   add_subdirectory("doc")
@@ -131,6 +126,26 @@ if(NOT MDT_INSTALL_IS_UNIX_SYSTEM_WIDE)
     DESTINATION "${MDT_CMAKE_MODULE_INSTALL_CONFIG_DIR}"
   )
 endif()
+
+if(BUILD_TESTS)
+
+  enable_testing()
+
+  add_subdirectory(tests)
+
+  # Add static tests
+  # Those are tests that runs at configuration time
+  # Let them at the very end, because they play with targets and environment
+  # As example, see:
+  # https://gitlab.com/scandyna/mdt-cmake-modules/-/jobs/2760800579
+  #  -- Conan: Settings= -s;build_type=Debug;-s;compiler=gcc;-s;compiler.version=7;-s;compiler.libcxx=libc++
+  #  the wrong libcxx was set here
+  # related test then failed because of that:
+  # https://gitlab.com/scandyna/mdt-cmake-modules/-/jobs/2760800583
+  add_subdirectory(tests/static)
+
+endif()
+
 
 #
 # Debug informations

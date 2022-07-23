@@ -7,13 +7,6 @@ include(MdtAddTest)
 include(MdtRuntimeEnvironment)
 
 #######################################################
-# Add static tests
-# Those are tests that runs at configuration time
-#######################################################
-
-add_subdirectory(static)
-
-#######################################################
 # Build a simple Qt executable
 # Check also that it can run when Qt is not in the PATH
 #######################################################
