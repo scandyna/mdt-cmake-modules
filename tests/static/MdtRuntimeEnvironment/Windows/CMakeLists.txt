@@ -1,10 +1,6 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-# TODO: remove 
-set(UNIX FALSE)
-set(WIN32 TRUE)
-
 #############################################################
 # Documentation example
 #  ALWAYS_USE_SLASHES: No

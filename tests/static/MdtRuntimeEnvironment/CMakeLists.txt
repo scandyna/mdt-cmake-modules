@@ -59,9 +59,9 @@ if(UNIX AND NOT APPLE)
   add_subdirectory(Linux)
 endif()
 
-# if(WIN32)
+if(WIN32)
   add_subdirectory(Windows)
-# endif()
+endif()
 
 #############################################################
 # end
