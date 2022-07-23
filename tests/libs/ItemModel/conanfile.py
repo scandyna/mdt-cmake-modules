@@ -10,8 +10,8 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
   settings = "os", "compiler", "build_type", "arch"
   options = {"shared": [True, False], "install_namespace_package_config_files": [True, False]}
   default_options = {"shared": True, "install_namespace_package_config_files": True}
-  requires = ["MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing",
-              "MdtCmakeModulesTests_MdtHeaderOnly/0.1@MdtCMakeModules_tests/testing"]
+  requires = ["MdtCmakeModulesTests_MdtHeaderOnly/0.1@MdtCMakeModules_tests/testing"]
+  tool_requires = ["MdtCMakeModules/[>0.1]@MdtCMakeModules_tests/testing"]
   generators = "cmake_paths"
   exports_sources="src/*", "CMakeLists.txt"
 
@@ -27,5 +27,11 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
     cmake.install()
 
   def package_info(self):
+
+    # TODO: remove ?
     self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))
     self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+
+    self.cpp_info.set_property("cmake_file_name", "Mdt0ItemModel")
+    self.cpp_info.set_property("cmake_target_name", "Mdt0::ItemModel")
+    self.cpp_info.libs = ["Mdt0ItemModel"]
