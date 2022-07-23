@@ -3,3 +3,4 @@
 
 add_subdirectory(MdtFindPathInList)
 add_subdirectory(MdtTargetDependenciesHelpers)
+add_subdirectory(MdtRuntimeEnvironment)

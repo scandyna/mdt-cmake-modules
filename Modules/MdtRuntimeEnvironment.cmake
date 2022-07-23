@@ -66,6 +66,8 @@
 # A attempt to provide a function that sets the ``ENVIRONMENT`` for each tests that have been added to a project was made.
 # Sadly, I found no way to set a test property to a test defined in a other directory than the test was created from.
 #
+# See also :command:`mdt_target_libraries_to_library_env_path()`
+#
 # See also https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/4
 #
 #
@@ -193,22 +195,27 @@
 #
 # ``myAppEnv`` will contain a list of generator expression to build a environment path.
 #
+#
 # On Linux::
 #
 #   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
 #
-# If ``LD_LIBRARY_PATH`` was allready set, it will also be added to the end::
+# If ``CMAKE_LIBRARY_PATH`` is not empty, it will be added after the targets generator expressions.
 #
-#   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}
+# If ``LD_LIBRARY_PATH`` was already set, for example to ``/opt/qt/5.15.2/gcc_64/lib`` it will also be added to the end::
+#
+#   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:/opt/qt/5.15.2/gcc_64/lib
 #
 #
 # On Windows::
 #
 #   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
 #
-# If ``PATH`` was allready set, it will also be added to the end::
+# If ``CMAKE_LIBRARY_PATH`` is not empty, it will be added after the targets generator expressions.
 #
-#   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>;$ENV{PATH}
+# If ``PATH`` was already set, for example to ``C:\Qt\5.15.2\mingw73_64\bin``, it will also be added to the end::
+#
+#   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>;C:\Qt\5.15.2\mingw73_64\bin
 #
 #
 # If the ``ALWAYS_USE_SLASHES`` is present, the resulting environment variable will have slahes as separators on Windows.
@@ -395,12 +402,15 @@ function(mdt_collect_libraries_dependencies out_var)
   if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_collect_libraries_dependencies(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
+  
+  message("* -- collect dependencies for ${ARG_TARGET} ...")
 
   set(targetList)
   get_target_property(interfaceLinkDependencies ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
   if(interfaceLinkDependencies)
     foreach(interfaceLinkDependency ${interfaceLinkDependencies})
       if(TARGET ${interfaceLinkDependency})
+        message("* --- found ${interfaceLinkDependency}")
         list(APPEND targetList ${interfaceLinkDependency})
       endif()
     endforeach()
@@ -457,26 +467,42 @@ function(mdt_collect_shared_libraries_dependencies_transitively out_var)
     message(FATAL_ERROR "mdt_collect_shared_libraries_dependencies_transitively(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
+  message("* collect sh libs for ${ARG_TARGET} ...")
+  
+  # TODO: not used ?
   get_target_property(linkDeps ${ARG_TARGET} LINK_LIBRARIES)
   get_target_property(interfaceLinkDeps ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
+  
   set(allDependencies)
   get_target_property(linkLibrariesDependencies ${ARG_TARGET} LINK_LIBRARIES)
+  
+  message("*  INTERFACE_LINK_LIBRARIES: ${interfaceLinkDeps}")
+  message("*  LINK_LIBRARIES: ${linkLibrariesDependencies}")
+  
   foreach(linkLibraryDependency ${linkLibrariesDependencies})
     if(TARGET ${linkLibraryDependency})
+    
+      message("* - link library ${linkLibraryDependency} ...")
+    
       list(APPEND allDependencies ${linkLibraryDependency})
       mdt_collect_libraries_dependencies_transitively(interfaceLinkLibrariesDependencies TARGET ${linkLibraryDependency})
       list(APPEND allDependencies ${interfaceLinkLibrariesDependencies})
     endif()
   endforeach()
+  
+  message("*  interfaceLinkLibrariesDependencies: ${interfaceLinkLibrariesDependencies}")
 
   set(allSharedLibrariesDependencies)
   foreach(dependency ${allDependencies})
+    message("*  check is sh lib for ${dependency} ...")
     mdt_target_is_shared_library(dependencyIsSharedLibrary TARGET ${dependency})
     if(dependencyIsSharedLibrary)
       list(APPEND allSharedLibrariesDependencies ${dependency})
     endif()
   endforeach()
 
+  message("* -> found: ${allSharedLibrariesDependencies}")
+  
   set(${out_var} ${allSharedLibrariesDependencies} PARENT_SCOPE)
 
 endfunction()
@@ -527,9 +553,16 @@ function(mdt_target_libraries_to_library_env_path out_var)
     set(pathSeparator ":")
   endif()
 
+  set(cmakeLibraryPath "${CMAKE_LIBRARY_PATH}")
+  if(UNIX)
+    string(REPLACE ";" "${pathSeparator}" cmakeLibraryPath "${cmakeLibraryPath}")
+  endif()
+
   set(currentEnvPath "$ENV{${pathName}}")
+
   if(WIN32 AND ARG_ALWAYS_USE_SLASHES)
     string(REPLACE "\\" "/" currentEnvPath "${currentEnvPath}")
+    string(REPLACE "\\" "/" cmakeLibraryPath "${cmakeLibraryPath}")
   endif()
 
   set(envPathList)
@@ -543,15 +576,26 @@ function(mdt_target_libraries_to_library_env_path out_var)
     endforeach()
   endif()
 
-  set(envPath)
-  if(envPathList AND currentEnvPath)
-    set(envPath "${pathName}=${envPathList}${pathSeparator}${currentEnvPath}")
-  elseif(envPathList)
-    set(envPath "${envPathList}")
-    set(envPath "${pathName}=${envPathList}")
-  elseif(currentEnvPath)
-    set(envPath "${pathName}=${currentEnvPath}")
+  set(envPathContent)
+  if(envPathList)
+    string(APPEND envPathContent "${envPathList}")
   endif()
+  if(cmakeLibraryPath)
+    if(envPathContent)
+      string(APPEND envPathContent "${pathSeparator}")
+    endif()
+    string(APPEND envPathContent "${cmakeLibraryPath}")
+  endif()
+  if(currentEnvPath)
+    if(envPathContent)
+      string(APPEND envPathContent "${pathSeparator}")
+    endif()
+    string(APPEND envPathContent "${currentEnvPath}")
+  endif()
+
+  set(envPath "${pathName}=${envPathContent}")
+  
+  message("*- envPath: ${envPath}")
 
   set(${out_var} ${envPath} PARENT_SCOPE)
 
