@@ -33,7 +33,7 @@
 # but it is only necessary on the end-user side. It is not necessary to create conan
 # packages, in fact it shouldn't be use for that. Check the project documentation.
 
-# version: 0.19.0-dev
+# version: 0.18.1
 
 include(CMakeParseArguments)
 
@@ -171,7 +171,7 @@ macro(_conan_detect_compiler)
             set(_CONAN_SETTING_COMPILER_LIBCXX ${_LIBCXX})
         endif ()
     elseif (${CMAKE_${LANGUAGE}_COMPILER_ID} STREQUAL Clang
-                AND NOT "${CMAKE_${LANGUAGE}_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"
+                AND NOT "${CMAKE_${LANGUAGE}_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC" 
                 AND NOT "${CMAKE_${LANGUAGE}_SIMULATE_ID}" STREQUAL "MSVC")
 
         string(REPLACE "." ";" VERSION_LIST ${CMAKE_${LANGUAGE}_COMPILER_VERSION})
@@ -194,8 +194,8 @@ macro(_conan_detect_compiler)
             set(_CONAN_SETTING_COMPILER_LIBCXX ${_LIBCXX})
         endif ()
     elseif(${CMAKE_${LANGUAGE}_COMPILER_ID} STREQUAL MSVC
-                OR (${CMAKE_${LANGUAGE}_COMPILER_ID} STREQUAL Clang
-                    AND "${CMAKE_${LANGUAGE}_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC"
+                OR (${CMAKE_${LANGUAGE}_COMPILER_ID} STREQUAL Clang 
+                    AND "${CMAKE_${LANGUAGE}_COMPILER_FRONTEND_VARIANT}" STREQUAL "MSVC" 
                     AND "${CMAKE_${LANGUAGE}_SIMULATE_ID}" STREQUAL "MSVC"))
 
         set(_VISUAL "Visual Studio")
@@ -729,12 +729,12 @@ function(conan_cmake_lock_create)
         set(BASE --base)
     endif()
     set(lock_create_Args lock create ${PATH} ${REFERENCE} ${UPDATE} ${BASE} ${REMOTE} ${LOCKFILE} ${LOCKFILE_OUT} ${LOCKFILE_NODE_ID} ${INSTALL_FOLDER}
-                                ${GENERATOR} ${BUILD} ${ENV} ${ENV_HOST} ${ENV_BUILD} ${OPTIONS} ${OPTIONS_HOST} ${OPTIONS_BUILD}
+                                ${GENERATOR} ${BUILD} ${ENV} ${ENV_HOST} ${ENV_BUILD} ${OPTIONS} ${OPTIONS_HOST} ${OPTIONS_BUILD} 
                                 ${PROFILE} ${PROFILE_HOST} ${PROFILE_BUILD} ${SETTINGS} ${SETTINGS_HOST} ${SETTINGS_BUILD})
 
     string(REPLACE ";" " " _lock_create_Args "${lock_create_Args}")
     message(STATUS "Conan executing: ${CONAN_CMD} ${_lock_create_Args}")
-
+    
     if(ARGS_OUTPUT_QUIET)
       set(OUTPUT_OPT OUTPUT_QUIET)
     endif()
