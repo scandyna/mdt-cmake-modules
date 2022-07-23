@@ -101,18 +101,18 @@ macro(mdt_collect_shared_libraries_targets_target_depends_on_transitively allTar
   set(options "")
   set(oneValueArgs TARGET)
   set(multiValueArgs "")
-  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(ARG_IMPL "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if(NOT TARGET ${ARG_TARGET})
-    message(FATAL_ERROR "mdt_collect_shared_libraries_targets_target_depends_on_transitively(): ${ARG_TARGET} is not a valid target")
+  if(NOT TARGET ${ARG_IMPL_TARGET})
+    message(FATAL_ERROR "mdt_collect_shared_libraries_targets_target_depends_on_transitively(): ${ARG_IMPL_TARGET} is not a valid target")
   endif()
   if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_collect_shared_libraries_targets_target_depends_on_transitively(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  list(APPEND ${allTargets} ${ARG_TARGET})
+  list(APPEND ${allTargets} ${ARG_IMPL_TARGET})
 
-  mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET ${ARG_TARGET})
+  mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET ${ARG_IMPL_TARGET})
 
   foreach(dependency ${directDependencies})
     list(FIND ${allTargets} ${dependency} index)
