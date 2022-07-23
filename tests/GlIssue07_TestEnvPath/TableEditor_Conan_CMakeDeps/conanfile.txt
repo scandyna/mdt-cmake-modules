@@ -1,0 +1,10 @@
+[requires]
+MdtCmakeModulesTests_MdtItemEditor/0.1@MdtCMakeModules_tests/testing
+MdtCMakeConfig/0.0.5@scandyna/testing
+
+[tool_requires]
+MdtCMakeModules/0.2@MdtCMakeModules_tests/testing
+
+[generators]
+CMakeDeps
+CMakeToolchain
