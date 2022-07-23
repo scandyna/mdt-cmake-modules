@@ -52,7 +52,6 @@ class MdtCMakeModulesConan(ConanFile):
   def package(self):
     cmake = CMake(self)
     cmake.install()
-    #self.copy("mdt_cmake_modules-conan-cmake-modules.cmake")
 
   def package_id(self):
     self.info.header_only()
