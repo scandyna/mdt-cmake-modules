@@ -1,8 +1,27 @@
 
+# Tests
+
+In the test, review conan recipes (libs, etc..) and remove:
+```python
+    self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))
+    self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+```
+
+# Changelog
+
+See https://github.com/olivierlacan/keep-a-changelog
+
 # CMakePresets
 
 Add for clang / libc++
 Or, toolchainfile ?
+
+# CMake namespace config file
+
+deprecate mdt_install_namespace_package_config_file()
+
+In the main CMakeLists.txt, remove
+mdt_install_namespace_package_config_file(...)
 
 # Install - presets + doc
 
@@ -38,6 +57,15 @@ Abandon..
 On Windows, libMyLib.dll is wrong
 
 # Component install
+
+Fix MdtCMakeModules:
+ - find_package(MdtCMakeModules) should be deprecated
+ - find_package(Mdt0CMakeModules) should be from now
+ - find_package(Mdt0 COMPONENTS CMakeModules) should work
+ - Also update conanfile.py to add component syntax support,
+   and test it with CMakeDeps like generators
+ - Update README
+ - Update ConanAndCMake
 
 mdt_install_library():
  - DEVELOPMENT_COMPONENT should default to ${PROJECT_NAME}_Dev  , or not
