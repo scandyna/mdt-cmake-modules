@@ -19,6 +19,14 @@ stages:
   - test
   - deploy
 
+###############################
+# Conan common templates
+###############################
+
+.setup_conan:
+  script:
+    - conan remote add scandyna https://gitlab.com/api/v4/projects/25668674/packages/conan
+    - conan config install --source-folder conan https://gitlab.com/scandyna/conan-config.git
 
 ###############################
 # Linux
@@ -44,6 +52,8 @@ stages:
 .test_linux:
   stage: test
   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-cpp-gui:latest
+  before_script:
+    - !reference [.setup_conan, script]
   script:
     - cd build
     - ctest --output-on-failure --verbose .
@@ -87,10 +97,6 @@ test_linux_clang6.0_x86_64_libc++_debug:
 # Conan
 ###############################
 
-.setup_conan:
-  script:
-    - conan remote add scandyna https://gitlab.com/api/v4/projects/25668674/packages/conan
-    - conan config install --source-folder conan https://gitlab.com/scandyna/conan-config.git
 
 #.conan_create:
   #stage: build
@@ -170,6 +176,8 @@ deploy_conan:
   stage: test
   extends:
     - .windows_runner
+  before_script:
+    - !reference [.setup_conan, script]
   script:
     - cd build
     - ctest --output-on-failure --verbose --build-config $env:BUILD_TYPE .
