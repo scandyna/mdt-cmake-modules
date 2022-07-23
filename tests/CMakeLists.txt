@@ -929,7 +929,7 @@ if(BUILD_CONAN_TESTS)
   include(conan.cmake)
   conan_cmake_settings(conanSettings)
 
-  # Build and install MdtCMakeModules
+  # Build and install MdtCMakeModules into the local cache
   add_test(NAME Conan_Create_MdtCMakeModules
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_SOURCE_DIR}/packaging/conan" "0.2@MdtCMakeModules_tests/testing"
@@ -998,6 +998,44 @@ if(BUILD_CONAN_TESTS)
       ${conanSettings}
   )
   set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
+
+  # Build and run a simple executable
+  # This project uses Conan CMakeDeps generator
+  # Goal is to check mdt_set_test_library_env_path()
+  # See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/7
+  #
+  # As above tests, we don't want to depend on Qt here,
+  # otherwise  we would have to describe a Qt dependency
+  # with some version in the test's conanfile,
+  # and building Qt with conan is currently problematic (2.06.2022)
+
+  add_test(NAME Conan_Install_TableEditor_CMakeDeps_GlIssue07_dependencies
+    COMMAND "${CONAN_COMMAND}"
+      install "${CMAKE_CURRENT_SOURCE_DIR}/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps"
+      --install-folder "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps"
+      --options *:shared=True
+      ${conanSettings}
+  )
+  set_tests_properties(Conan_Install_TableEditor_CMakeDeps_GlIssue07_dependencies PROPERTIES DEPENDS Conan_Create_MdtItemEditor)
+
+  add_test(NAME Conan_BuildAndRun_TableEditor_CMakeDeps_GlIssue07
+    COMMAND "${CMAKE_CTEST_COMMAND}"
+      --build-and-test "${CMAKE_SOURCE_DIR}/tests/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps" "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+      --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+      --build-config $<CONFIG>
+      --build-options
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps/conan_toolchain.cmake"
+      --test-command "${CMAKE_CTEST_COMMAND}" --output-on-failure
+      ${conanSettings}
+
+  )
+  set_tests_properties(Conan_BuildAndRun_TableEditor_CMakeDeps_GlIssue07 PROPERTIES DEPENDS Conan_Install_TableEditor_CMakeDeps_GlIssue07_dependencies)
+  # See remarks for Conan_Create_MdtCMakeModules
+  mdt_append_test_environment_variables_string(Conan_BuildAndRun_TableEditor_CMakeDeps_GlIssue07
+    "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER}"
+  )
 
   # Remove installed test packages
 
