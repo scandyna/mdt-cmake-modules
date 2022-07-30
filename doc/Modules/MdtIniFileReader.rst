@@ -5,13 +5,11 @@ MdtIniFileReader
   :local:
 
 
-
-
 .. command:: mdt_ini_file_read_section_content
 
 Read the content of given section from given INI file::
 
-  mdt_ini_file_read_section_content(<out_var> FILE <file-path> SECTION <section-name>)
+  mdt_ini_file_read_section_content(<out_var> FILE <file-path> SECTION <section-name> [LIMIT_FILE_BYTE_COUNT] <max-num>)
 
 Example:
 
@@ -23,9 +21,3 @@ Example:
   )
 
 See also the :module:`MdtConanBuildInfoReader` module.
-
-OLD
-
-.. command:: mdt_ini_file_extract_section_content
-
-  mdt_ini_file_extract_section_content(signature)
