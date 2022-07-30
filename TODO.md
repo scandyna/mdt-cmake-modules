@@ -1,4 +1,38 @@
 
+# Conan envs
+
+Maybe reuse ENV from https://docs.conan.io/en/latest/reference/conanfile/tools/env.html
+At configure time, ENV should be injected
+
+activate env
+cmake ....
+disable env
+
+make
+
+ctest
+
+At least, not required to activate env each time we run ctest
+
+Document some hint about that in MdtRuntimeEnv...cmake
+
+MdtRuntimeEnv...cmake also reference limitations of ...
+
+remove CMAKE_LIBRARY_PATH, it's a hack
+
+Update docs, current method is not reliable
+
+For LD_LIBRARY_PATH / PATH and other config time paths,
+build a path list with unique paths.
+Create methods based on mdt_find_path_in_list()
+
+In MdtRuntimeEnv , add a Rationale section
+
+Maybe: separate RuntimeEnv from building paths list ?
+(for MdtDeployUtils..)
+
+mdt_make_runtime_env_path_list()
+
 # Tests
 
 In the test, review conan recipes (libs, etc..) and remove:
