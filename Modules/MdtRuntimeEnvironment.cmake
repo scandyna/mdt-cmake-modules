@@ -253,8 +253,6 @@
 # See also :command:`mdt_collect_shared_libraries_targets_target_depends_on()`,
 # where some limitations are documented.
 #
-# TODO: maybe we should run cmake -E source conanrun.sh to get LD_LIBRARY_PATH ?
-#
 #
 # Note about the implementation
 # """""""""""""""""""""""""""""
@@ -347,59 +345,30 @@
 #     self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))
 #     self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 #
-# Then, in your project, in the conanfile.txt, add the ``virtualenv`` generator:
+# Then, in your project, in the conanfile.txt, add the
+# `VirtualRunEnv <https://docs.conan.io/en/latest/reference/conanfile/tools/env/virtualrunenv.html>`_ generator:
 #
 # .. code-block:: text
-#
-#   [generators]
-#   cmake_paths
-#   virtualenv
-#
-# On Linux, setup the temporary environment:
-#
-# .. code-block:: bash
-#
-#   source activate.sh
-#
-# Setup the temporary environment on Windows:
-#
-# .. code-block:: bash
-#
-#   activate.bat
-#
-# For more precisions, see `Conan Virtualenv generator <https://docs.conan.io/en/latest/mastering/virtualenv.html>`_ .
-#
-# Recommended workflow when using Conan
-# """""""""""""""""""""""""""""""""""""
-#
-# When using the Conan package manager with recent generators, like CMakeDeps,
-# the generated targets are not usable.
-# For more details, see :command:`mdt_collect_shared_libraries_targets_target_depends_on()`.
-#
-# A more robust method is to also use the VirtualRunEnv generator.
-#
-# Here is an example of a `conanfile.txt`:
-#
-# .. code-block:: text
-#
-#   [requires]
-#   SomeLib/x.y.z@user/channel
 #
 #   [generators]
 #   CMakeDeps
 #   CMakeToolchain
 #   VirtualRunEnv
 #
-# In the build directory:
+#
+# In the build directory, activate the runtime environment:
 #
 # .. code-block:: shell
 #
 #   conan install ...
 #   source conanrun.sh  # On Windows: .\conanrun.bat
 #   cmake ...
-#   source deactivate_conanrun.sh  # On Windows: .\deactivate_conanrun.bat
 #
-# TODO: above will not work if typing make and cmake runs again without the conan env !
+# To restore the original environment:
+#
+# .. code-block:: shell
+#
+#   source deactivate_conanrun.sh  # On Windows: .\deactivate_conanrun.bat
 #
 # See also: :command:`mdt_set_test_library_env_path()`
 #
