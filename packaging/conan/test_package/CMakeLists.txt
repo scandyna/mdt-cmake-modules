@@ -32,6 +32,8 @@ include(MdtTargetDependenciesHelpers)
 include(MdtTargetProperties)
 include(MdtTargetPackageProperties)
 include(MdtVersionUtils)
+include(MdtIniFileReader)
+include(MdtConanBuildInfoReader)
 
 # TODO: component syntax was never tested.
 #       the generated CMake package configs are wrong for this syntax,

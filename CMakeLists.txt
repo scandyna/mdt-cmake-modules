@@ -112,6 +112,8 @@ mdt_install_cmake_modules(
     "Modules/MdtAddTest.cmake"
     "Modules/MdtFindPathInList.cmake.in"
     "${CMAKE_BINARY_DIR}/MdtFindPathInList.cmake"
+    "Modules/MdtIniFileReader.cmake"
+    "Modules/MdtConanBuildInfoReader.cmake"
   EXPORT_NAME CMakeModules
   EXPORT_NAMESPACE Mdt
   INSTALL_CONAN_CMAKE_PACKAGE_FILE ${INSTALL_CONAN_PACKAGE_FILES}
