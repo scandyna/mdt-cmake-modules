@@ -200,6 +200,7 @@
 #
 #   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
 #
+# TODO: remove 
 # If ``CMAKE_LIBRARY_PATH`` is not empty, it will be added after the targets generator expressions.
 #
 # If ``LD_LIBRARY_PATH`` was already set, for example to ``/opt/qt/5.15.2/gcc_64/lib`` it will also be added to the end::
@@ -211,6 +212,7 @@
 #
 #   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
 #
+# TODO: remove 
 # If ``CMAKE_LIBRARY_PATH`` is not empty, it will be added after the targets generator expressions.
 #
 # If ``PATH`` was already set, for example to ``C:\Qt\5.15.2\mingw73_64\bin``, it will also be added to the end::
@@ -248,7 +250,11 @@
 # Notice that we have to replace the ``;`` by ``\\;`` on Windows.
 # To know why, see below.
 #
-# See also: :command:`mdt_set_test_library_env_path()`
+# See also :command:`mdt_collect_shared_libraries_targets_target_depends_on()`,
+# where some limitations are documented.
+#
+# TODO: maybe we should run cmake -E source conanrun.sh to get LD_LIBRARY_PATH ?
+#
 #
 # Note about the implementation
 # """""""""""""""""""""""""""""
@@ -363,8 +369,96 @@
 #
 # For more precisions, see `Conan Virtualenv generator <https://docs.conan.io/en/latest/mastering/virtualenv.html>`_ .
 #
+# Recommended workflow when using Conan
+# """""""""""""""""""""""""""""""""""""
+#
+# When using the Conan package manager with recent generators, like CMakeDeps,
+# the generated targets are not usable.
+# For more details, see :command:`mdt_collect_shared_libraries_targets_target_depends_on()`.
+#
+# A more robust method is to also use the VirtualRunEnv generator.
+#
+# Here is an example of a `conanfile.txt`:
+#
+# .. code-block:: text
+#
+#   [requires]
+#   SomeLib/x.y.z@user/channel
+#
+#   [generators]
+#   CMakeDeps
+#   CMakeToolchain
+#   VirtualRunEnv
+#
+# In the build directory:
+#
+# .. code-block:: shell
+#
+#   conan install ...
+#   source conanrun.sh  # On Windows: .\conanrun.bat
+#   cmake ...
+#   source deactivate_conanrun.sh  # On Windows: .\deactivate_conanrun.bat
+#
+# TODO: above will not work if typing make and cmake runs again without the conan env !
+#
+# See also: :command:`mdt_set_test_library_env_path()`
+#
+# Rationale
+# ^^^^^^^^^
+#
+# Using Conan package manager
+# """""""""""""""""""""""""""
+#
+# Using legacy generators like `cmake` worked for libraries providing CMake packages.
+# The given targets had the required informations to create a generator expression
+# to extract the path to the shared libraries as explained above.
+#
+# The problem occurs for libraries not providing CMake packages.
+# Also, the upstream created CMake packages did probably not work
+# properly in a context of a whole dependency tree
+# (typically SomeLibConfig.cmake should define find_package() calls for its dependencies).
+#
+# This is probably why Conan decided to generate the CMake package config files itself
+# when using the new CMake generators, like CMakeDeps.
+#
+# But, there is a problem with those new CMake generators:
+# the generated targets are not usable.
+# For more details, see :command:`mdt_collect_shared_libraries_targets_target_depends_on()`.
+#
+# A idea was to use the environment set by Conan's ``VirtualRunEnv`` generated scripts.
+#
+# The imagined workflow was:
+#
+# .. code-block:: shell
+#
+#   conan install ...
+#   source conanrun.sh  # On Windows: .\conanrun.bat
+#   cmake ...
+#   source deactivate_conanrun.sh  # On Windows: .\deactivate_conanrun.bat
+#   make
+#
+# mdt_set_test_library_env_path() could then reuse environment variables like ``LD_LIBRARY_PATH`` or ``PATH``.
+#
+# An issue is that make could call camke, this time without the Conan's environment.
+# After that, the environment attached to the tests will not contain
+# the paths to the shared libraries directory for the dependencies.
+#
+# An other idea was to call the generated scripts from ``execute_process()``.
+# Implementing this on Linux seems not possible,
+# because the Bash built-in `source` function must be used.
+# Calling:
+#
+# .. code-block:: shell
+#
+#   source conanrun.sh
+#
+# from CMake does not work.
+# See also https://stackoverflow.com/questions/29053977/cmake-execute-process-cannot-find-source-command
+#
 
 include(MdtTargetDependenciesHelpers)
+ 
+include(MdtConanBuildInfoReader)
 
 
 function(mdt_append_test_environment_variables_string test_name)
@@ -388,6 +482,48 @@ function(mdt_append_test_environment_variables_string test_name)
 
 endfunction()
 
+
+function(sandbox_get_shared_libraries_directories_from_conanbuildinfo_if_exists out_var)
+
+  message("sandbox_get_shared_libraries_directories_from_conanbuildinfo_if_exists ...")
+  
+  # TODO: find a reliable build dir
+  message("-> current bin dir: ${PROJECT_BINARY_DIR}")
+  set(conanBuildInfoFilePath "${PROJECT_BINARY_DIR}/conanbuildinfo.txt")
+  
+
+  if(EXISTS "${conanBuildInfoFilePath}")
+    if(WIN32)
+      mdt_conan_build_info_read_bindirs(sharedLibrariesDirectories FILE "${conanBuildInfoFilePath}")
+    else()
+      mdt_conan_build_info_read_libdirs(sharedLibrariesDirectories FILE "${conanBuildInfoFilePath}")
+    endif()
+
+    message("sharedLibrariesDirectories: ${sharedLibrariesDirectories}")
+  endif()
+  
+  # TODO: source will never work
+  #   see https://stackoverflow.com/questions/29053977/cmake-execute-process-cannot-find-source-command
+  
+  # TODO: maybe parse conanbuildinfo.txt
+  #  see https://docs.conan.io/en/1.46/reference/generators/text.html
+  
+  
+#   set(conanrunFilePath "/home/philippe/dev/build/mdt-cmake-modules/gccDebug/tests/build/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps/conanrun_mdt_sandbox.sh")
+#   
+#   execute_process(
+#     COMMAND "${conanrunFilePath}"
+# #     COMMAND "${CMAKE_COMMAND}" -E echo $LD_LIBRARY_PATH
+#     RESULT_VARIABLE result
+#     OUTPUT_VARIABLE output
+#   )
+#   
+#   message("result: ${result}")
+#   message("output: ${output}")
+
+  set(${out_var} ${sharedLibrariesDirectories} PARENT_SCOPE)
+
+endfunction()
 
 function(mdt_target_libraries_to_library_env_path out_var)
 
@@ -434,16 +570,25 @@ function(mdt_target_libraries_to_library_env_path out_var)
     set(pathSeparator ":")
   endif()
 
-  set(cmakeLibraryPath "${CMAKE_LIBRARY_PATH}")
+  
+  sandbox_get_shared_libraries_directories_from_conanbuildinfo_if_exists(conanSharedLibrariesDirs)
   if(UNIX)
-    string(REPLACE ";" "${pathSeparator}" cmakeLibraryPath "${cmakeLibraryPath}")
+    string(REPLACE ";" "${pathSeparator}" conanSharedLibrariesDirs "${conanSharedLibrariesDirs}")
   endif()
+
+  #set(cmakeLibraryPath "${CMAKE_LIBRARY_PATH}") 
+#   if(UNIX)
+#     string(REPLACE ";" "${pathSeparator}" cmakeLibraryPath "${cmakeLibraryPath}")
+#   endif()
+  
+  
 
   set(currentEnvPath "$ENV{${pathName}}")
 
   if(WIN32 AND ARG_ALWAYS_USE_SLASHES)
     string(REPLACE "\\" "/" currentEnvPath "${currentEnvPath}")
-    string(REPLACE "\\" "/" cmakeLibraryPath "${cmakeLibraryPath}")
+#     string(REPLACE "\\" "/" cmakeLibraryPath "${cmakeLibraryPath}")
+    string(REPLACE "\\" "/" conanSharedLibrariesDirs "${conanSharedLibrariesDirs}")
   endif()
 
   set(envPathList)
@@ -461,12 +606,22 @@ function(mdt_target_libraries_to_library_env_path out_var)
   if(envPathList)
     string(APPEND envPathContent "${envPathList}")
   endif()
-  if(cmakeLibraryPath)
+  
+#   if(cmakeLibraryPath)
+#     if(envPathContent)
+#       string(APPEND envPathContent "${pathSeparator}")
+#     endif()
+#     string(APPEND envPathContent "${cmakeLibraryPath}")
+#   endif()
+  
+  if(conanSharedLibrariesDirs)
     if(envPathContent)
       string(APPEND envPathContent "${pathSeparator}")
     endif()
-    string(APPEND envPathContent "${cmakeLibraryPath}")
+    string(APPEND envPathContent "${conanSharedLibrariesDirs}")
   endif()
+
+  
   if(currentEnvPath)
     if(envPathContent)
       string(APPEND envPathContent "${pathSeparator}")
