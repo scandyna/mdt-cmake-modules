@@ -1,0 +1,8 @@
+
+[libdirs]
+/home/test/.conan/data/qt/5.15.2/_/_/package/a1b2c3d4/lib
+/home/test/.conan/data/sqlite3/3.38.1/_/_/package/1a2b3c4d/lib
+
+[bindirs]
+/home/test/.conan/data/qt/5.15.2/_/_/package/a1b2c3d4/bin
+/home/test/.conan/data/sqlite3/3.38.1/_/_/package/1a2b3c4d/bin
