@@ -24,9 +24,6 @@ class MdtCmakeModulesTestMdtItemEditorConan(ConanFile):
 
   def package_info(self):
 
-    # TODO: remove ?
-    self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))
-
     self.cpp_info.set_property("cmake_file_name", "Mdt0ItemEditor")
     self.cpp_info.set_property("cmake_target_name", "Mdt0::ItemEditor")
     self.cpp_info.libs = ["Mdt0ItemEditor"]

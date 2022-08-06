@@ -31,9 +31,6 @@ class MdtCMakeModulesTestConan(ConanFile):
     #self._build_with_cmake_paths()
     #self._build_with_cmake_find_package_multi()
 
-  def imports(self):
-    self.copy("*.dll", dst="bin", src="bin")
-
   def test(self):
     cmake = CMake(self)
     # We have no test to run, here we fake a bit..
