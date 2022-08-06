@@ -1,0 +1,4 @@
+
+[bindirs]
+C:/opt/conan/A/bin
+C:/opt/conan/B/bin

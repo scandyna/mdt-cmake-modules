@@ -55,3 +55,27 @@ function(mdt_conan_build_info_read_bindirs out_var)
   set(${out_var} ${dirs} PARENT_SCOPE)
 
 endfunction()
+
+
+function(mdt_get_shared_libraries_directories_from_conanbuildinfo_if_exists out_var)
+
+  if(MDT_CONAN_BUILD_INFO_FILE_PATH)
+    set(conanBuildInfoFilePath "${MDT_CONAN_BUILD_INFO_FILE_PATH}")
+  else()
+    # find_file() will search in CMAKE_PREFIX_PATH by default
+    find_file(findFileConanBuildInfoFilePath "conanbuildinfo.txt" NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+    set(conanBuildInfoFilePath "${findFileConanBuildInfoFilePath}")
+  endif()
+
+  if(EXISTS "${conanBuildInfoFilePath}")
+    message(DEBUG "mdt_get_shared_libraries_directories_from_conanbuildinfo_if_exists(): using ${conanBuildInfoFilePath}")
+    if(WIN32)
+      mdt_conan_build_info_read_bindirs(sharedLibrariesDirectories FILE "${conanBuildInfoFilePath}")
+    else()
+      mdt_conan_build_info_read_libdirs(sharedLibrariesDirectories FILE "${conanBuildInfoFilePath}")
+    endif()
+  endif()
+
+  set(${out_var} ${sharedLibrariesDirectories} PARENT_SCOPE)
+
+endfunction()

@@ -1,0 +1,4 @@
+
+[libdirs]
+/opt/conan/A/lib
+/opt/conan/B/lib

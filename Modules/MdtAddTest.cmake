@@ -27,7 +27,8 @@
 # Will add a executable target named ``target`` using :command:`add_executable()`,
 # then add a test using :command:`add_test()`.
 #
-# See also :command:`mdt_set_test_library_env_path()`.
+# See also :command:`mdt_set_test_library_env_path()`
+# and :command:`mdt_target_libraries_to_library_env_path()`.
 #
 # Example:
 #

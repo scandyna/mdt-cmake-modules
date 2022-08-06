@@ -280,10 +280,10 @@ Here we have 2 difficulties to use those generated targets:
 
 Using those informations seems not possible in a reasonable way.
 
-Conan CMakeToolchain to the rescue
-""""""""""""""""""""""""""""""""""
+Conan CMakeToolchain to the rescue ?
+""""""""""""""""""""""""""""""""""""
 
-When using the Conan `CMakeToolchain` generator,
+When using the Conan ``CMakeToolchain`` generator,
 the generated `conan_toolchain.cmake` contains some interresting thing:
 
 .. code-block:: cmake
@@ -296,5 +296,10 @@ the generated `conan_toolchain.cmake` contains some interresting thing:
         "other paths"
   )
 
-If we need to collect paths to shared libraries directories,
-we should probably use `CMAKE_LIBRARY_PATH` for the Conan dependencies.
+On Linux, ``CMAKE_LIBRARY_PATH`` could be used for shared libraries.
+But, on Windows, those paths also points to the `lib` subdirectory,
+where static libraries are, but not the dlls.
+
+Trying to use ``CMAKE_LIBRARY_PATH`` is fragile and should be avoided.
+
+See also :command:`mdt_target_libraries_to_library_env_path()`.

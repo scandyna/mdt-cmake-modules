@@ -37,3 +37,18 @@ function(require_list_not_contains listVarName value)
   endif()
 
 endfunction()
+
+function(require_list_equals_to listVarName expectedList)
+
+  if( NOT ("${${listVarName}}" STREQUAL "${expectedList}") )
+    message(FATAL_ERROR "Test failed: list '${listVarName}' differs from the expected one.\nlist content: '${${listVarName}}'\nexpected: '${expectedList}'")
+  endif()
+
+endfunction()
+
+##############################
+# TEST require_list_equals_to
+##############################
+
+set(list "A;B")
+require_list_equals_to(list "A;B")

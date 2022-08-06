@@ -11,6 +11,8 @@ All Modules
    MdtBuildOptionsUtils.rst
    MdtAddLibrary.rst
    MdtAddTest.rst
+   MdtIniFileReader.rst
+   MdtConanBuildInfoReader.rst
    MdtFindPathInList.rst
    MdtInstallCMakeModules.rst
    MdtInstallIncludes.rst

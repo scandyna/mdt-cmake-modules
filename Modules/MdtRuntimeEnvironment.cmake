@@ -173,6 +173,7 @@
 # Using environment path as CMake property
 # """"""""""""""""""""""""""""""""""""""""
 #
+# Also adapt documentation for mdt_add_test(), mdt_set_test_library_env_path()
 #
 # .. command:: mdt_target_libraries_to_library_env_path
 #
@@ -200,9 +201,6 @@
 #
 #   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
 #
-# TODO: remove 
-# If ``CMAKE_LIBRARY_PATH`` is not empty, it will be added after the targets generator expressions.
-#
 # If ``LD_LIBRARY_PATH`` was already set, for example to ``/opt/qt/5.15.2/gcc_64/lib`` it will also be added to the end::
 #
 #   LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:/opt/qt/5.15.2/gcc_64/lib
@@ -212,13 +210,19 @@
 #
 #   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
 #
-# TODO: remove 
-# If ``CMAKE_LIBRARY_PATH`` is not empty, it will be added after the targets generator expressions.
-#
 # If ``PATH`` was already set, for example to ``C:\Qt\5.15.2\mingw73_64\bin``, it will also be added to the end::
 #
 #   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>;C:\Qt\5.15.2\mingw73_64\bin
 #
+#
+# When using the Conan package manager, the `conanbuildinfo.txt` can also be used.
+# On Unix, the paths of the `[libdirs]` section will be added,
+# or those from the `[bindirs]` section on Windows.
+# The `conanbuildinfo.txt` will be located in ``CMAKE_PREFIX_PATH``,
+# which will be set by the ``CMakeToolchain`` Conan generator.
+# Alternatively, a variable named ``MDT_CONAN_BUILD_INFO_FILE_PATH``
+# can be set to a absolute file path to the `conanbuildinfo.txt`.
+# See also :command:`mdt_get_shared_libraries_directories_from_conanbuildinfo_if_exists()`
 #
 # If the ``ALWAYS_USE_SLASHES`` is present, the resulting environment variable will have slahes as separators on Windows.
 # This can be used to prevent `Invalid escape sequence \\U` warning
@@ -426,7 +430,6 @@
 #
 
 include(MdtTargetDependenciesHelpers)
- 
 include(MdtConanBuildInfoReader)
 
 
@@ -451,48 +454,6 @@ function(mdt_append_test_environment_variables_string test_name)
 
 endfunction()
 
-
-function(sandbox_get_shared_libraries_directories_from_conanbuildinfo_if_exists out_var)
-
-  message("sandbox_get_shared_libraries_directories_from_conanbuildinfo_if_exists ...")
-  
-  # TODO: find a reliable build dir
-  message("-> current bin dir: ${PROJECT_BINARY_DIR}")
-  set(conanBuildInfoFilePath "${PROJECT_BINARY_DIR}/conanbuildinfo.txt")
-  
-
-  if(EXISTS "${conanBuildInfoFilePath}")
-    if(WIN32)
-      mdt_conan_build_info_read_bindirs(sharedLibrariesDirectories FILE "${conanBuildInfoFilePath}")
-    else()
-      mdt_conan_build_info_read_libdirs(sharedLibrariesDirectories FILE "${conanBuildInfoFilePath}")
-    endif()
-
-    message("sharedLibrariesDirectories: ${sharedLibrariesDirectories}")
-  endif()
-  
-  # TODO: source will never work
-  #   see https://stackoverflow.com/questions/29053977/cmake-execute-process-cannot-find-source-command
-  
-  # TODO: maybe parse conanbuildinfo.txt
-  #  see https://docs.conan.io/en/1.46/reference/generators/text.html
-  
-  
-#   set(conanrunFilePath "/home/philippe/dev/build/mdt-cmake-modules/gccDebug/tests/build/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps/conanrun_mdt_sandbox.sh")
-#   
-#   execute_process(
-#     COMMAND "${conanrunFilePath}"
-# #     COMMAND "${CMAKE_COMMAND}" -E echo $LD_LIBRARY_PATH
-#     RESULT_VARIABLE result
-#     OUTPUT_VARIABLE output
-#   )
-#   
-#   message("result: ${result}")
-#   message("output: ${output}")
-
-  set(${out_var} ${sharedLibrariesDirectories} PARENT_SCOPE)
-
-endfunction()
 
 function(mdt_target_libraries_to_library_env_path out_var)
 
@@ -539,24 +500,15 @@ function(mdt_target_libraries_to_library_env_path out_var)
     set(pathSeparator ":")
   endif()
 
-  
-  sandbox_get_shared_libraries_directories_from_conanbuildinfo_if_exists(conanSharedLibrariesDirs)
+  mdt_get_shared_libraries_directories_from_conanbuildinfo_if_exists(conanSharedLibrariesDirs)
   if(UNIX)
     string(REPLACE ";" "${pathSeparator}" conanSharedLibrariesDirs "${conanSharedLibrariesDirs}")
   endif()
-
-  #set(cmakeLibraryPath "${CMAKE_LIBRARY_PATH}") 
-#   if(UNIX)
-#     string(REPLACE ";" "${pathSeparator}" cmakeLibraryPath "${cmakeLibraryPath}")
-#   endif()
-  
-  
 
   set(currentEnvPath "$ENV{${pathName}}")
 
   if(WIN32 AND ARG_ALWAYS_USE_SLASHES)
     string(REPLACE "\\" "/" currentEnvPath "${currentEnvPath}")
-#     string(REPLACE "\\" "/" cmakeLibraryPath "${cmakeLibraryPath}")
     string(REPLACE "\\" "/" conanSharedLibrariesDirs "${conanSharedLibrariesDirs}")
   endif()
 
@@ -575,22 +527,12 @@ function(mdt_target_libraries_to_library_env_path out_var)
   if(envPathList)
     string(APPEND envPathContent "${envPathList}")
   endif()
-  
-#   if(cmakeLibraryPath)
-#     if(envPathContent)
-#       string(APPEND envPathContent "${pathSeparator}")
-#     endif()
-#     string(APPEND envPathContent "${cmakeLibraryPath}")
-#   endif()
-  
   if(conanSharedLibrariesDirs)
     if(envPathContent)
       string(APPEND envPathContent "${pathSeparator}")
     endif()
     string(APPEND envPathContent "${conanSharedLibrariesDirs}")
   endif()
-
-  
   if(currentEnvPath)
     if(envPathContent)
       string(APPEND envPathContent "${pathSeparator}")
