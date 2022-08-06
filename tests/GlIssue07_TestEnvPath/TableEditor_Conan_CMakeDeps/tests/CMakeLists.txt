@@ -7,5 +7,5 @@ add_test(
 
 mdt_set_test_library_env_path(NAME RunTableEditor TARGET tableEditor)
 
-# get_test_property(RunTableEditor ENVIRONMENT envPath)
-# message("RunTableEditor ENVIRONMENT: ${envPath}")
+get_test_property(RunTableEditor ENVIRONMENT envPath)
+message(DEBUG "RunTableEditor ENVIRONMENT: ${envPath}")
