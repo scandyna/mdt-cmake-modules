@@ -639,6 +639,7 @@
 #
 
 include(MdtTargetProperties)
+include(MdtTargetDependenciesHelpers)
 include(MdtInstallIncludes)
 include(MdtPackageConfigHelpers)
 
@@ -899,8 +900,16 @@ function(mdt_install_library)
     set(developmentComponentArguments COMPONENT ${ARG_DEVELOPMENT_COMPONENT})
   endif()
 
+  # If the target depends on some OBJECT libraries,
+  # they have to be passed to install(TARGETS),
+  # otherwise CMake will complain about missing export sets.
+  # See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/8
+  mdt_get_target_object_libraries_targets_direct_dependencies(objectLibraries
+    TARGET ${ARG_TARGET}
+  )
+
   install(
-    TARGETS ${ARG_TARGET}
+    TARGETS ${ARG_TARGET} ${objectLibraries}
     EXPORT ${targetExportName}
     RUNTIME
       DESTINATION "${ARG_RUNTIME_DESTINATION}"

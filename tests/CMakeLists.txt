@@ -267,6 +267,25 @@ add_test(NAME Install_MultiDevTools_Static
 )
 set_tests_properties(Install_MultiDevTools_Static PROPERTIES DEPENDS Build_MultiDevTools_Static)
 
+###########################################################################################
+# GL Issue 8: mdt_install_library() produces error for target depending on a OBJECT target
+###########################################################################################
+
+add_test(NAME GlIssue08_InstallLibWithObject
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/GlIssue08_InstallLibWithObject" "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue08_InstallLibWithObject"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
+      "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/GlIssue08_InstallLibWithObject"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(GlIssue08_InstallLibWithObject PROPERTIES DEPENDS Install_MdtCMakeModules)
+
 ########################################
 # Test installing in different locations
 ########################################
