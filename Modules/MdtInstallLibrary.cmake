@@ -389,6 +389,7 @@
 #
 #   mdt_install_library(
 #     TARGET <target>
+#     [OBJECT_TARGETS <target-list>]
 #     RUNTIME_DESTINATION <dir>
 #     LIBRARY_DESTINATION <dir>
 #     ARCHIVE_DESTINATION <dir>
@@ -411,7 +412,22 @@
 #
 # Install ``target`` using :command:`install(TARGETS)` to the various given destinations.
 #
-# Will also install the includes directory passed as ``INCLUDES_DIRECTORY`` argument
+# If given ``target`` depends on targets that are ``OBJECT_LIBRARY``,
+# CMake could fail and complain about missing export sets:
+#
+# .. code-block:: shell
+#
+#   CMake Error: install(EXPORT "MyLibTargets" ...) includes target "MyLib" which requires target "MyLibImpl-objects" that is not in any export set.
+#
+# In that case, the Object libraries `target` depends on should be passed to the ``OBJECT_TARGETS`` argument.
+# For more details, see:
+#   - https://gitlab.kitware.com/cmake/cmake/-/issues/18935
+#   - https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/8
+#
+# Note that ``MdtCMakeModules`` 0.18.2 got those Object libraries itself,
+# but this did not work with alias targets.
+#
+# It will also install the includes directory passed as ``INCLUDES_DIRECTORY`` argument
 # to the destination specified by ``INCLUDES_DESTINATION`` using :command:`mdt_install_include_directory()`.
 # For more informations about ``INCLUDES_FILE_EXTENSIONS`` and ``INCLUDES_FILE_WITHOUT_EXTENSION``
 # see :command:`mdt_install_include_directory()`.
@@ -639,7 +655,6 @@
 #
 
 include(MdtTargetProperties)
-include(MdtTargetDependenciesHelpers)
 include(MdtInstallIncludes)
 include(MdtPackageConfigHelpers)
 
@@ -803,7 +818,7 @@ function(mdt_install_library)
                   EXPORT_NAME EXPORT_NAMESPACE INSTALL_NAMESPACE INSTALL_IS_UNIX_SYSTEM_WIDE
                   VERSION SOVERSION VERSION_COMPATIBILITY
                   RUNTIME_COMPONENT DEVELOPMENT_COMPONENT)
-  set(multiValueArgs INCLUDES_FILE_EXTENSIONS ADDITIONAL_INCLUDES_FILES FIND_PACKAGE_PATHS)
+  set(multiValueArgs OBJECT_TARGETS INCLUDES_FILE_EXTENSIONS ADDITIONAL_INCLUDES_FILES FIND_PACKAGE_PATHS)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT ARG_TARGET)
@@ -900,16 +915,8 @@ function(mdt_install_library)
     set(developmentComponentArguments COMPONENT ${ARG_DEVELOPMENT_COMPONENT})
   endif()
 
-  # If the target depends on some OBJECT libraries,
-  # they have to be passed to install(TARGETS),
-  # otherwise CMake will complain about missing export sets.
-  # See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/8
-  mdt_get_target_object_libraries_targets_direct_dependencies(objectLibraries
-    TARGET ${ARG_TARGET}
-  )
-
   install(
-    TARGETS ${ARG_TARGET} ${objectLibraries}
+    TARGETS ${ARG_TARGET} ${ARG_OBJECT_TARGETS}
     EXPORT ${targetExportName}
     RUNTIME
       DESTINATION "${ARG_RUNTIME_DESTINATION}"

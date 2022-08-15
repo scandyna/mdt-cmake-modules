@@ -16,6 +16,8 @@ include(GNUInstallDirs)
 add_library(MyLibImpl-objects OBJECT
   MyLibImpl.cpp
 )
+add_library(Ns::MyLibImpl ALIAS MyLibImpl-objects)
+
 set_target_properties(MyLibImpl-objects
   PROPERTIES
     POSITION_INDEPENDENT_CODE TRUE
@@ -25,13 +27,17 @@ add_library(MyLib
   MyLib.cpp
 )
 
+# mdt_install_library() should not fail
+# when we have a dependency that is a alias
+# Bug in MdtCMakeModules 0.18.2
 target_link_libraries(MyLib
   PUBLIC
-    MyLibImpl-objects
+    Ns::MyLibImpl
 )
 
 mdt_install_library(
   TARGET MyLib
+  OBJECT_TARGETS MyLibImpl-objects
   RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE_DESTINATION ${CMAKE_INSTALL_LIBDIR}

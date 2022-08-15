@@ -1,9 +1,17 @@
 
+# [0.18.3] - 2022-08-15
+
+## Changed
+
+- Work on [GL issue 8](https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/8)
+
+
 # [0.18.2] - 2022-08-15
 
 ## Changed
 
 - Work on [GL issue 8](https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/8)
+
 
 # [0.18.1] - 2022-08-06
 
