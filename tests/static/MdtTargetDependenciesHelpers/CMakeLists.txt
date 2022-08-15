@@ -15,6 +15,8 @@ include(MdtListTestHelpers)
 add_library(Mdt0::Core SHARED IMPORTED)
 add_library(Mdt0::Widgets SHARED IMPORTED)
 
+add_library(Mdt0::Object OBJECT IMPORTED)
+
 ##########################################
 # Test: target not having any dependencies
 ##########################################
@@ -25,8 +27,84 @@ message(VERBOSE "TEST mdt_collect_shared_libraries_targets_target_depends_on(): 
 mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET Mdt0::Core)
 require_list_is_empty(directDependencies)
 
+mdt_get_target_object_libraries_targets_direct_dependencies(directDependencies TARGET Mdt0::Core)
+require_list_is_empty(directDependencies)
+
 # Public API
 mdt_collect_shared_libraries_targets_target_depends_on(dependencies TARGET Mdt0::Core)
+require_list_is_empty(dependencies)
+
+###################################################################
+# Test: target having a OBJECT target as LINK_LIBRARIES dependency
+###################################################################
+
+message(VERBOSE "TEST mdt_collect_shared_libraries_targets_target_depends_on(): target with a OBJECT target as LINK_LIBRARIES")
+
+add_library(Mdt0::TargetWithObjectAsLinkLibraries SHARED IMPORTED)
+set_target_properties(Mdt0::TargetWithObjectAsLinkLibraries
+  PROPERTIES
+    LINK_LIBRARIES Mdt0::Object
+)
+
+# Impl function
+mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET Mdt0::TargetWithObjectAsLinkLibraries)
+require_list_is_empty(directDependencies)
+
+mdt_get_target_object_libraries_targets_direct_dependencies(directDependencies TARGET Mdt0::TargetWithObjectAsLinkLibraries)
+require_list_is_of_length(directDependencies 1)
+require_list_contains(directDependencies Mdt0::Object)
+
+# Public API
+mdt_collect_shared_libraries_targets_target_depends_on(dependencies TARGET Mdt0::TargetWithObjectAsLinkLibraries)
+require_list_is_empty(dependencies)
+
+#############################################################################
+# Test: target having a OBJECT target as INTERFACE_LINK_LIBRARIES dependency
+#############################################################################
+
+message(VERBOSE "TEST mdt_collect_shared_libraries_targets_target_depends_on(): target with a OBJECT target as INTERFACE_LINK_LIBRARIES")
+
+add_library(Mdt0::TargetWithObjectAsInterfaceLinkLibraries SHARED IMPORTED)
+set_target_properties(Mdt0::TargetWithObjectAsInterfaceLinkLibraries
+  PROPERTIES
+    INTERFACE_LINK_LIBRARIES Mdt0::Object
+)
+
+# Impl function
+mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET Mdt0::TargetWithObjectAsInterfaceLinkLibraries)
+require_list_is_empty(directDependencies)
+
+mdt_get_target_object_libraries_targets_direct_dependencies(directDependencies TARGET Mdt0::TargetWithObjectAsInterfaceLinkLibraries)
+require_list_is_of_length(directDependencies 1)
+require_list_contains(directDependencies Mdt0::Object)
+
+# Public API
+mdt_collect_shared_libraries_targets_target_depends_on(dependencies TARGET Mdt0::TargetWithObjectAsInterfaceLinkLibraries)
+require_list_is_empty(dependencies)
+
+################################################################################################
+# Test: target having a OBJECT target as LINK_LIBRARIES and INTERFACE_LINK_LIBRARIES dependency
+################################################################################################
+
+message(VERBOSE "TEST mdt_collect_shared_libraries_targets_target_depends_on(): target with a OBJECT target as LINK_LIBRARIES and INTERFACE_LINK_LIBRARIES")
+
+add_library(Mdt0::TargetWithObjectAsLibraries SHARED IMPORTED)
+set_target_properties(Mdt0::TargetWithObjectAsLibraries
+  PROPERTIES
+    LINK_LIBRARIES Mdt0::Object
+    INTERFACE_LINK_LIBRARIES Mdt0::Object
+)
+
+# Impl function
+mdt_get_target_shared_libraries_targets_direct_dependencies(directDependencies TARGET Mdt0::TargetWithObjectAsLibraries)
+require_list_is_empty(directDependencies)
+
+mdt_get_target_object_libraries_targets_direct_dependencies(directDependencies TARGET Mdt0::TargetWithObjectAsLibraries)
+require_list_is_of_length(directDependencies 1)
+require_list_contains(directDependencies Mdt0::Object)
+
+# Public API
+mdt_collect_shared_libraries_targets_target_depends_on(dependencies TARGET Mdt0::TargetWithObjectAsLibraries)
 require_list_is_empty(dependencies)
 
 ##################################################

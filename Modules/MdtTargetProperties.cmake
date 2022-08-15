@@ -210,6 +210,36 @@ function(mdt_target_is_shared_library out_var)
 endfunction()
 
 
+function(mdt_target_is_object_library out_var)
+
+  set(options)
+  set(oneValueArgs TARGET)
+  set(multiValueArgs)
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_TARGET)
+    message(FATAL_ERROR "mdt_target_is_object_library(): mandatory argument TARGET missing")
+  endif()
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_target_is_object_library(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_target_is_object_library(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(result)
+  get_target_property(targetType ${ARG_TARGET} TYPE)
+  if(${targetType} STREQUAL "OBJECT_LIBRARY")
+    set(result TRUE)
+  else()
+    set(result FALSE)
+  endif()
+
+  set(${out_var} ${result} PARENT_SCOPE)
+
+endfunction()
+
+
 function(mdt_set_target_install_rpath_property)
 
   set(options)

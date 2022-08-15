@@ -52,6 +52,54 @@ function(mdt_get_target_shared_libraries_targets_direct_dependencies outDirectDe
 endfunction()
 
 
+function(mdt_append_object_libraries_targets_to_list listVarName outList)
+
+  set(targets ${${outList}})
+  foreach(item IN LISTS ${listVarName})
+    if(TARGET "${item}")
+      mdt_target_is_object_library(itemIsObjectLibrary TARGET ${item})
+      if(itemIsObjectLibrary)
+        list(APPEND targets "${item}")
+      endif()
+    endif()
+  endforeach()
+  list(REMOVE_DUPLICATES targets)
+
+  set(${outList} ${targets} PARENT_SCOPE)
+
+endfunction()
+
+function(mdt_get_target_object_libraries_targets_direct_dependencies outDirectDependencies)
+
+  set(options "")
+  set(oneValueArgs TARGET)
+  set(multiValueArgs "")
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_get_target_object_libraries_targets_direct_dependencies(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_get_target_object_libraries_targets_direct_dependencies(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(directDependencies)
+
+  get_target_property(linkDependencies ${ARG_TARGET} LINK_LIBRARIES)
+  if(linkDependencies)
+    mdt_append_object_libraries_targets_to_list(linkDependencies directDependencies)
+  endif()
+
+  get_target_property(interfaceLinkDependencies ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
+  if(interfaceLinkDependencies)
+    mdt_append_object_libraries_targets_to_list(interfaceLinkDependencies directDependencies)
+  endif()
+
+  set(${outDirectDependencies} ${directDependencies} PARENT_SCOPE)
+
+endfunction()
+
+
 # Example of a dependency graph
 # The vertices are the targets
 # The edges are dependencies described in LINK_LIBRARIES and INTERFACE_LINK_LIBRARIES target properties
