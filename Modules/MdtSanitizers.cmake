@@ -58,8 +58,11 @@
 # Build with support for AddressSanitizer::
 #
 #   mdt_build_with_address_sanitizer(
-#     BUILD_TYPES type1 [[type2 ...]
+#     [BUILD_TYPES types...]
 #   )
+#
+# Will enable AddressSanitizer for common build types
+# (
 #
 # Note that this function will not check the availability of ASan,
 # but simply passes the appropriate flags.
@@ -341,8 +344,37 @@
 #
 # See also https://github.com/google/sanitizers/wiki/ThreadSanitizerFlags
 #
+# ---
+#
+#
+# Build configurations
+# ^^^^^^^^^^^^^^^^^^^^
+#
+# TODO: this should go to MdtBuildConfigurations
+#
+# Get a list of XXXX build configurations ....
+#
+# Should be a list with CMAKE_CONFIGURATION_TYPES
+# and CMAKE_BUILD_TYPE.
+# The list should be completed with standard build types ()
+# This then should handle the case of empty CMAKE_BUILD_TYPE.
+# Document the case of non standard build type
+# -> imagine the flow of config, f.ex. using cmake-gui
+#
+# .. command:: mdt_get_available_build_configurations
+#
+# Get a list of available build configurations (also named build types)::
+#
+#   mdt_get_available_build_configurations(out_var)
+#
+# For multi-configuration generators (like Visual Studio Generators, Ninja Multi-Config),
+# given `out_var` will contain the content of ``CMAKE_CONFIGURATION_TYPES``,
+# otherwise it will contain the value of ``CMAKE_BUILD_TYPE``.
+#
 
 include(MdtRuntimeEnvironment)
+
+# TODO: this should go to MdtBuildConfigurations
 
 
 function(mdt_get_cxx_or_c_compiler_id out_var)
