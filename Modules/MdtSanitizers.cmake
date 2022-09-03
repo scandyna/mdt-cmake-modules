@@ -61,8 +61,19 @@
 #     [BUILD_TYPES types...]
 #   )
 #
-# Will enable AddressSanitizer for common build types
-# (
+# Enables AddressSanitizer for available build configurations:
+#
+# .. code-block:: cmake
+#
+#   mdt_build_with_address_sanitizer()
+#
+# The list of available build configurations is got by :command:`mdt_get_available_build_configurations()`.
+# It is also possible to specify a custom set of build configurations:
+#
+# .. code-block:: cmake
+#
+#   mdt_build_with_address_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+#
 #
 # Note that this function will not check the availability of ASan,
 # but simply passes the appropriate flags.
@@ -163,8 +174,21 @@
 # Build with support for MemorySanitizer::
 #
 #   mdt_build_with_memory_sanitizer(
-#     BUILD_TYPES type1 [[type2 ...]
+#     [BUILD_TYPES types...]
 #   )
+#
+# Enables MemorySanitizer for available build configurations:
+#
+# .. code-block:: cmake
+#
+#   mdt_build_with_memory_sanitizer()
+#
+# The list of available build configurations is got by :command:`mdt_get_available_build_configurations()`.
+# It is also possible to specify a custom set of build configurations:
+#
+# .. code-block:: cmake
+#
+#   mdt_build_with_memory_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
 #
 # Note that this function will not check the availability of MSan,
 # but simply passes the appropriate flags.
@@ -220,8 +244,21 @@
 # Build with support for UndefinedBehaviorSanitizer::
 #
 #   mdt_build_with_undefined_sanitizer(
-#     BUILD_TYPES type1 [[type2 ...]
+#     [BUILD_TYPES types...]
 #   )
+#
+# Enables UndefinedBehaviorSanitizer for available build configurations:
+#
+# .. code-block:: cmake
+#
+#   mdt_build_with_undefined_sanitizer()
+#
+# The list of available build configurations is got by :command:`mdt_get_available_build_configurations()`.
+# It is also possible to specify a custom set of build configurations:
+#
+# .. code-block:: cmake
+#
+#   mdt_build_with_undefined_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
 #
 # Note that this function will not check the availability of UBSan,
 # but simply passes the appropriate flags.
@@ -250,7 +287,7 @@
 #
 # .. code-block:: cmake
 #
-#   mdt_set_test_asan_options(
+#   mdt_set_test_ubsan_options(
 #     NAME SomeTest
 #     OPTIONS suppressions=MyUBSan.supp log_path=ubsanlog.txt
 #   )
@@ -309,8 +346,21 @@
 # Build with support for ThreadSanitizer::
 #
 #   mdt_build_with_thread_sanitizer(
-#     BUILD_TYPES type1 [[type2 ...]
+#     [BUILD_TYPES types...]
 #   )
+#
+# Enables ThreadSanitizer for available build configurations:
+#
+# .. code-block:: cmake
+#
+#   mdt_build_with_thread_sanitizer()
+#
+# The list of available build configurations is got by :command:`mdt_get_available_build_configurations()`.
+# It is also possible to specify a custom set of build configurations:
+#
+# .. code-block:: cmake
+#
+#   mdt_build_with_thread_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
 #
 # Note that this function will not check the availability of TSan,
 # but simply passes the appropriate flags.
@@ -348,18 +398,10 @@
 #
 #
 # Build configurations
-# ^^^^^^^^^^^^^^^^^^^^
+# --------------------
 #
 # TODO: this should go to MdtBuildConfigurations
 #
-# Get a list of XXXX build configurations ....
-#
-# Should be a list with CMAKE_CONFIGURATION_TYPES
-# and CMAKE_BUILD_TYPE.
-# The list should be completed with standard build types ()
-# This then should handle the case of empty CMAKE_BUILD_TYPE.
-# Document the case of non standard build type
-# -> imagine the flow of config, f.ex. using cmake-gui
 #
 # .. command:: mdt_get_available_build_configurations
 #
@@ -375,7 +417,17 @@
 include(MdtRuntimeEnvironment)
 
 # TODO: this should go to MdtBuildConfigurations
+function(mdt_get_available_build_configurations out_var)
 
+  get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+  if(isMultiConfig)
+    set(${out_var} ${CMAKE_CONFIGURATION_TYPES} PARENT_SCOPE)
+  else()
+    set(${out_var} ${CMAKE_BUILD_TYPE} PARENT_SCOPE)
+  endif()
+
+endfunction()
 
 function(mdt_get_cxx_or_c_compiler_id out_var)
 
@@ -493,14 +545,19 @@ function(mdt_build_with_address_sanitizer)
   set(multiValueArgs BUILD_TYPES)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if(NOT ARG_BUILD_TYPES)
-    message(FATAL_ERROR "mdt_build_with_address_sanitizer(): BUILD_TYPES argument expects at least one build type")
-  endif()
   if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_build_with_address_sanitizer(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  foreach(buildType ${ARG_BUILD_TYPES})
+  set(buildTypes)
+  if(ARG_BUILD_TYPES)
+    set(buildTypes ${ARG_BUILD_TYPES})
+  else()
+    mdt_get_available_build_configurations(buildTypes)
+  endif()
+  message(VERBOSE "mdt_build_with_address_sanitizer(): build with ASan for ${buildTypes}")
+
+  foreach(buildType ${buildTypes})
     add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=address>)
     add_compile_options($<$<CONFIG:${buildType}>:-fno-omit-frame-pointer>)
     link_libraries($<$<CONFIG:${buildType}>:-fsanitize=address>)
@@ -600,14 +657,19 @@ function(mdt_build_with_memory_sanitizer)
   set(multiValueArgs BUILD_TYPES)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if(NOT ARG_BUILD_TYPES)
-    message(FATAL_ERROR "mdt_build_with_memory_sanitizer(): BUILD_TYPES argument expects at least one build type")
-  endif()
   if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_build_with_memory_sanitizer(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  foreach(buildType ${ARG_BUILD_TYPES})
+  set(buildTypes)
+  if(ARG_BUILD_TYPES)
+    set(buildTypes ${ARG_BUILD_TYPES})
+  else()
+    mdt_get_available_build_configurations(buildTypes)
+  endif()
+  message(VERBOSE "mdt_build_with_memory_sanitizer(): build with MSan for ${buildTypes}")
+
+  foreach(buildType ${buildTypes})
     add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=memory>)
     add_compile_options($<$<CONFIG:${buildType}>:-fPIE>)
     add_compile_options($<$<CONFIG:${buildType}>:-fpie>)
@@ -693,14 +755,19 @@ function(mdt_build_with_undefined_sanitizer)
   set(multiValueArgs BUILD_TYPES)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if(NOT ARG_BUILD_TYPES)
-    message(FATAL_ERROR "mdt_build_with_undefined_sanitizer(): BUILD_TYPES argument expects at least one build type")
-  endif()
   if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_build_with_undefined_sanitizer(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  foreach(buildType ${ARG_BUILD_TYPES})
+  set(buildTypes)
+  if(ARG_BUILD_TYPES)
+    set(buildTypes ${ARG_BUILD_TYPES})
+  else()
+    mdt_get_available_build_configurations(buildTypes)
+  endif()
+  message(VERBOSE "mdt_build_with_undefined_sanitizer(): build with UBSan for ${buildTypes}")
+
+  foreach(buildType ${buildTypes})
     add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=undefined>)
     # See https://stackoverflow.com/questions/55480333/clang-8-with-mingw-w64-how-do-i-use-address-ub-sanitizers
     if(WIN32)
@@ -819,14 +886,19 @@ function(mdt_build_with_thread_sanitizer)
   set(multiValueArgs BUILD_TYPES)
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if(NOT ARG_BUILD_TYPES)
-    message(FATAL_ERROR "mdt_build_with_thread_sanitizer(): BUILD_TYPES argument expects at least one build type")
-  endif()
   if(ARG_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "mdt_build_with_thread_sanitizer(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  foreach(buildType ${ARG_BUILD_TYPES})
+  set(buildTypes)
+  if(ARG_BUILD_TYPES)
+    set(buildTypes ${ARG_BUILD_TYPES})
+  else()
+    mdt_get_available_build_configurations(buildTypes)
+  endif()
+  message(VERBOSE "mdt_build_with_thread_sanitizer(): build with TSan for ${buildTypes}")
+
+  foreach(buildType ${buildTypes})
     add_compile_options($<$<CONFIG:${buildType}>:-fsanitize=thread>)
     link_libraries($<$<CONFIG:${buildType}>:-fsanitize=thread>)
   endforeach()

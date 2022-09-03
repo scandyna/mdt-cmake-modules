@@ -1,4 +1,11 @@
 
+# [0.19.0] - 2022-09-03
+
+## Changed
+
+- MdtSanitizers: by default, build for given sanitizer using the available build configurations: [GL issue 9](https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/9)
+
+
 # [0.18.3] - 2022-08-15
 
 ## Changed

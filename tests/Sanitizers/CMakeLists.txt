@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
 project(SanitizersTests VERSION 0.0.3)
 
@@ -14,6 +14,7 @@ option(TEST_MEMORY_SANITIZER "" OFF)
 option(TEST_UNDEFINED_SANITIZER "" OFF)
 option(TEST_THREAD_SANITIZER "" OFF)
 
+set(CMAKE_MESSAGE_LOG_LEVEL "DEBUG")
 
 mdt_add_address_sanitizer_option_if_available(SANITIZER_ENABLE_ADDRESS
   HELP_STRING "Enable address sanitizer for Debug and RelWithDebInfo build"
@@ -21,10 +22,12 @@ mdt_add_address_sanitizer_option_if_available(SANITIZER_ENABLE_ADDRESS
 )
 if(TEST_ADDRESS_SANITIZER)
   if(SANITIZER_ENABLE_ADDRESS)
-    message("TEST: build with AddressSanitizer")
+    message(STATUS "TEST: build with AddressSanitizer for Debug RelWithDebInfo")
     mdt_build_with_address_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+    message(STATUS "TEST: build with AddressSanitizer for available build types")
+    mdt_build_with_address_sanitizer()
   else()
-    message("TEST: AddressSanitizer not supported (will be ignored)")
+    message(STATUS "TEST: AddressSanitizer not supported (will be ignored)")
   endif()
 endif()
 
@@ -34,10 +37,12 @@ mdt_add_memory_sanitizer_option_if_available(SANITIZER_ENABLE_MEMORY
 )
 if(TEST_MEMORY_SANITIZER)
   if(SANITIZER_ENABLE_MEMORY)
-    message("TEST: build with MemorySanitizer")
+    message(STATUS "TEST: build with MemorySanitizer for Debug RelWithDebInfo")
     mdt_build_with_memory_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+    message(STATUS "TEST: build with MemorySanitizer for available build types")
+    mdt_build_with_memory_sanitizer()
   else()
-    message("TEST: MemorySanitizer not supported (will be ignored)")
+    message(STATUS "TEST: MemorySanitizer not supported (will be ignored)")
   endif()
 endif()
 
@@ -47,10 +52,12 @@ mdt_add_undefined_sanitizer_option_if_available(SANITIZER_ENABLE_UNDEFINED
 )
 if(TEST_UNDEFINED_SANITIZER)
   if(SANITIZER_ENABLE_UNDEFINED)
-    message("TEST: build with UndefinedBehaviorSanitizer (UBSan)")
+    message(STATUS "TEST: build with UndefinedBehaviorSanitizer (UBSan) for Debug RelWithDebInfo")
     mdt_build_with_undefined_sanitizer(BUILD_TYPES Debug RelWithDebInfo)
+    message(STATUS "TEST: build with UndefinedBehaviorSanitizer (UBSan) for available build types")
+    mdt_build_with_undefined_sanitizer()
   else()
-    message("TEST: UndefinedBehaviorSanitizer (UBSan) not supported (will be ignored)")
+    message(STATUS "TEST: UndefinedBehaviorSanitizer (UBSan) not supported (will be ignored)")
   endif()
 endif()
 
@@ -60,8 +67,10 @@ mdt_add_thread_sanitizer_option_if_available(SANITIZER_ENABLE_THREAD
 )
 if(TEST_THREAD_SANITIZER)
   if(SANITIZER_ENABLE_THREAD)
-    message("TEST: build with ThreadSanitizer")
+    message(STATUS "TEST: build with ThreadSanitizer for Debug")
     mdt_build_with_thread_sanitizer(BUILD_TYPES Debug)
+    message(STATUS "TEST: build with ThreadSanitizer for available build types")
+    mdt_build_with_thread_sanitizer()
   else()
     message("TEST: ThreadSanitizer not supported (will be ignored)")
   endif()
