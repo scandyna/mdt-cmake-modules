@@ -1,4 +1,12 @@
 
+# [0.19.1] - 2022-10-09
+
+## Changed
+
+- Generate package files in MdtCMakeFiles subdirectory: [GL issue 10](https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/10)
+- mdt_install_cmake_modules(): also consider MODULES_PATH_VARIABLE_NAME for conan package file: [GL issue 11](https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/11)
+
+
 # [0.19.0] - 2022-09-03
 
 ## Changed
