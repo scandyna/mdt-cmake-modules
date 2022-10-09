@@ -495,6 +495,7 @@ function(mdt_install_cmake_modules)
     set(findPathInListFileIn "${CMAKE_SOURCE_DIR}/Modules/MdtFindPathInList.cmake.in")
   endif()
 
+  message(DEBUG "mdt_install_cmake_modules() findPathInListFileIn: ${findPathInListFileIn}")
   set(MdtFindPathInList_FUNCTION_NAME ${packageName}_mdt_find_path_in_list)
   configure_file("${findPathInListFileIn}" ${findPathInListFileName} @ONLY)
 
@@ -566,6 +567,10 @@ function(mdt_install_cmake_modules)
     string(APPEND conanCmakePackageFileInContent "  list(APPEND CMAKE_MODULE_PATH \"@PACKAGE_modulesInstallDir@\")\n")
     string(APPEND conanCmakePackageFileInContent "endif()\n\n")
     string(APPEND conanCmakePackageFileInContent "unset(PATH_INDEX)\n")
+    if(ARG_MODULES_PATH_VARIABLE_NAME)
+      string(APPEND conanCmakePackageFileInContent "\n# Make path to the modules available to the users of this package\n")
+      string(APPEND conanCmakePackageFileInContent "set(${ARG_MODULES_PATH_VARIABLE_NAME} \"@PACKAGE_modulesInstallDir@\")\n")
+    endif()
 
     string(TOLOWER "${packageName}" packageNameLowerCase)
     set(conanCmakePackageFileIn "${CMAKE_CURRENT_BINARY_DIR}/${packageNameLowerCase}-conan-cmake-modules.cmake.in")

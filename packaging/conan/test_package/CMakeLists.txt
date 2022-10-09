@@ -18,6 +18,12 @@ find_package(MdtCMakeModules REQUIRED NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PACKAG
 message(DEBUG "MdtCMakeModulesTest: CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 message(DEBUG "MdtCMakeModulesTest: CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
+# https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/11
+message(DEBUG "MdtCMakeModulesTest: MDT_CMAKE_MODULES_PATH: ${MDT_CMAKE_MODULES_PATH}")
+if(NOT MDT_CMAKE_MODULES_PATH)
+  message(FATAL_ERROR "TEST package failed: MDT_CMAKE_MODULES_PATH not set after find_package(MdtCMakeModules)")
+endif()
+
 include(AddQt5ToCMakePrefixPath)
 include(MdtBuildOptionsUtils)
 include(MdtAddLibrary)
