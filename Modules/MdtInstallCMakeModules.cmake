@@ -512,8 +512,8 @@ function(mdt_install_cmake_modules)
     string(APPEND cmakePackageFileInContent "set(${ARG_MODULES_PATH_VARIABLE_NAME} \"@PACKAGE_modulesInstallDir@\")\n")
   endif()
 
-  set(cmakePackageFileIn "${CMAKE_CURRENT_BINARY_DIR}/${packageName}.cmake.in")
-  set(cmakePackageFile "${CMAKE_CURRENT_BINARY_DIR}/${packageName}.cmake")
+  set(cmakePackageFileIn "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeFiles/${packageName}.cmake.in")
+  set(cmakePackageFile "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeFiles/${packageName}.cmake")
 
   file(WRITE "${cmakePackageFileIn}" "${cmakePackageFileInContent}")
 
@@ -538,7 +538,7 @@ function(mdt_install_cmake_modules)
 
     set(cmakePackageConfigFileContent "include(\"\${CMAKE_CURRENT_LIST_DIR}/${packageName}.cmake\")\n")
 
-    set(cmakePackageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/${packageName}Config.cmake")
+    set(cmakePackageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeFiles/${packageName}Config.cmake")
 
     file(WRITE "${cmakePackageConfigFile}" "${cmakePackageConfigFileContent}")
 
@@ -573,8 +573,8 @@ function(mdt_install_cmake_modules)
     endif()
 
     string(TOLOWER "${packageName}" packageNameLowerCase)
-    set(conanCmakePackageFileIn "${CMAKE_CURRENT_BINARY_DIR}/${packageNameLowerCase}-conan-cmake-modules.cmake.in")
-    set(conanCmakePackageFile "${CMAKE_CURRENT_BINARY_DIR}/${packageNameLowerCase}-conan-cmake-modules.cmake")
+    set(conanCmakePackageFileIn "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeFiles/${packageNameLowerCase}-conan-cmake-modules.cmake.in")
+    set(conanCmakePackageFile "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeFiles/${packageNameLowerCase}-conan-cmake-modules.cmake")
 
     file(WRITE "${conanCmakePackageFileIn}" "${conanCmakePackageFileInContent}")
 
