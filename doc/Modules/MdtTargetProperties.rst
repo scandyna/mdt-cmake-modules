@@ -133,6 +133,95 @@ it would depend on :variable:`BUILD_SHARED_LIBS`.
 
 Internally, the ``TYPE`` property of the target is used to check if it is a shared library or not.
 
+Get the file location of a target
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. command:: mdt_target_file_genex
+
+Get a generator expression to get the full path to `target`'s binary file::
+
+  mdt_target_file_genex(<out_var> TARGET <target>)
+
+A good way to get the full path to a target that is a binary
+is to use the $<TARGET_FILE:tgt> generator expression.
+
+As example, assume that we have to inspect a shared library in a test:
+
+.. code-block:: cmake
+
+  target_compile_definitions(someTest PRIVATE QT5_CORE_FILE_PATH="$<TARGET_FILE:Qt5::Core>")
+
+Above example works, unless we use Conan with the
+`CMakeDeps <https://docs.conan.io/en/latest/reference/conanfile/tools/cmake/cmakedeps.html>`_
+generator.
+
+This command will try to work around the Conan issue:
+
+.. code-block:: cmake
+
+  mdt_target_file_genex(qt5CoreFilePathGenex TARGET Qt5::Core)
+  target_compile_definitions(someTest PRIVATE QT5_CORE_FILE_PATH="${qt5CoreFilePathGenex}")
+
+Technical
+"""""""""
+
+When using some modern Conan CMake generators, like
+`CMakeDeps <https://docs.conan.io/en/latest/reference/conanfile/tools/cmake/cmakedeps.html>`_ ,
+the generated package config files do not create the proper IMPORTED targets.
+
+As good example, the ``Qt5CoreConfig.cmake`` package config file shipped by Qt does this:
+
+.. code-block:: cmake
+
+  add_library(Qt5::Core SHARED IMPORTED)
+  # Then attach every required properties to this target
+
+On the other hand, Conan's CMakeDeps generator does something else.
+
+Example of ``Qt5Targets.cmake``, that takes component names from ``Qt5-*-data.cmake``,
+once resolved:
+
+.. code-block:: cmake
+
+  add_library(Qt5::Core INTERFACE IMPORTED)
+
+In, for example, ``Qt5-Target-debug.cmake`` (which is included by ``Qt5Targets.cmake``):
+
+.. code-block:: cmake
+
+  set_property(TARGET Qt5::Core
+               PROPERTY INTERFACE_LINK_LIBRARIES
+               $<$<CONFIG:Debug>:${qt_Qt5_Core_OBJECTS_DEBUG}>
+               $<$<CONFIG:Debug>:${qt_Qt5_Core_LIBRARIES_TARGETS}>
+               APPEND)
+
+Above will be resolved to something like:
+
+.. code-block:: cmake
+
+  set_property(TARGET Qt5::Core
+               PROPERTY INTERFACE_LINK_LIBRARIES
+               $<$<CONFIG:Debug>:>
+               $<$<CONFIG:Debug>:CONAN_LIB::qt_Qt5_Core_Qt5Core_DEBUG>
+               # Could also have the same for each config, like Release, etc...
+               # On some generators, like MSVC, othe entries also here
+               APPEND)
+
+Here, ``CONAN_LIB::qt_Qt5_Core_Qt5Core_DEBUG`` is the "real" target, for the Debug config, with properties
+like its import location, dependencies, etc...
+
+We should end up with a generator expression like:
+
+.. code-block:: cmake
+
+  set(debugTargetGenex   $<$<CONFIG:Debug>:CONAN_LIB::qt_Qt5_Core_Qt5Core_DEBUG>)
+  set(releaseTargetGenex $<$<CONFIG:Release>:CONAN_LIB::qt_Qt5_Core_Qt5Core_RELEASE>)
+  set(targetGenex ${debugTargetGenex}${releaseTargetGenex})
+  set(targetFileGenex $<TARGET_FILE:${targetGenex}>)
+
+Here are some issues about this problem:
+ - `Why does the CMake generator define INTERFACE IMPORTED targets rather than only IMPORTED? #8448 <https://github.com/conan-io/conan/issues/8448>`_
+ - `how to enable TARGET_FILE cmake generator expression #13058 <https://github.com/conan-io/conan-center-index/issues/13058>`_
 
 Set RPATH properties
 ^^^^^^^^^^^^^^^^^^^^

@@ -932,6 +932,58 @@ if(BUILD_REAL_INSTALL_TESTS)
 
 endif()
 
+################################################################################
+# GL issue 12
+# Get the path to a target file that also works with Conan CMakeDeps generator
+# https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/12
+#
+# Here we check with classic install, that works with $<TARGET_FILE:Mdt0::LibA>
+################################################################################
+
+add_test(NAME GlIssue12_TargetFilePath_libA_Configure
+  COMMAND "${CMAKE_COMMAND}"
+    -S "${CMAKE_CURRENT_SOURCE_DIR}/GlIssue12_TargetFilePath/libA"
+    -B "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue12_TargetFilePath/libA"
+    -G "${CMAKE_GENERATOR}"
+    -A "${CMAKE_GENERATOR_PLATFORM}"
+    -T "${CMAKE_GENERATOR_TOOLSET}"
+    -DCMAKE_BUILD_TYPE=$<CONFIG>
+    -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG
+    "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
+    "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/GlIssue12_TargetFilePath/libA"
+)
+set_tests_properties(GlIssue12_TargetFilePath_libA_Configure PROPERTIES DEPENDS Install_MdtCMakeModules)
+
+add_test(NAME GlIssue12_TargetFilePath_libA_Build
+  COMMAND "${CMAKE_COMMAND}"
+    --build "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue12_TargetFilePath/libA"
+    --config $<CONFIG>
+)
+set_tests_properties(GlIssue12_TargetFilePath_libA_Build PROPERTIES DEPENDS GlIssue12_TargetFilePath_libA_Configure)
+
+add_test(NAME GlIssue12_TargetFilePath_libA_Install
+  COMMAND "${CMAKE_COMMAND}"
+    --install "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue12_TargetFilePath/libA"
+    --config $<CONFIG>
+)
+set_tests_properties(GlIssue12_TargetFilePath_libA_Install PROPERTIES DEPENDS GlIssue12_TargetFilePath_libA_Build)
+
+
+add_test(NAME GlIssue12_TargetFilePath_app_BuildAndRun
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_CURRENT_SOURCE_DIR}/GlIssue12_TargetFilePath/app" "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue12_TargetFilePath/app"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules;${CMAKE_CURRENT_BINARY_DIR}/GlIssue12_TargetFilePath/libA"
+    --test-command "${CMAKE_CTEST_COMMAND}" -V
+)
+set_tests_properties(GlIssue12_TargetFilePath_app_BuildAndRun PROPERTIES DEPENDS GlIssue12_TargetFilePath_libA_Install)
+
+
 ####################################
 # Test installing with Conan
 ####################################
@@ -1048,6 +1100,48 @@ if(BUILD_CONAN_TESTS)
   mdt_append_test_environment_variables_string(Conan_BuildAndRun_TableEditor_CMakeDeps_GlIssue07
     "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER}"
   )
+
+  ###################################################################################
+  # GL issue 12
+  # Get the path to a target file that also works with Conan CMakeDeps generator
+  # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/12
+  #
+  # Here we install libA with conan
+  # Then, app, wich uses CMakeDeps generator, will use Conan generated package files
+  ###################################################################################
+
+  add_test(NAME GlIssue12_TargetFilePath_libA_Conan_Create
+    COMMAND "${CONAN_COMMAND}"
+      create "${CMAKE_CURRENT_SOURCE_DIR}/GlIssue12_TargetFilePath/libA" "0.0.0@MdtCMakeModules_tests/testing"
+      ${conanSettings}
+  )
+  set_tests_properties(GlIssue12_TargetFilePath_libA_Conan_Create PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
+  mdt_append_test_environment_variables_string(GlIssue12_TargetFilePath_libA_Conan_Create
+    "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER}"
+  )
+
+  add_test(NAME GlIssue12_TargetFilePath_app_Conan_Install
+    COMMAND "${CONAN_COMMAND}"
+      install "${CMAKE_CURRENT_SOURCE_DIR}/GlIssue12_TargetFilePath/app"
+      --install-folder "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue12_TargetFilePath/app_conan"
+      --options *:shared=True
+      ${conanSettings}
+  )
+  set_tests_properties(GlIssue12_TargetFilePath_app_Conan_Install PROPERTIES DEPENDS GlIssue12_TargetFilePath_libA_Conan_Create)
+
+  add_test(NAME GlIssue12_TargetFilePath_app_Conan_BuildAndRun
+    COMMAND "${CMAKE_CTEST_COMMAND}"
+      --build-and-test "${CMAKE_CURRENT_SOURCE_DIR}/GlIssue12_TargetFilePath/app" "${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue12_TargetFilePath/app_conan"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+      --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+      --build-config $<CONFIG>
+      --build-options
+        "-DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue12_TargetFilePath/app_conan/conan_toolchain.cmake"
+      --test-command "${CMAKE_CTEST_COMMAND}" -V
+  )
+  set_tests_properties(GlIssue12_TargetFilePath_app_Conan_BuildAndRun PROPERTIES DEPENDS GlIssue12_TargetFilePath_app_Conan_Install)
 
   # Remove installed test packages
 

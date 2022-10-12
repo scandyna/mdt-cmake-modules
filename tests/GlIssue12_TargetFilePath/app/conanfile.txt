@@ -1,0 +1,7 @@
+[requires]
+MdtCMakeModules/0.2@MdtCMakeModules_tests/testing
+GlIssue12_TargetFilePath_libA/0.0.0@MdtCMakeModules_tests/testing
+
+[generators]
+CMakeToolchain
+CMakeDeps
