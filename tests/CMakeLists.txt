@@ -1142,6 +1142,10 @@ if(BUILD_CONAN_TESTS)
       --test-command "${CMAKE_CTEST_COMMAND}" -V
   )
   set_tests_properties(GlIssue12_TargetFilePath_app_Conan_BuildAndRun PROPERTIES DEPENDS GlIssue12_TargetFilePath_app_Conan_Install)
+  # See remarks for Conan_Create_MdtCMakeModules
+  mdt_append_test_environment_variables_string(GlIssue12_TargetFilePath_app_Conan_BuildAndRun
+    "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER}"
+  )
 
   # Remove installed test packages
 
