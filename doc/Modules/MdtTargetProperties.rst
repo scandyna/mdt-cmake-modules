@@ -138,6 +138,10 @@ Get the file location of a target
 
 .. command:: mdt_target_file_genex
 
+Please note that this command is not reliable.
+The workaround it tries to solve seems to be tricky to be done correctly.
+For more informations, see this issue: https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/12
+
 Get a generator expression to get the full path to `target`'s binary file::
 
   mdt_target_file_genex(<out_var> TARGET <target>)

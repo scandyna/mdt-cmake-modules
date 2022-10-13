@@ -1141,7 +1141,11 @@ if(BUILD_CONAN_TESTS)
         "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue12_TargetFilePath/app_conan/conan_toolchain.cmake"
       --test-command "${CMAKE_CTEST_COMMAND}" -V
   )
-  set_tests_properties(GlIssue12_TargetFilePath_app_Conan_BuildAndRun PROPERTIES DEPENDS GlIssue12_TargetFilePath_app_Conan_Install)
+  set_tests_properties(GlIssue12_TargetFilePath_app_Conan_BuildAndRun
+    PROPERTIES
+      DEPENDS GlIssue12_TargetFilePath_app_Conan_Install
+      DISABLED True
+  )
   # See remarks for Conan_Create_MdtCMakeModules
   mdt_append_test_environment_variables_string(GlIssue12_TargetFilePath_app_Conan_BuildAndRun
     "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER}"

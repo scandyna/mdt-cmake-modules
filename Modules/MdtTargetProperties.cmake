@@ -105,6 +105,8 @@ function(mdt_target_file_genex out_var)
     message(FATAL_ERROR "mdt_target_file_genex(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
+  message(WARNING "mdt_target_file_genex() is not reliable and should not be used. For more details, see https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/12")
+
   set(targetFileGenex)
 
   set(runtimeTargetTypes STATIC_LIBRARY MODULE_LIBRARY SHARED_LIBRARY OBJECT_LIBRARY EXECUTABLE)
