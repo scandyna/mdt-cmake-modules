@@ -728,7 +728,7 @@ function(mdt_install_namespace_package_config_file)
   string(APPEND packageConfigFileContent "  endif()\n")
   string(APPEND packageConfigFileContent "endforeach()\n")
 
-  set(packageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_INSTALL_NAMESPACE}Config.cmake")
+  set(packageConfigFile "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeFiles/${ARG_INSTALL_NAMESPACE}Config.cmake")
   file(WRITE "${packageConfigFile}" "${packageConfigFileContent}")
 
   set(componentArgument)
@@ -768,7 +768,7 @@ function(mdt_install_namespace_package_config_version_file)
     message(FATAL_ERROR "mdt_install_namespace_package_config_version_file(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
   endif()
 
-  set(configVersionFile "${CMAKE_CURRENT_BINARY_DIR}/${ARG_INSTALL_NAMESPACE}ConfigVersion.cmake")
+  set(configVersionFile "${CMAKE_CURRENT_BINARY_DIR}/MdtCMakeFiles/${ARG_INSTALL_NAMESPACE}ConfigVersion.cmake")
   write_basic_package_version_file("${configVersionFile}"
     VERSION ${ARG_VERSION}
     COMPATIBILITY ${ARG_COMPATIBILITY}
