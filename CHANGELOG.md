@@ -1,4 +1,12 @@
 
+
+# [0.19.2] - 2022-10-13
+
+## Changed
+
+- Generate package files in MdtCMakeFiles subdirectory: [GL issue 10](https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/10)
+
+
 # [0.19.1] - 2022-10-09
 
 ## Changed
