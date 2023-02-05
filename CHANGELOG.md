@@ -1,4 +1,10 @@
 
+# [0.19.3] - 2023-02-05
+
+## Changed
+
+- FindSphinx also look in ~/.local/bin [GL issue 14](https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/14)
+
 
 # [0.19.2] - 2022-10-13
 
