@@ -56,6 +56,7 @@ find_program(Sphinx_BUILD_EXECUTABLE
         sphinx-build
         sphinx-build2
         sphinx-build3
+    HINTS "~/.local/bin/"
     DOC "Sphinx Documentation Builder (http://sphinx-doc.org/)"
 )
 
