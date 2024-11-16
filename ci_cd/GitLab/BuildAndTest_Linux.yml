@@ -1,0 +1,53 @@
+
+include:
+  - local: 'ci_cd/GitLab/BuildAndTest_Templates.yml'
+
+
+#######################################################
+# Tests without dependencies
+# We don't use Conan generated config files here,
+# so we can keep track on how it works without them
+#######################################################
+
+Build_Linux_Gcc8_x86_64_Make_Debug:
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+  variables:
+    TOOLCHAIN_FILE: "../toolchains/linux_gcc8_make.cmake"
+    BUILD_TYPE: Debug
+  extends: .build_linux
+
+Test_Linux_Gcc8_x86_64_Make_Debug:
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+  dependencies:
+    - Build_Linux_Gcc8_x86_64_Make_Debug
+  needs: ["Build_Linux_Gcc8_x86_64_Make_Debug"]
+  extends: .test_linux
+
+#######################################################
+# Tests including those depending on Qt
+# We try to not build Docker images with Qt anymore,
+# so try to use Conan here
+#######################################################
+
+.buildAndTest_Linux_gcc8_x86_64_WithQt:
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+  variables:
+    CONAN_PROFILE_BUILD: linux_gcc8_x86_64
+    CONAN_PROFILE_HOST: linux_ubuntu-18.04_gcc8_x86_64_qt_widgets_modules_boost
+
+#Build_Linux_Gcc8_x86_64_WithQt_Debug:
+  #variables:
+    #BUILD_TYPE: Debug
+  #extends:
+    #- .buildAndTest_Linux_gcc8_x86_64_WithQt
+    #- .build_linux_WithQt
+
+#Test_Linux_Gcc8_x86_64_WithQt_Debug:
+  #image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+  #dependencies:
+    #- Build_Linux_Gcc8_x86_64_WithQt_Debug
+  #needs: ["Build_Linux_Gcc8_x86_64_WithQt_Debug"]
+  #extends:
+    #- .buildAndTest_Linux_gcc8_x86_64_WithQt
+    #- .test_linux_WithQt
+

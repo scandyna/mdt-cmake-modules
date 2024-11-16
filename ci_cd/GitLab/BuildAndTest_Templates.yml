@@ -1,0 +1,142 @@
+
+.windows_runner:
+  tags:
+    - docker-windows
+
+.setup_conan:
+  script:
+    - conan remote remove conancenter
+    - conan remote add scandyna https://gitlab.com/api/v4/projects/25668674/packages/conan
+    - conan config install --source-folder conan https://gitlab.com/api/v4/projects/16304913/packages/generic/conan1_config/0.1.6/conan_config.zip
+
+.conan_install:
+  script:
+    - conan install
+      --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
+      --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
+      --options:host shared=$SHARED_LIBS
+      ..
+
+.cmake_configure:
+  script:
+    # The toolchain file expression has to be quoted when using Powershell
+    # See https://gitlab.kitware.com/cmake/cmake/-/issues/23109
+    - cmake "-DCMAKE_TOOLCHAIN_FILE=toolchains/$TOOLCHAIN_FILE"
+      "-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+      -DBUILD_TESTS=ON
+      -DBUILD_CONAN_TESTS=ON
+      -DBUILD_QT_TESTS=$BUILD_QT_TESTS
+      -DBUILD_REAL_INSTALL_TESTS=ON
+      -DWARNING_AS_ERROR=ON
+      -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG
+      $CMAKE_EXTRA_ARGUMENTS
+      ..
+
+#######################################################
+# Tests without dependencies
+# We don't use Conan generated config files here,
+# so we can keep track on how it works without them
+#######################################################
+
+.build_base:
+  stage: build
+  variables:
+    BUILD_QT_TESTS: OFF
+  script:
+    - mkdir build
+    - cd build
+    - !reference [.cmake_configure, script]
+    - cmake --build . --config $BUILD_TYPE -j2
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
+
+.build_linux:
+  extends:
+    - .build_base
+
+.build_windows:
+  extends:
+    - .build_base
+    - .windows_runner
+
+
+.test_base:
+  stage: test
+  script:
+    - cd build
+    - ctest --output-on-failure --verbose -C "$BUILD_TYPE"
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - build
+
+.test_linux:
+  extends:
+    - .test_base
+  before_script:
+    - !reference [.setup_conan, script]
+    - export DISPLAY=":99"
+    - /etc/init.d/xdummy-server start
+
+.test_windows:
+  extends:
+    - .test_base
+    - .windows_runner
+  before_script:
+    - !reference [.setup_conan, script]
+
+#######################################################
+# Tests including those depending on Qt
+# We try to not build Docker images with Qt anymore,
+# so try to use Conan here
+#######################################################
+
+.build_linux_WithQt:
+  variables:
+    TOOLCHAIN_FILE: "conan_toolchain.cmake"
+    BUILD_QT_TESTS: ON
+  before_script:
+    - !reference [.setup_conan, script]
+  script:
+    - mkdir build
+    - cd build
+    - !reference [.conan_install, script]
+    - source conanbuild.sh || true  # Workaround to https://gitlab.com/gitlab-org/ci-cd/pipeline-authoring-stack-rank/-/issues/1
+    - !reference [.cmake_configure, script]
+    - cmake --build . --config $BUILD_TYPE -j2
+    - source deactivate_conanbuild.sh
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - build
+
+.test_base_WithQt:
+  stage: test
+  script:
+    - cd build
+    - !reference [.conan_install, script]
+    - ctest --output-on-failure --verbose -C "$BUILD_TYPE"
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - build
+
+.test_linux_WithQt:
+  extends:
+    - .test_base
+  before_script:
+    - !reference [.setup_conan, script]
+    - export DISPLAY=":99"
+    - /etc/init.d/xdummy-server start
+
+.test_windows_WithQt:
+  extends:
+    - .test_base
+    - .windows_runner
+  before_script:
+    - !reference [.setup_conan, script]
