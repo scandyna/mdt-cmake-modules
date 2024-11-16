@@ -231,9 +231,11 @@ add_test(NAME BuildAndRun_HelloTSan
     --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
     --build-config $<CONFIG>
     --build-options
+      "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
       "-DTEST_THREAD_SANITIZER=ON"
       "-DCMAKE_BUILD_TYPE=Debug"
+      "-DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 set_tests_properties(BuildAndRun_HelloTSan PROPERTIES DEPENDS Install_MdtCMakeModules)
