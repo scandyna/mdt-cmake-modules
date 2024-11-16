@@ -14,7 +14,7 @@ find_package(MdtCMakeModules REQUIRED)
 ```
 
 This will also add the path to the installed MdtCMakeModules
-to ``CMAKE_MODULE_PATH`` (if not allready exists).
+to ``CMAKE_MODULE_PATH`` (if not already exists).
 
 Then the required modules can be used:
 ```cmake
