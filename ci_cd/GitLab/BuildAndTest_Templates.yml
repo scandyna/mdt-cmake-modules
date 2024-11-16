@@ -21,7 +21,7 @@
   script:
     # The toolchain file expression has to be quoted when using Powershell
     # See https://gitlab.kitware.com/cmake/cmake/-/issues/23109
-    - cmake "-DCMAKE_TOOLCHAIN_FILE=toolchains/$TOOLCHAIN_FILE"
+    - cmake "-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}"
       "-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
       -DBUILD_TESTS=ON
       -DBUILD_CONAN_TESTS=ON
