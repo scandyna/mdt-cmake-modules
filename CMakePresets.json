@@ -24,11 +24,11 @@
       }
     },
     {
-      "name": "dev_unix_makefiles",
+      "name": "dev_linux_gcc8_makefiles",
       "inherits": "dev_base",
       "displayName": "Dev Unix Makefiles",
       "description": "Developper build using Unix Makefiles",
-      "generator": "Unix Makefiles"
+      "toolchainFile": "${sourceDir}/toolchains/linux_gcc8_make.cmake"
     },
     {
       "name": "dev_unix_makefiles_clang_6_0_x86_64_libcpp",
