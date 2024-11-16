@@ -80,6 +80,7 @@
     - !reference [.setup_conan, script]
     - export DISPLAY=":99"
     - /etc/init.d/xdummy-server start
+    - sysctl vm.mmap_rnd_bits # See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/19
 
 .test_windows:
   extends:
