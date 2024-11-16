@@ -235,7 +235,6 @@ add_test(NAME BuildAndRun_HelloTSan
       "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/myHome/opt/MdtCMakeModules"
       "-DTEST_THREAD_SANITIZER=ON"
       "-DCMAKE_BUILD_TYPE=Debug"
-      "-DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"
     --test-command "${CMAKE_CTEST_COMMAND}"
 )
 set_tests_properties(BuildAndRun_HelloTSan PROPERTIES DEPENDS Install_MdtCMakeModules)
