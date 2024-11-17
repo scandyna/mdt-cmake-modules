@@ -62,7 +62,8 @@ Build_Linux_Gcc8_x86_64_WithQt_Debug:
     - .build_linux_WithQt
 
 Test_Linux_Gcc8_x86_64_WithQt_Debug:
-  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+  variables:
+    BUILD_TYPE: Debug
   dependencies:
     - Build_Linux_Gcc8_x86_64_WithQt_Debug
   needs: ["Build_Linux_Gcc8_x86_64_WithQt_Debug"]
