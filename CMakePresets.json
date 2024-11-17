@@ -31,12 +31,11 @@
       "toolchainFile": "${sourceDir}/toolchains/linux_gcc8_make.cmake"
     },
     {
-      "name": "dev_unix_makefiles_clang_6_0_x86_64_libcpp",
+      "name": "dev_linux_clang10_libcxx_makefiles",
       "inherits": "dev_base",
-      "displayName": "Dev Unix Makefiles Clang 6.0 libc++",
-      "description": "Developper build using Unix Makefiles with Clang 6.0 x86_64 libc++",
-      "generator": "Unix Makefiles",
-      "toolchainFile": "${sourceDir}/linux_clang6.0_x86_64_libc++_toolchain.cmake"
+      "displayName": "Dev Unix Makefiles Clang 10 libc++",
+      "description": "Developper build using Unix Makefiles with Clang 10 x86_64 libc++",
+      "toolchainFile": "${sourceDir}/toolchains/linux_clang10_x86_64_libcxx_make.cmake"
     },
     {
       "name": "dev_mingw_makefiles",
