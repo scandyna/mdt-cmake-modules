@@ -122,6 +122,7 @@
   stage: test
   script:
     - cd build
+    - !reference [.setup_conan, script]
     - !reference [.conan_install, script]
     - ctest --output-on-failure --verbose -C "$BUILD_TYPE"
   artifacts:
@@ -132,16 +133,13 @@
 
 .test_linux_WithQt:
   extends:
-    - .test_base
+    - .test_base_WithQt
   before_script:
-    - !reference [.setup_conan, script]
     - export DISPLAY=":99"
     - /etc/init.d/xdummy-server start
     - sysctl vm.mmap_rnd_bits=28 # See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/19
 
 .test_windows_WithQt:
   extends:
-    - .test_base
+    - .test_base_WithQt
     - .windows_runner
-  before_script:
-    - !reference [.setup_conan, script]
