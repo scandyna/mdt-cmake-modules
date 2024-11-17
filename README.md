@@ -30,7 +30,7 @@ If you use [Conan](https://conan.io/),
 add MdtCMakeModules as requirement:
 ```conan
 [tool_requires]
-MdtCMakeModules/x.y.z@scandyna/testing
+mdtcmakemodules/x.y.z@scandyna/testing
 
 [generators]
 CMakeDeps
