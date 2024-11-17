@@ -98,6 +98,7 @@
 #######################################################
 
 .build_linux_WithQt:
+  stage: build
   variables:
     # Give the full path to the toolchain file because it will be passed to tests
     TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/build/conan_toolchain.cmake"
