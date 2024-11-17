@@ -35,7 +35,9 @@
 #######################################################
 # Tests without dependencies
 # We don't use Conan generated config files here,
-# so we can keep track on how it works without them
+# so we can keep track on how it works without them.
+# Also, some tests like MdtRuntimeEnvironment static tests
+# can only be enabled in this mode.
 #######################################################
 
 .build_base:
@@ -135,6 +137,7 @@
     - !reference [.setup_conan, script]
     - export DISPLAY=":99"
     - /etc/init.d/xdummy-server start
+    - sysctl vm.mmap_rnd_bits=28 # See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/19
 
 .test_windows_WithQt:
   extends:

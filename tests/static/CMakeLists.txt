@@ -8,4 +8,12 @@ add_subdirectory(MdtTargetDependenciesHelpers)
 add_subdirectory(MdtIniFileReader)
 add_subdirectory(MdtConanBuildInfoReader)
 add_subdirectory(MdtTargetProperties)
-add_subdirectory(MdtRuntimeEnvironment)
+
+# If LD_LIBRARY_PATH / PATH environment variable are set,
+# those tests will fail.
+# This is for example the case if the project is generated using Conan,
+# because mdt_get_shared_libraries_directories_from_conanbuildinfo_if_exists() will be called.
+# If not called, dependencies like Qt will not be available.
+if(BUILD_MDT_RUNTIME_ENVIRONMENT_STATIC_TESTS)
+  add_subdirectory(MdtRuntimeEnvironment)
+endif()

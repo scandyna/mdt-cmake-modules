@@ -6,7 +6,9 @@ include:
 #######################################################
 # Tests without dependencies
 # We don't use Conan generated config files here,
-# so we can keep track on how it works without them
+# so we can keep track on how it works without them.
+# Also, some tests like MdtRuntimeEnvironment static tests
+# can only be enabled in this mode.
 #######################################################
 
 Build_Linux_Gcc8_x86_64_Make_Debug:
@@ -52,19 +54,19 @@ Test_Linux_Clang10_x86_64_libcxx_Make_Debug:
     CONAN_PROFILE_BUILD: linux_gcc8_x86_64
     CONAN_PROFILE_HOST: linux_ubuntu-18.04_gcc8_x86_64_qt_widgets_modules_boost
 
-#Build_Linux_Gcc8_x86_64_WithQt_Debug:
-  #variables:
-    #BUILD_TYPE: Debug
-  #extends:
-    #- .buildAndTest_Linux_gcc8_x86_64_WithQt
-    #- .build_linux_WithQt
+Build_Linux_Gcc8_x86_64_WithQt_Debug:
+  variables:
+    BUILD_TYPE: Debug
+  extends:
+    - .buildAndTest_Linux_gcc8_x86_64_WithQt
+    - .build_linux_WithQt
 
-#Test_Linux_Gcc8_x86_64_WithQt_Debug:
-  #image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
-  #dependencies:
-    #- Build_Linux_Gcc8_x86_64_WithQt_Debug
-  #needs: ["Build_Linux_Gcc8_x86_64_WithQt_Debug"]
-  #extends:
-    #- .buildAndTest_Linux_gcc8_x86_64_WithQt
-    #- .test_linux_WithQt
+Test_Linux_Gcc8_x86_64_WithQt_Debug:
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+  dependencies:
+    - Build_Linux_Gcc8_x86_64_WithQt_Debug
+  needs: ["Build_Linux_Gcc8_x86_64_WithQt_Debug"]
+  extends:
+    - .buildAndTest_Linux_gcc8_x86_64_WithQt
+    - .test_linux_WithQt
 
