@@ -1,0 +1,37 @@
+################################
+## API doc
+################################
+
+.BuildDoc_rules: &BuildDoc_rules
+  - changes:
+    - ci_cd/GitLab/*
+    - doc/**/*
+    - Modules/**/*
+    - toolchains/**/*
+    - .gitlab-ci.yml
+    - CMakeLists.txt
+    - conanfile.py
+    when: on_success
+
+
+include:
+  - component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/BuildApiDoc@0.0.14
+    inputs:
+      rules: *BuildDoc_rules
+      cmake_doc_option_string: '-DBUILD_DOCS=ON'
+      build_command: 'make documentation'
+
+
+pages:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: on_success
+    - when: never
+  dependencies:
+    - BuildApiDoc
+  script:
+    - mv build/doc/html public
+  artifacts:
+    paths:
+      - public
