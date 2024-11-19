@@ -1,4 +1,17 @@
 
+.BuildAndTest_rules: &BuildAndTest_rules
+  - changes:
+    - ci_cd/GitLab/*
+    - doc/**/*
+    - Modules/**/*
+    - tests/**/*
+    - toolchains/**/*
+    - .gitlab-ci.yml
+    - CMakeLists.txt
+    - conanfile.py
+    when: on_success
+
+
 .windows_runner:
   tags:
     - docker-windows
@@ -41,6 +54,7 @@
 
 .build_base:
   stage: build
+  rules: *BuildAndTest_rules
   variables:
     BUILD_QT_TESTS: OFF
   script:
@@ -65,6 +79,7 @@
 
 .test_base:
   stage: test
+  rules: *BuildAndTest_rules
   script:
     - cd build
     - ctest --output-on-failure --verbose -C "$BUILD_TYPE"
@@ -98,6 +113,7 @@
 
 .build_linux_WithQt:
   stage: build
+  rules: *BuildAndTest_rules
   variables:
     # Give the full path to the toolchain file because it will be passed to tests
     TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/build/conan_toolchain.cmake"
@@ -120,6 +136,7 @@
 
 .test_base_WithQt:
   stage: test
+  rules: *BuildAndTest_rules
   script:
     - cd build
     - !reference [.setup_conan, script]
