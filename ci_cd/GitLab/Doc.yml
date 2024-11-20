@@ -25,7 +25,7 @@
 
 BuildApiDoc:
   stage: build
-  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8-doc:latest
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-13-doc:latest
   rules: *BuildDoc_rules
   script:
     - mkdir build
