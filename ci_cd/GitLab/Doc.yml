@@ -15,13 +15,6 @@
     when: on_success
 
 
-#include:
-  #- component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/BuildApiDoc@0.0.14
-    #inputs:
-      #rules: *BuildDoc_rules
-      #cmake_doc_option_string: '-DBUILD_DOCS=ON'
-      #build_command: 'make documentation'
-
 
 BuildApiDoc:
   stage: build
