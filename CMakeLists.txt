@@ -69,6 +69,8 @@ endif()
 
 option(BUILD_DOCS "Build the documentations" OFF)
 if(BUILD_DOCS)
+  find_package(Sphinx REQUIRED)
+
   add_subdirectory("doc")
 endif()
 
