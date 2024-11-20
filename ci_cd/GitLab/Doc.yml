@@ -10,16 +10,32 @@
     - toolchains/**/*
     - .gitlab-ci.yml
     - CMakeLists.txt
+    - CMakePresets.json
     - conanfile.py
     when: on_success
 
 
-include:
-  - component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/BuildApiDoc@0.0.14
-    inputs:
-      rules: *BuildDoc_rules
-      cmake_doc_option_string: '-DBUILD_DOCS=ON'
-      build_command: 'make documentation'
+#include:
+  #- component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/BuildApiDoc@0.0.14
+    #inputs:
+      #rules: *BuildDoc_rules
+      #cmake_doc_option_string: '-DBUILD_DOCS=ON'
+      #build_command: 'make documentation'
+
+
+BuildApiDoc:
+  stage: build
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8-doc:latest
+  rules: *BuildDoc_rules
+  script:
+    - mkdir build
+    - cd build
+    - cmake --preset linux_doc -DCMAKE_BUILD_TYPE=Debug ..
+    - make documentation
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
 
 
 pages:
