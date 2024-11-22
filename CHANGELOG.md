@@ -1,4 +1,11 @@
 
+# [0.20.0] - 2024-11-22
+
+## Changed
+
+- Make Conan package name lowercase to conform to Conan 2 (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17)
+
+
 # [0.19.3] - 2023-02-05
 
 ## Changed
