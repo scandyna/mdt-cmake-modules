@@ -997,7 +997,7 @@ if(BUILD_CONAN_TESTS)
   # Build and install MdtCMakeModules into the local cache
   add_test(NAME Conan_Create_MdtCMakeModules
     COMMAND "${CONAN_COMMAND}"
-      create "${CMAKE_SOURCE_DIR}/packaging/conan" "0.2@MdtCMakeModules_tests/testing"
+      create "${CMAKE_SOURCE_DIR}/packaging/conan/mdtcmakemodules" "0.2@mdtcmakemodules_tests/testing"
       ${conanSettings}
   )
   # Using the CMakeToolchain conan generator (see project's conanfile.py),
@@ -1006,6 +1006,12 @@ if(BUILD_CONAN_TESTS)
   # See:
   #  https://github.com/conan-io/conan/issues/9962
   #  https://github.com/conan-io/conan/issues/8122
+  #
+  # Update 2024-11-24:
+  # As far as I understand, the CC and CXX environment variable are set in the conanbuildenv-xy.z
+  # when using the VirtualBuildEnv, AND, using profile that defines it. CMake understands CC and CXX env vars.
+  # This project can build without conan install ...
+  # For now, passing CC and CXX is still required.
   mdt_append_test_environment_variables_string(Conan_Create_MdtCMakeModules
     "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER}"
   )
@@ -1013,35 +1019,43 @@ if(BUILD_CONAN_TESTS)
   # Build and install MdtHeaderOnly
   add_test(NAME Conan_Create_MdtHeaderOnly
     COMMAND "${CONAN_COMMAND}"
-      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/HeaderOnly" "0.1@MdtCMakeModules_tests/testing"
+      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/HeaderOnly" "0.1@mdtcmakemodules_tests/testing"
       ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtHeaderOnly PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
-  mdt_append_test_environment_variables_string(Conan_Create_MdtHeaderOnly "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CONAN_PRINT_RUN_COMMANDS=1")
+  # See remarks for Conan_Create_MdtCMakeModules
+  mdt_append_test_environment_variables_string(Conan_Create_MdtHeaderOnly
+    "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER};CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CONAN_PRINT_RUN_COMMANDS=1"
+  )
 
   # Build and install MdtItemModel
   add_test(NAME Conan_Create_MdtItemModel
     COMMAND "${CONAN_COMMAND}"
-      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemModel" "0.1@MdtCMakeModules_tests/testing"
+      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemModel" "0.1@mdtcmakemodules_tests/testing"
       ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtItemModel PROPERTIES DEPENDS Conan_Create_MdtHeaderOnly)
-  mdt_append_test_environment_variables_string(Conan_Create_MdtItemModel "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
+  # See remarks for Conan_Create_MdtCMakeModules
+  mdt_append_test_environment_variables_string(Conan_Create_MdtItemModel
+    "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER};CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CONAN_PRINT_RUN_COMMANDS=1"
+  )
 
   # Build and install MdtItemEditor
   add_test(NAME Conan_Create_MdtItemEditor
     COMMAND "${CONAN_COMMAND}"
-      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemEditor" "0.1@MdtCMakeModules_tests/testing"
+      create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemEditor" "0.1@mdtcmakemodules_tests/testing"
       ${conanSettings}
   )
   set_tests_properties(Conan_Create_MdtItemEditor PROPERTIES DEPENDS Conan_Create_MdtItemModel)
-  mdt_append_test_environment_variables_string(Conan_Create_MdtItemEditor "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR}")
+  # See remarks for Conan_Create_MdtCMakeModules
+  mdt_append_test_environment_variables_string(Conan_Create_MdtItemEditor
+    "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER};CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CONAN_PRINT_RUN_COMMANDS=1"
+  )
 
   # Build TableEditor with Conan + run the app
   add_test(NAME Conan_Install_TableEditor_dependecies
     COMMAND "${CONAN_COMMAND}"
       install "${CMAKE_CURRENT_SOURCE_DIR}/apps/TableEditor"
-      --generator cmake_paths
       --install-folder "${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor"
       --options *:shared=True
       ${conanSettings}
@@ -1057,8 +1071,10 @@ if(BUILD_CONAN_TESTS)
       --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
       --build-config $<CONFIG>
       --build-options
-        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor/conan_paths.cmake"
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/conanBuildTableEditor/conan_toolchain.cmake"
         "-DBUILD_SHARED_LIBS=ON"
+        "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
+        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
       --test-command "${CMAKE_CTEST_COMMAND}"
       ${conanSettings}
   )
@@ -1113,7 +1129,7 @@ if(BUILD_CONAN_TESTS)
 
   add_test(NAME GlIssue12_TargetFilePath_libA_Conan_Create
     COMMAND "${CONAN_COMMAND}"
-      create "${CMAKE_CURRENT_SOURCE_DIR}/GlIssue12_TargetFilePath/libA" "0.0.0@MdtCMakeModules_tests/testing"
+      create "${CMAKE_CURRENT_SOURCE_DIR}/GlIssue12_TargetFilePath/libA" "0.0.0@mdtcmakemodules_tests/testing"
       ${conanSettings}
   )
   set_tests_properties(GlIssue12_TargetFilePath_libA_Conan_Create PROPERTIES DEPENDS Conan_Create_MdtCMakeModules)
@@ -1156,21 +1172,21 @@ if(BUILD_CONAN_TESTS)
 
   add_test(NAME Conan_Remove_MdtCMakeModules
     COMMAND "${CONAN_COMMAND}"
-      remove "MdtCmakeModules/*@MdtCMakeModules_tests/testing"
+      remove "mdtcmakemodules/*@mdtcmakemodules_tests/testing"
       --force
   )
   set_tests_properties(Conan_Remove_MdtCMakeModules PROPERTIES DEPENDS Conan_BuildAndRun_TableEditor)
 
   add_test(NAME Conan_Remove_MdtItemModel
     COMMAND "${CONAN_COMMAND}"
-      remove "MdtCmakeModulesTests_MdtItemModel/0.1@MdtCMakeModules_tests/testing"
+      remove "mdtcmakemodulestests_mdtitemmodel/0.1@mdtcmakemodules_tests/testing"
       --force
   )
   set_tests_properties(Conan_Remove_MdtItemModel PROPERTIES DEPENDS Conan_BuildAndRun_TableEditor)
 
   add_test(NAME Conan_Remove_MdtItemEditor
     COMMAND "${CONAN_COMMAND}"
-      remove "MdtCmakeModulesTests_MdtItemEditor/0.1@MdtCMakeModules_tests/testing"
+      remove "mdtcmakemodulestests_mdtitemeditor/0.1@mdtcmakemodules_tests/testing"
       --force
   )
   set_tests_properties(Conan_Remove_MdtItemEditor PROPERTIES DEPENDS Conan_BuildAndRun_TableEditor)

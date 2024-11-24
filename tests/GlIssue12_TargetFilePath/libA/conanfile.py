@@ -1,10 +1,12 @@
-from conans import ConanFile, tools
-from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake
-#from conan.tools.env import VirtualBuildEnv
-import os
+from conan import ConanFile
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
+from conan.tools.files import copy
+#import os
 
-class MdtCommandLineArgumentsConan(ConanFile):
-  name = "GlIssue12_TargetFilePath_libA"
+
+class MdtLibAConan(ConanFile):
+  name = "glissue12_targetfilepath_liba"
   license = "BSD 3-Clause"
   url = "https://gitlab.com/scandyna/mdt-cmake-modules"
   description = "Test library for GlIssue12_TargetFilePath"
@@ -14,13 +16,17 @@ class MdtCommandLineArgumentsConan(ConanFile):
   generators = "CMakeDeps", "VirtualBuildEnv"
 
   def export_sources(self):
-    self.copy("*", src=".", dst=".")
+    source_root = self.recipe_folder
+    copy(self, "*", source_root, self.export_sources_folder)
+
+  def layout(self):
+    cmake_layout(self)
 
   def requirements(self):
-    self.requires("MdtCMakeConfig/0.0.5@scandyna/testing")
+    self.requires("mdtcmakeconfig/0.1.0@scandyna/testing")
 
   def build_requirements(self):
-    self.tool_requires("MdtCMakeModules/0.2@MdtCMakeModules_tests/testing", force_host_context=True)
+    self.test_requires("mdtcmakemodules/0.2@mdtcmakemodules_tests/testing")
 
   def generate(self):
     tc = CMakeToolchain(self)

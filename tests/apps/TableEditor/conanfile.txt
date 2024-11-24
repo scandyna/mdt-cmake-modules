@@ -1,7 +1,8 @@
 [requires]
-MdtCMakeModules/[>=0.2]@MdtCMakeModules_tests/testing
-MdtCmakeModulesTests_MdtItemEditor/0.1@MdtCMakeModules_tests/testing
+mdtcmakemodules/[>=0.2]@mdtcmakemodules_tests/testing
+mdtcmakemodulestests_mdtitemeditor/0.1@mdtcmakemodules_tests/testing
 
 [generators]
-cmake_paths
-virtualenv
+CMakeToolchain
+CMakeDeps
+VirtualBuildEnv

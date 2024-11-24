@@ -1,7 +1,8 @@
 [requires]
-MdtCMakeModules/0.2@MdtCMakeModules_tests/testing
-GlIssue12_TargetFilePath_libA/0.0.0@MdtCMakeModules_tests/testing
+mdtcmakemodules/0.2@mdtcmakemodules_tests/testing
+glissue12_targetfilepath_liba/0.0.0@mdtcmakemodules_tests/testing
 
 [generators]
 CMakeToolchain
 CMakeDeps
+VirtualBuildEnv
