@@ -16,6 +16,7 @@ Build_Windows_Gcc8_x86_64_MinGW_Make_Debug:
   variables:
     # Give the full path to the toolchain file because it will be passed to tests
     TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/windows_gcc8_mingw_make.cmake"
+    CMAKE_GENERATOR: "MinGW Makefiles"
     BUILD_TYPE: Debug
   extends: .build_windows
 

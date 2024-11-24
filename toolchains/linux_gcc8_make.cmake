@@ -1,4 +1,4 @@
 
 set(CMAKE_C_COMPILER gcc-8)
 set(CMAKE_CXX_COMPILER g++-8)
-set(CMAKE_GENERATOR "Unix Makefiles")
+# set(CMAKE_GENERATOR "Unix Makefiles")
