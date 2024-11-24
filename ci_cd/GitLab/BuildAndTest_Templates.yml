@@ -134,6 +134,30 @@
     paths:
       - build
 
+.build_windows_WithQt:
+  stage: build
+  rules: *BuildAndTest_rules
+  variables:
+    # Give the full path to the toolchain file because it will be passed to tests
+    TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/build/conan_toolchain.cmake"
+    BUILD_QT_TESTS: ON
+  before_script:
+    - !reference [.setup_conan, script]
+  script:
+    - mkdir build
+    - cd build
+    - !reference [.conan_install, script]
+    - .\conanbuild
+    - !reference [.cmake_configure, script]
+    - cmake --build . --config $BUILD_TYPE -j2
+    - .\deactivate_conanbuild
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - build
+
+
 .test_base_WithQt:
   stage: test
   rules: *BuildAndTest_rules

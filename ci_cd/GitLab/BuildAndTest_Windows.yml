@@ -50,3 +50,25 @@ Test_Windows_Gcc8_x86_64_MinGW_Make_Debug:
 # so try to use Conan here
 #######################################################
 
+.buildAndTest_Windows_gcc8_x86_64_WithQt:
+  image: registry.gitlab.com/scandyna/docker-images-windows/windows-cpp-win64_mingw81:latest
+  variables:
+    CONAN_PROFILE_BUILD: windows_gcc8_x86_64
+    CONAN_PROFILE_HOST: windows_gcc8_x86_64_qt_widgets_modules_boost
+
+Build_Windows_Gcc8_x86_64_WithQt_Debug:
+  variables:
+    BUILD_TYPE: Debug
+  extends:
+    - .buildAndTest_Windows_gcc8_x86_64_WithQt
+    - .build_windows_WithQt
+
+Test_Windows_Gcc8_x86_64_WithQt_Debug:
+  variables:
+    BUILD_TYPE: Debug
+  dependencies:
+    - Build_Windows_Gcc8_x86_64_WithQt_Debug
+  needs: ["Build_Windows_Gcc8_x86_64_WithQt_Debug"]
+  extends:
+    - .buildAndTest_Windows_gcc8_x86_64_WithQt
+    - .test_windows_WithQt
