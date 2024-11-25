@@ -98,22 +98,3 @@ include:
     #expire_in: 1 week
     #paths:
       #- build
-
-
-#build_windows_msvc16_x86_64_debug:
-  #image: registry.gitlab.com/scandyna/docker-images-windows/windows-cpp-qt-5.14.2-win64_msvc2017_64:latest
-  #variables:
-    #BUILD_TYPE: Debug
-    #CMAKE_GENERATOR: "Visual Studio 16 2019"
-    #CMAKE_GENERATOR_EXTRA_ARGS: -Ax64
-    #QT_PREFIX_PATH: "C:/Qt/5.14.2/msvc2017_64"
-  #extends: .build_windows
-
-#test_windows_msvc16_x86_64_debug:
-  #image: registry.gitlab.com/scandyna/docker-images-windows/windows-cpp-qt-5.14.2-win64_msvc2017_64:latest
-  #variables:
-    #BUILD_TYPE: Debug
-  #dependencies:
-    #- build_windows_msvc16_x86_64_debug
-  #needs: ["build_windows_msvc16_x86_64_debug"]
-  #extends: .test_windows

@@ -45,6 +45,41 @@ Test_Windows_Gcc8_x86_64_MinGW_Make_Debug:
   #extends: .test_windows
 
 
+Build_Windows_Msvc16_x86_64_Debug:
+  image: registry.gitlab.com/scandyna/docker-images-windows/windows-cpp-msvc2019:latest
+  variables:
+    # Give the full path to the toolchain file because it will be passed to tests
+    TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/windows_msvc_16_2019.cmake"
+    CMAKE_GENERATOR: "Visual Studio 16 2019"
+    CMAKE_GENERATOR_PLATFORM: "x64"
+    BUILD_TYPE: Debug
+  extends: .build_windows
+
+Test_Windows_Msvc16_x86_64_Debug:
+  image: registry.gitlab.com/scandyna/docker-images-windows/windows-cpp-msvc2019:latest
+  dependencies:
+    - Build_Windows_Msvc16_x86_64_Debug
+  needs: ["Build_Windows_Msvc16_x86_64_Debug"]
+  extends: .test_windows
+
+#build_windows_msvc16_x86_64_debug:
+  #image: registry.gitlab.com/scandyna/docker-images-windows/windows-cpp-qt-5.14.2-win64_msvc2017_64:latest
+  #variables:
+    #BUILD_TYPE: Debug
+    #CMAKE_GENERATOR: "Visual Studio 16 2019"
+    #CMAKE_GENERATOR_EXTRA_ARGS: -Ax64
+    #QT_PREFIX_PATH: "C:/Qt/5.14.2/msvc2017_64"
+  #extends: .build_windows
+
+#test_windows_msvc16_x86_64_debug:
+  #image: registry.gitlab.com/scandyna/docker-images-windows/windows-cpp-qt-5.14.2-win64_msvc2017_64:latest
+  #variables:
+    #BUILD_TYPE: Debug
+  #dependencies:
+    #- build_windows_msvc16_x86_64_debug
+  #needs: ["build_windows_msvc16_x86_64_debug"]
+  #extends: .test_windows
+
 #######################################################
 # Tests including those depending on Qt
 # We try to not build Docker images with Qt anymore,
@@ -72,4 +107,28 @@ Test_Windows_Gcc8_x86_64_WithQt_Debug:
   needs: ["Build_Windows_Gcc8_x86_64_WithQt_Debug"]
   extends:
     - .buildAndTest_Windows_gcc8_x86_64_WithQt
+    - .test_windows_WithQt
+
+
+.buildAndTest_Windows_Msvc16_x86_64_WithQt:
+  image: registry.gitlab.com/scandyna/docker-images-windows/windows-cpp-msvc2019:latest
+  variables:
+    CONAN_PROFILE_BUILD: windows_msvc16_x86_64
+    CONAN_PROFILE_HOST: windows_msvc16_x86_64_qt_widgets_modules_boost
+
+Build_Windows_Msvc16_x86_64_WithQt_Debug:
+  variables:
+    BUILD_TYPE: Debug
+  extends:
+    - .buildAndTest_Windows_Msvc16_x86_64_WithQt
+    - .build_windows_WithQt
+
+Test_Windows_Msvc16_x86_64_WithQt_Debug:
+  variables:
+    BUILD_TYPE: Debug
+  dependencies:
+    - Build_Windows_Gcc8_x86_64_WithQt_Debug
+  needs: ["Build_Windows_Gcc8_x86_64_WithQt_Debug"]
+  extends:
+    - .buildAndTest_Windows_Msvc16_x86_64_WithQt
     - .test_windows_WithQt
