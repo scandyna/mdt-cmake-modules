@@ -36,6 +36,8 @@ option(BUILD_CONAN_TESTS "Build packaging with Conan tests" OFF)
 option(BUILD_QT_TESTS "Build the tests depending on Qt" OFF)
 option(INSTALL_CONAN_PACKAGE_FILES "Install files required for recent conan generators, like CMakeDeps" OFF)
 
+message(DEBUG "BUILD_QT_TESTS: ${BUILD_QT_TESTS}")
+
 # MdtFindPathInList
 # See its documentation to understang why it is generated
 set(MdtFindPathInList_FUNCTION_NAME mdt_find_path_in_list)
