@@ -94,6 +94,7 @@ Test_Windows_Msvc16_x86_64_Debug:
 
 Build_Windows_Gcc8_x86_64_WithQt_Debug:
   variables:
+    CMAKE_GENERATOR: "MinGW Makefiles"
     BUILD_TYPE: Debug
   extends:
     - .buildAndTest_Windows_gcc8_x86_64_WithQt
