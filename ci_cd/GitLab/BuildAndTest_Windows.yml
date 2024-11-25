@@ -127,8 +127,8 @@ Test_Windows_Msvc16_x86_64_WithQt_Debug:
   variables:
     BUILD_TYPE: Debug
   dependencies:
-    - Build_Windows_Gcc8_x86_64_WithQt_Debug
-  needs: ["Build_Windows_Gcc8_x86_64_WithQt_Debug"]
+    - Build_Windows_Msvc16_x86_64_WithQt_Debug
+  needs: ["Build_Windows_Msvc16_x86_64_WithQt_Debug"]
   extends:
     - .buildAndTest_Windows_Msvc16_x86_64_WithQt
     - .test_windows_WithQt
