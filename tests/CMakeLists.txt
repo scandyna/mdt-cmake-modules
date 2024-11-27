@@ -1075,7 +1075,7 @@ if(BUILD_CONAN_TESTS)
         "-DBUILD_SHARED_LIBS=ON"
         "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-      --test-command "${CMAKE_CTEST_COMMAND}"
+      --test-command "${CMAKE_CTEST_COMMAND}" -V
       ${conanSettings}
   )
   set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
@@ -1108,7 +1108,7 @@ if(BUILD_CONAN_TESTS)
       --build-config $<CONFIG>
       --build-options
         "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps/conan_toolchain.cmake"
-      --test-command "${CMAKE_CTEST_COMMAND}" --output-on-failure
+      --test-command "${CMAKE_CTEST_COMMAND}" -V
       ${conanSettings}
 
   )
