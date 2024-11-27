@@ -38,7 +38,7 @@
       -DBUILD_TESTS=ON
       -DBUILD_CONAN_TESTS=ON
       "-DBUILD_QT_TESTS=${BUILD_QT_TESTS}"
-      -DBUILD_REAL_INSTALL_TESTS=ON
+      "-DBUILD_REAL_INSTALL_TESTS=${BUILD_REAL_INSTALL_TESTS}"
       -DWARNING_AS_ERROR=ON
       -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG
       $CMAKE_EXTRA_ARGUMENTS
@@ -68,6 +68,8 @@
       - build
 
 .build_linux:
+  variables:
+    BUILD_REAL_INSTALL_TESTS: 'ON'
   extends:
     - .build_base
 
@@ -118,6 +120,7 @@
     # Give the full path to the toolchain file because it will be passed to tests
     TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/build/conan_toolchain.cmake"
     BUILD_QT_TESTS: 'ON'
+    BUILD_REAL_INSTALL_TESTS: 'ON'
   before_script:
     - !reference [.setup_conan, script]
   script:
