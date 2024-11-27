@@ -82,7 +82,7 @@
   rules: *BuildAndTest_rules
   script:
     - cd build
-    - ctest --output-on-failure --verbose -C "${BUILD_TYPE}"
+    - ctest --verbose -C "${BUILD_TYPE}"
   artifacts:
     when: on_failure
     expire_in: 1 week
@@ -167,7 +167,7 @@
     - cd build
     - !reference [.setup_conan, script]
     - !reference [.conan_install, script]
-    - ctest --output-on-failure --verbose -C "$BUILD_TYPE"
+    - ctest --verbose -C "${BUILD_TYPE}"
   artifacts:
     when: on_failure
     expire_in: 1 week
