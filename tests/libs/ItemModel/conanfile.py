@@ -14,6 +14,10 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
   generators = "CMakeDeps", "VirtualBuildEnv"
   exports_sources="src/*", "CMakeLists.txt"
 
+  # See: https://docs.conan.io/en/latest/reference/conanfile/attributes.html#short-paths
+  # Should only be enabled if building on Windows causes problems
+  short_paths = True
+
   def requirements(self):
     self.requires("mdtcmakemodulestests_mdtheaderonly/0.1@mdtcmakemodules_tests/testing")
 

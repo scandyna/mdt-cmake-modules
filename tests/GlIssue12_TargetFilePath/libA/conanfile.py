@@ -15,6 +15,10 @@ class MdtLibAConan(ConanFile):
   default_options = {"shared": True}
   generators = "CMakeDeps", "VirtualBuildEnv"
 
+  # See: https://docs.conan.io/en/latest/reference/conanfile/attributes.html#short-paths
+  # Should only be enabled if building on Windows causes problems
+  short_paths = True
+
   def export_sources(self):
     source_root = self.recipe_folder
     copy(self, "*", source_root, self.export_sources_folder)
