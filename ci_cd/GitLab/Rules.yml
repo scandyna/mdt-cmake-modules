@@ -1,0 +1,12 @@
+
+.Conan_CreateAndTest__RulesJobTemplate:
+  rules:
+    - changes:
+      - ci_cd/GitLab/*
+      - doc/**/*
+      - Modules/**/*
+      - packaging/conan/**/*
+      - .gitlab-ci.yml
+      - CMakeLists.txt
+      - conanfile.py
+      when: on_success

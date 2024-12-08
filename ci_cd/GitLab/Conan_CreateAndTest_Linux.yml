@@ -1,20 +1,9 @@
 
-.Conan_CreateAndTest_Linux_rules: &Conan_CreateAndTest_Linux_rules
-  - changes:
-    - ci_cd/GitLab/*
-    - doc/**/*
-    - Modules/**/*
-    - packaging/conan/**/*
-    - .gitlab-ci.yml
-    - CMakeLists.txt
-    - conanfile.py
-    when: on_success
-
-
 include:
-  - component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/Conan_CreateAndTest_Ubuntu-18-04_gcc8_x86_64@0.0.14
+  - local: 'ci_cd/GitLab/Rules.yml'
+  - component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/Conan_CreateAndTest_Ubuntu-18-04_gcc8_x86_64@0.0.15
     inputs:
-      rules: *Conan_CreateAndTest_Linux_rules
+      rules_job_template: .Conan_CreateAndTest__RulesJobTemplate
       components:
         - 'mdtcmakemodules'
       build_types:
