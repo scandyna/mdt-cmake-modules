@@ -1,0 +1,13 @@
+
+include:
+  - local: 'ci_cd/GitLab/Rules.yml'
+  - component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/Conan_CreateAndTest_Windows_gcc8_x86_64@0.0.15
+    inputs:
+      rules_job_template: .Conan_CreateAndTest__RulesJobTemplate
+      components:
+        - 'mdtcmakemodules'
+      build_types:
+        - 'Debug'
+      shared_libs:
+        - 'True'
+
