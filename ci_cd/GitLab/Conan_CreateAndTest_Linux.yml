@@ -47,6 +47,7 @@ Conan_CreateAndTest_Ubuntu-24-04_gcc13_x86_64:
     CONAN_PACKAGING_DIR: 'packaging/conan/'
     COMPONENT: 'mdtcmakemodules'
     TEST_CONAN_PACKAGE_REMOTE: 'https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/conan'
+    BUILD_TYPE: Debug
   extends:
     - .conan_createAndTest_Linux
   # Avoid getting artifacts from previous stages
