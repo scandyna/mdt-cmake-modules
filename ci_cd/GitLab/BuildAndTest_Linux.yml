@@ -11,6 +11,22 @@ include:
 # can only be enabled in this mode.
 #######################################################
 
+Build_Linux_Gcc13_x86_64_Make_Debug:
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-8:latest
+  variables:
+    # Give the full path to the toolchain file because it will be passed to tests
+    TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/linux_gcc13_make.cmake"
+    BUILD_TYPE: Debug
+  extends: .build_linux
+
+Test_Linux_Gcc13_x86_64_Make_Debug:
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-8:latest
+  dependencies:
+    - Build_Linux_Gcc13_x86_64_Make_Debug
+  needs: ["Build_Linux_Gcc13_x86_64_Make_Debug"]
+  extends: .test_linux
+
+
 Build_Linux_Gcc8_x86_64_Make_Debug:
   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
   variables:
