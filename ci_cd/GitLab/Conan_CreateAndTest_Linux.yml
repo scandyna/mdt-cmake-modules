@@ -30,7 +30,7 @@ include:
     - conan create $CONAN_PACKAGING_DIR/$COMPONENT --version 0.0.0 --user scandyna --channel testing
       --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
       --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
-      --test-folder None
+      --test-folder ""
     - conan test $CONAN_PACKAGING_DIR/$COMPONENT/test_package $COMPONENT/0.0.0@scandyna/testing
       --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
       --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
