@@ -27,7 +27,7 @@ include:
   script:
     - !reference [.setup_conan, script]
     - conan remote add scandyna_test $TEST_CONAN_PACKAGE_REMOTE
-    - conan create $CONAN_PACKAGING_DIR/$COMPONENT 0.0.0@scandyna/testing
+    - conan create $CONAN_PACKAGING_DIR/$COMPONENT --version 0.0.0 --user scandyna --channel testing
       --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
       --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
       -o "${COMPONENT}:shared=${SHARED_LIBS}"
