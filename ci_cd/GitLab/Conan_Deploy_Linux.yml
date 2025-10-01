@@ -13,12 +13,12 @@
   retry: 1
   script:
     - !reference [.setup_conan, script]
-    - conan create $CONAN_PACKAGING_DIR/$COMPONENT "${VERSION_USER_CHANNEL}"
+    - conan create $CONAN_PACKAGING_DIR/$COMPONENT --version ${CONAN_PACKAGE_VERSION} --user ${CONAN_PACKAGE_USER} --channel ${CONAN_PACKAGE_CHANNEL}
       --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
       --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
-      --test-folder None
-    - conan user --password "${CI_JOB_TOKEN}" --remote $DEPLOY_CONAN_REMOTE_NAME ci_user
-    - conan upload $COMPONENT/* --remote $DEPLOY_CONAN_REMOTE_NAME --all -c
+      --test-folder ""
+    - conan remote login --password "${CI_JOB_TOKEN}" ${DEPLOY_CONAN_REMOTE_NAME} ci_user
+    - conan upload --remote ${DEPLOY_CONAN_REMOTE_NAME} -c $COMPONENT/*
   # Avoid getting artifacts from previous stages
   dependencies: []
 
@@ -31,7 +31,9 @@ Conan_Deploy:
     CONAN_PROFILE_HOST: linux_ubuntu-24.04_gcc13_x86_64
     CONAN_PACKAGING_DIR: 'packaging/conan/'
     COMPONENT: 'mdtcmakemodules'
-    VERSION_USER_CHANNEL: "${CI_COMMIT_TAG}@scandyna/testing"
+    CONAN_PACKAGE_VERSION: "${CI_COMMIT_TAG}"
+    CONAN_PACKAGE_USER: 'scandyna'
+    CONAN_PACKAGE_CHANNEL: 'testing'
     DEPLOY_CONAN_REMOTE_NAME: 'scandyna'
     BUILD_TYPE: Release
   extends:
