@@ -30,42 +30,47 @@ Test_Linux_Gcc13_x86_64_Make_Debug:
   allow_failure: true
 
 
-Build_Linux_Gcc8_x86_64_Make_Debug:
-  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
-  variables:
-    # Give the full path to the toolchain file because it will be passed to tests
-    TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/linux_gcc8_make.cmake"
-    BUILD_TYPE: Debug
-  extends: .build_linux
+# TODO: remove those old commented builds once migration done
+# Tests will be migrated to conan 2 (new command syntax)
+# They will no longer work with conan 1
+# https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
 
-Test_Linux_Gcc8_x86_64_Make_Debug:
-  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
-  dependencies:
-    - Build_Linux_Gcc8_x86_64_Make_Debug
-  needs: ["Build_Linux_Gcc8_x86_64_Make_Debug"]
-  extends: .test_linux
-  # TODO: disallow failure again once posible
-  # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
-  allow_failure: true
+#Build_Linux_Gcc8_x86_64_Make_Debug:
+  #image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+  #variables:
+    ## Give the full path to the toolchain file because it will be passed to tests
+    #TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/linux_gcc8_make.cmake"
+    #BUILD_TYPE: Debug
+  #extends: .build_linux
+
+#Test_Linux_Gcc8_x86_64_Make_Debug:
+  #image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+  #dependencies:
+    #- Build_Linux_Gcc8_x86_64_Make_Debug
+  #needs: ["Build_Linux_Gcc8_x86_64_Make_Debug"]
+  #extends: .test_linux
+  ## TODO: disallow failure again once posible
+  ## https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
+  #allow_failure: true
 
 
-Build_Linux_Clang10_x86_64_libcxx_Make_Debug:
-  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-clang-10:latest
-  variables:
-    # Give the full path to the toolchain file because it will be passed to tests
-    TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/linux_clang10_x86_64_libcxx_make.cmake"
-    BUILD_TYPE: Debug
-  extends: .build_linux
+#Build_Linux_Clang10_x86_64_libcxx_Make_Debug:
+  #image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-clang-10:latest
+  #variables:
+    ## Give the full path to the toolchain file because it will be passed to tests
+    #TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/linux_clang10_x86_64_libcxx_make.cmake"
+    #BUILD_TYPE: Debug
+  #extends: .build_linux
 
-Test_Linux_Clang10_x86_64_libcxx_Make_Debug:
-  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-clang-10:latest
-  dependencies:
-    - Build_Linux_Clang10_x86_64_libcxx_Make_Debug
-  needs: ["Build_Linux_Clang10_x86_64_libcxx_Make_Debug"]
-  extends: .test_linux
-  # TODO: disallow failure again once posible
-  # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
-  allow_failure: true
+#Test_Linux_Clang10_x86_64_libcxx_Make_Debug:
+  #image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-clang-10:latest
+  #dependencies:
+    #- Build_Linux_Clang10_x86_64_libcxx_Make_Debug
+  #needs: ["Build_Linux_Clang10_x86_64_libcxx_Make_Debug"]
+  #extends: .test_linux
+  ## TODO: disallow failure again once posible
+  ## https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
+  #allow_failure: true
 
 #######################################################
 # Tests including those depending on Qt
