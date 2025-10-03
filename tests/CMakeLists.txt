@@ -997,7 +997,7 @@ if(BUILD_CONAN_TESTS)
   # Build and install MdtCMakeModules into the local cache
   add_test(NAME Conan_Create_MdtCMakeModules
     COMMAND "${CONAN_COMMAND}"
-      create "${CMAKE_SOURCE_DIR}/packaging/conan/mdtcmakemodules" "--version 0.2" "--user mdtcmakemodules_tests" "--channel testing"
+      create "${CMAKE_SOURCE_DIR}/packaging/conan/mdtcmakemodules" "--version" "0.2" "--user" "mdtcmakemodules_tests" "--channel" "testing"
       ${conanSettings}
   )
   # Using the CMakeToolchain conan generator (see project's conanfile.py),
