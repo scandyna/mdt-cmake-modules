@@ -1,44 +1,6 @@
 
-# TODO: use CI template as soon as available for conan 2
-# https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
-
 include:
   - component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/Conan_Deploy_NoArch@0.0.20
     inputs:
       components:
         - 'mdtcmakemodules'
-
-
-#.conan_deploy_NoArch:
-  #retry: 1
-  #script:
-    #- !reference [.setup_conan, script]
-    #- conan create $CONAN_PACKAGING_DIR/$COMPONENT --version ${CONAN_PACKAGE_VERSION} --user ${CONAN_PACKAGE_USER} --channel ${CONAN_PACKAGE_CHANNEL}
-      #--profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
-      #--settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
-      #--test-folder ""
-    #- conan remote login --password "${CI_JOB_TOKEN}" ${DEPLOY_CONAN_REMOTE_NAME} ci_user
-    #- conan upload --remote ${DEPLOY_CONAN_REMOTE_NAME} -c $COMPONENT/*
-  ## Avoid getting artifacts from previous stages
-  #dependencies: []
-
-
-#Conan_Deploy:
-  #stage: deploy
-  #image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-13:latest
-  #variables:
-    #CONAN_PROFILE_BUILD: linux_gcc13_x86_64
-    #CONAN_PROFILE_HOST: linux_ubuntu-24.04_gcc13_x86_64
-    #CONAN_PACKAGING_DIR: 'packaging/conan/'
-    #COMPONENT: 'mdtcmakemodules'
-    #CONAN_PACKAGE_VERSION: "${CI_COMMIT_TAG}"
-    #CONAN_PACKAGE_USER: 'scandyna'
-    #CONAN_PACKAGE_CHANNEL: 'testing'
-    #DEPLOY_CONAN_REMOTE_NAME: 'scandyna'
-    #BUILD_TYPE: Release
-  #extends:
-    #- .conan_deploy_NoArch
-  #rules:
-    #- if: $CI_COMMIT_TAG
-      #when: on_success
-    #- when: never
