@@ -9,6 +9,42 @@ The examples use the command line.
 Because CMake is supported natively by some IDE's,
 using those should be relatively easy.
 
+## Tests variants
+
+MdtCMakeModules should work in some contexts.
+
+One context is using a system package manager, like Debian apt,
+or no package manager.
+
+Another context is to work with the Conan package manager.
+
+Qt is also a big dependency.
+Checking that the modules works with Qt is also important.
+For some platforms, Qt is not available and not required.
+
+### Core tests
+
+Checks that the modules works for a platform that does not have Qt,
+and has no other dependencies than the common system ones.
+
+### Tests with Qt
+
+Will also check that modules works correctly with Qt,
+either installed system wide and in the `PATH`,
+or present in the `CMAKE_PREFIX_PATH`.
+
+Note: this context is currently not tested in the CI.
+See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/23
+
+### Tests with Conan
+
+Will also check that modules works correctly when using Conan.
+
+### Tests with Conan and Qt
+
+Will also check that modules works correctly when using Conan
+with an important dependencies graph.
+
 ## Tools ans libraries
 
 Some tools are required to work on MdtCMakeModules:
@@ -19,9 +55,10 @@ Some tools are required to work on MdtCMakeModules:
 Additional tools are required to generate the documentation:
  - Sphinx
 
-To run the unit tests, those libraries and tools are also required:
- - Gcc
- - Qt - Optional (only required when BUILD_QT_TESTS is ON)
+To run the tests, those libraries and tools are also required:
+ - A compiler: Gcc or Clang or MinGW or MSVC
+ - Conan - optional (only required when BUILD_CONAN_TESTS is ON)
+ - Qt - Optional (only required when BUILD_QT_TESTS is ON and the build is not based on Conan)
 
 For a overview how to install them, see https://gitlab.com/scandyna/build-and-install-cpp
 
@@ -32,7 +69,56 @@ Get the sources:
 git clone https://github.com/scandyna/mdt-cmake-modules.git
 ```
 
+## Build and test - sandbox
+
+TODO: -S .... -B ....
+
+```shell
+cmake --preset dev_unix_makefiles_gcc_core_tests_only ...
+cmake --preset dev_unix_makefiles_gcc_tests_with_qt ...
+
+cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan ...
+cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan_and_qt ...
+
+OR
+
+cmake --preset dev_unix_makefiles_gcc_tests_with_conan ...
+cmake --preset dev_unix_makefiles_gcc_tests_with_conan_and_qt ...
+```
+
+## Note for some Linux platforms
+
+Some tests will run ThreadSanitizer (TSan).
+Those could fail with some `unexpected memory mapping` error.
+To avoid this:
+```shell
+sudo sysctl vm.mmap_rnd_bits=28
+```
+
+See also:
+- https://gitlab.com/scandyna/docker-images-ubuntu/-/issues/13
+
+
 ## Build on Linux using Makefiles
+
+```bash
+mkdir build && cd build
+```
+
+### Configure for core tests only
+
+```bash
+cmake --preset dev_unix_makefiles_gcc13_core_tests_only -DCMAKE_BUILD_TYPE=Debug ..
+```
+
+### Configure for tests with Qt
+
+### Configure for tests with Conan
+
+
+### Configure for tests with Conan and Qt
+
+
 
 Configure using the default compiler (gcc):
 ```bash
@@ -48,6 +134,8 @@ cmake --preset dev_unix_makefiles_clang_6_0_x86_64_libcpp -DCMAKE_BUILD_TYPE=Deb
 
 This will use the system wide installed Qt,
 which should be fine.
+
+### Build and run tests on Linux using Makefiles
 
 Maybe adjust some settings:
 ```bash

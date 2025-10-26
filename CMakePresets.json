@@ -9,13 +9,8 @@
           "type": "BOOL",
           "value": "ON"
         },
-        "BUILD_QT_TESTS": {
-          "type": "BOOL",
-          "value": "ON"
-        },
-        "BUILD_CONAN_TESTS": {
-          "type": "BOOL",
-          "value": "ON"
+        "CMAKE_MESSAGE_LOG_LEVEL": {
+          "value": "DEBUG"
         },
         "BUILD_DOCS": {
           "type": "BOOL",
@@ -24,11 +19,30 @@
       }
     },
     {
-      "name": "dev_linux_gcc8_makefiles",
+      "name": "dev_unix_makefiles_gcc13_core_tests_only",
+      "inherits": "dev_base",
+      "displayName": "Dev Unix Makefiles Gcc - Only enables core tests",
+      "description": "Developper build using Unix Makefiles (does enable tests with Conan nor Qt)",
+      "generator": "Unix Makefiles",
+      "toolchainFile": "${sourceDir}/toolchains/linux_gcc13.cmake",
+      "cacheVariables": {
+        "BUILD_QT_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "BUILD_CONAN_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      }
+    },
+    {
+      "name": "dev_linux_gcc13_makefiles",
       "inherits": "dev_base",
       "displayName": "Dev Unix Makefiles",
-      "description": "Developper build using Unix Makefiles",
-      "toolchainFile": "${sourceDir}/toolchains/linux_gcc8_make.cmake"
+      "description": "Developper build using Unix Makefiles (does not test Conan nor Qt)",
+      "generator": "Unix Makefiles",
+      "toolchainFile": "${sourceDir}/toolchains/linux_gcc13_make.cmake"
     },
     {
       "name": "dev_linux_clang10_libcxx_makefiles",

@@ -30,7 +30,8 @@
       --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
       ..
 
-.cmake_configure:
+# TODO: remove once possible
+.cmake_configure_OLD:
   script:
     # The toolchain file expression has to be quoted when using Powershell
     # See https://gitlab.kitware.com/cmake/cmake/-/issues/23109
@@ -45,6 +46,14 @@
       $CMAKE_EXTRA_ARGUMENTS
       ..
 
+.cmake_configure:
+  script:
+    - cmake
+      "--preset ${CMAKE_CONFIGURE_PRESET}"
+      "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
+      "-DBUILD_REAL_INSTALL_TESTS=${BUILD_REAL_INSTALL_TESTS}"
+      ..
+
 #######################################################
 # Tests without dependencies
 # We don't use Conan generated config files here,
@@ -56,8 +65,8 @@
 .build_base:
   stage: build
   rules: *BuildAndTest_rules
-  variables:
-    BUILD_QT_TESTS: 'OFF'
+  # variables:
+  #   BUILD_QT_TESTS: 'OFF'
   script:
     - mkdir build
     - cd build

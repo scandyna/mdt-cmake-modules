@@ -11,23 +11,38 @@ include:
 # can only be enabled in this mode.
 #######################################################
 
-Build_Linux_Gcc13_x86_64_Make_Debug:
+Build_Linux_Gcc13_x86_64_Make_CoreTestsOnly_Debug:
   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-13:latest
   variables:
-    # Give the full path to the toolchain file because it will be passed to tests
-    TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/linux_gcc13_make.cmake"
+    CMAKE_CONFIGURE_PRESET: "dev_unix_makefiles_gcc13_core_tests_only"
     BUILD_TYPE: Debug
   extends: .build_linux
 
-Test_Linux_Gcc13_x86_64_Make_Debug:
+Test_Linux_Gcc13_x86_64_Make_CoreTestsOnly_Debug:
   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-13:latest
   dependencies:
-    - Build_Linux_Gcc13_x86_64_Make_Debug
-  needs: ["Build_Linux_Gcc13_x86_64_Make_Debug"]
+    - Build_Linux_Gcc13_x86_64_Make_CoreTestsOnly_Debug
+  needs: ["Build_Linux_Gcc13_x86_64_Make_CoreTestsOnly_Debug"]
   extends: .test_linux
-  # TODO: disallow failure again once posible
-  # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
-  allow_failure: true
+
+
+# Build_Linux_Gcc13_x86_64_Make_Debug:
+#   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-13:latest
+#   variables:
+#     # Give the full path to the toolchain file because it will be passed to tests
+#     TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/toolchains/linux_gcc13_make.cmake"
+#     BUILD_TYPE: Debug
+#   extends: .build_linux
+# 
+# Test_Linux_Gcc13_x86_64_Make_Debug:
+#   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-13:latest
+#   dependencies:
+#     - Build_Linux_Gcc13_x86_64_Make_Debug
+#   needs: ["Build_Linux_Gcc13_x86_64_Make_Debug"]
+#   extends: .test_linux
+#   # TODO: disallow failure again once posible
+#   # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
+#   allow_failure: true
 
 
 # TODO: remove those old commented builds once migration done
@@ -78,31 +93,31 @@ Test_Linux_Gcc13_x86_64_Make_Debug:
 # so try to use Conan here
 #######################################################
 
-.buildAndTest_Linux_gcc8_x86_64_WithQt:
-  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
-  variables:
-    CONAN_PROFILE_BUILD: linux_gcc8_x86_64
-    CONAN_PROFILE_HOST: linux_ubuntu-18.04_gcc8_x86_64_qt_widgets_modules_boost
-
-Build_Linux_Gcc8_x86_64_WithQt_Debug:
-  variables:
-    BUILD_TYPE: Debug
-  extends:
-    - .buildAndTest_Linux_gcc8_x86_64_WithQt
-    - .build_linux_WithQt
-  # TODO: disallow failure again once posible
-  # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
-  allow_failure: true
-
-Test_Linux_Gcc8_x86_64_WithQt_Debug:
-  variables:
-    BUILD_TYPE: Debug
-  dependencies:
-    - Build_Linux_Gcc8_x86_64_WithQt_Debug
-  needs: ["Build_Linux_Gcc8_x86_64_WithQt_Debug"]
-  extends:
-    - .buildAndTest_Linux_gcc8_x86_64_WithQt
-    - .test_linux_WithQt
-  # TODO: disallow failure again once posible
-  # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
-  allow_failure: true
+# .buildAndTest_Linux_gcc8_x86_64_WithQt:
+#   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-18.04-gcc-8:latest
+#   variables:
+#     CONAN_PROFILE_BUILD: linux_gcc8_x86_64
+#     CONAN_PROFILE_HOST: linux_ubuntu-18.04_gcc8_x86_64_qt_widgets_modules_boost
+# 
+# Build_Linux_Gcc8_x86_64_WithQt_Debug:
+#   variables:
+#     BUILD_TYPE: Debug
+#   extends:
+#     - .buildAndTest_Linux_gcc8_x86_64_WithQt
+#     - .build_linux_WithQt
+#   # TODO: disallow failure again once posible
+#   # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
+#   allow_failure: true
+# 
+# Test_Linux_Gcc8_x86_64_WithQt_Debug:
+#   variables:
+#     BUILD_TYPE: Debug
+#   dependencies:
+#     - Build_Linux_Gcc8_x86_64_WithQt_Debug
+#   needs: ["Build_Linux_Gcc8_x86_64_WithQt_Debug"]
+#   extends:
+#     - .buildAndTest_Linux_gcc8_x86_64_WithQt
+#     - .test_linux_WithQt
+#   # TODO: disallow failure again once posible
+#   # https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/17
+#   allow_failure: true

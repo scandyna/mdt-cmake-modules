@@ -43,3 +43,4 @@ build
 
 # CMake
 CMakeUserPresets.json
+ConanPresets.json
