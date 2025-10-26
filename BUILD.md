@@ -74,8 +74,6 @@ git clone https://github.com/scandyna/mdt-cmake-modules.git
 TODO: -S .... -B ....
 
 ```shell
-cmake --preset dev_unix_makefiles_gcc_core_tests_only ...
-cmake --preset dev_unix_makefiles_gcc_tests_with_qt ...
 
 cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan ...
 cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan_and_qt ...
@@ -105,13 +103,18 @@ See also:
 mkdir build && cd build
 ```
 
-### Configure for core tests only
+### Configure on Linux for core tests only
 
 ```bash
 cmake --preset dev_unix_makefiles_gcc13_core_tests_only -DCMAKE_BUILD_TYPE=Debug ..
 ```
 
-### Configure for tests with Qt
+### Configure on Linux for tests with Qt
+
+This will work with a system wide installed Qt:
+```bash
+cmake --preset dev_unix_makefiles_gcc13_tests_with_qt -DCMAKE_BUILD_TYPE=Debug ..
+```
 
 ### Configure for tests with Conan
 

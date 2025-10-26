@@ -22,13 +22,31 @@
       "name": "dev_unix_makefiles_gcc13_core_tests_only",
       "inherits": "dev_base",
       "displayName": "Dev Unix Makefiles Gcc - Only enables core tests",
-      "description": "Developper build using Unix Makefiles (does enable tests with Conan nor Qt)",
+      "description": "Developper build using Unix Makefiles (does not enable tests with Conan nor Qt)",
       "generator": "Unix Makefiles",
       "toolchainFile": "${sourceDir}/toolchains/linux_gcc13.cmake",
       "cacheVariables": {
         "BUILD_QT_TESTS": {
           "type": "BOOL",
           "value": "OFF"
+        },
+        "BUILD_CONAN_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      }
+    },
+    {
+      "name": "dev_unix_makefiles_gcc13_tests_with_qt",
+      "inherits": "dev_base",
+      "displayName": "Dev Unix Makefiles Gcc - Also enables tests with Qt",
+      "description": "Developper build using Unix Makefiles (does not enable tests with Conan)",
+      "generator": "Unix Makefiles",
+      "toolchainFile": "${sourceDir}/toolchains/linux_gcc13.cmake",
+      "cacheVariables": {
+        "BUILD_QT_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
         },
         "BUILD_CONAN_TESTS": {
           "type": "BOOL",
