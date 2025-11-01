@@ -44,3 +44,5 @@ build
 # CMake
 CMakeUserPresets.json
 ConanPresets.json
+
+packaging/conan/mdtcmakemodules/test_package/CMakeFiles/
