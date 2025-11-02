@@ -204,7 +204,7 @@
 
 .test_linux_ConanAndQt:
   extends:
-    - .test_base_WithQt
+    - .test_base_ConanAndQt
   before_script:
     - export DISPLAY=":99"
     - /etc/init.d/xdummy-server start
@@ -212,5 +212,5 @@
 
 .test_windows_ConanAndQt:
   extends:
-    - .test_base_WithQt
+    - .test_base_ConanAndQt
     - .windows_runner
