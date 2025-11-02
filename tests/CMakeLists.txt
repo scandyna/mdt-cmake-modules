@@ -991,10 +991,6 @@ set_tests_properties(GlIssue12_TargetFilePath_app_BuildAndRun PROPERTIES DEPENDS
 
 if(BUILD_CONAN_TESTS)
 
-  # TODO: remove
-  # include(conan.cmake)
-  # conan_cmake_settings(conanSettings)
-
   # TODO: what we should colect:
   # - profiles
   # - see what is in the conan toolchain - compiler ? ENV ?
