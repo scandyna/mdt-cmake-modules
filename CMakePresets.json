@@ -33,6 +33,10 @@
         "BUILD_CONAN_TESTS": {
           "type": "BOOL",
           "value": "OFF"
+        },
+        "BUILD_MDT_RUNTIME_ENVIRONMENT_STATIC_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
         }
       }
     },
@@ -51,7 +55,39 @@
         "BUILD_CONAN_TESTS": {
           "type": "BOOL",
           "value": "OFF"
+        },
+        "BUILD_MDT_RUNTIME_ENVIRONMENT_STATIC_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
         }
+      }
+    },
+    {
+      "name": "dev_conan_unix_makefiles_gcc_tests_with_conan_and_qt",
+      "inherits": "dev_base",
+      "displayName": "Dev Unix Makefiles Gcc - Also enables tests with Conan and Qt",
+      "description": "Developper build using Unix Makefiles. Also enables tests with Conan and Qt",
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "BUILD_QT_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "BUILD_CONAN_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "BUILD_MDT_RUNTIME_ENVIRONMENT_STATIC_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CONAN_PROFILE_BUILD": "$env{CONAN_PROFILE_BUILD}",
+        "CONAN_PROFILE_HOST": "$env{CONAN_PROFILE_HOST}"
+      },
+      "environment": {
+          "CXX": "g++-13",
+          "CC": "gcc-13"
       }
     },
     {

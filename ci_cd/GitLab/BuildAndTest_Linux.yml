@@ -26,6 +26,35 @@ Test_Linux_Gcc13_x86_64_Make_CoreTestsOnly_Debug:
   extends: .test_linux
 
 
+#######################################################
+# Tests with dependencies magaed by Conan
+# Those depends also on Qt
+# (see also https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/24)
+#######################################################
+
+.buildAndTest_Linux_gcc13_x86_64_Make_ConanAndQt:
+  image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-13:latest
+  variables:
+    CONAN_PROFILE_BUILD: linux_gcc13_x86_64
+    CONAN_PROFILE_HOST: linux_ubuntu-24.04_gcc13_x86_64_qt_and_more
+    BUILD_TYPE: Debug
+
+
+Build_Linux_Gcc13_x86_64_Make_ConanAndQt_Debug:
+  variables:
+    CMAKE_CONFIGURE_PRESET: "dev_conan_unix_makefiles_gcc_tests_with_conan_and_qt"
+  extends:
+    - .buildAndTest_Linux_gcc13_x86_64_Make_ConanAndQt
+    - .build_linux_ConanAndQt
+
+Test_Linux_Gcc13_x86_64_Make_ConanAndQt_Debug:
+  dependencies:
+    - Build_Linux_Gcc13_x86_64_Make_ConanAndQt_Debug
+  needs: ["Build_Linux_Gcc13_x86_64_Make_ConanAndQt_Debug"]
+  extends:
+    - .buildAndTest_Linux_gcc13_x86_64_Make_ConanAndQt
+    - .test_linux_ConanAndQt
+
 # Build_Linux_Gcc13_x86_64_Make_Debug:
 #   image: registry.gitlab.com/scandyna/docker-images-ubuntu/ubuntu-24.04-gcc-13:latest
 #   variables:

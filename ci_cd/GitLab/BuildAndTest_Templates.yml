@@ -54,6 +54,18 @@
       "-DBUILD_REAL_INSTALL_TESTS=${BUILD_REAL_INSTALL_TESTS}"
       ..
 
+# The toolchain file has also to be passed to the cmake command,
+# because CMake presets do not have something like ${buildDir} initialized.
+# See: https://discourse.cmake.org/t/preset-macro-expansion-for-binarydir/3650/3
+.cmake_configure_conan:
+  script:
+    - cmake
+      "--preset ${CMAKE_CONFIGURE_PRESET}"
+      "-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}"
+      "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
+      "-DBUILD_REAL_INSTALL_TESTS=${BUILD_REAL_INSTALL_TESTS}"
+      ..
+
 #######################################################
 # Tests without dependencies
 # We don't use Conan generated config files here,
@@ -125,13 +137,13 @@
 # so try to use Conan here
 #######################################################
 
-.build_linux_WithQt:
+.build_linux_ConanAndQt:
   stage: build
   rules: *BuildAndTest_rules
   variables:
     # Give the full path to the toolchain file because it will be passed to tests
     TOOLCHAIN_FILE: "${CI_PROJECT_DIR}/build/conan_toolchain.cmake"
-    BUILD_QT_TESTS: 'ON'
+    # BUILD_QT_TESTS: 'ON'
     BUILD_REAL_INSTALL_TESTS: 'ON'
   before_script:
     - !reference [.setup_conan, script]
@@ -139,17 +151,17 @@
     - mkdir build
     - cd build
     - !reference [.conan_install, script]
-    - source conanbuild.sh || true  # Workaround to https://gitlab.com/gitlab-org/ci-cd/pipeline-authoring-stack-rank/-/issues/1
-    - !reference [.cmake_configure, script]
+    # - source conanbuild.sh || true  # Workaround to https://gitlab.com/gitlab-org/ci-cd/pipeline-authoring-stack-rank/-/issues/1
+    - !reference [.cmake_configure_conan, script]
     - cmake --build . --config $BUILD_TYPE -j2
-    - source deactivate_conanbuild.sh
+    # - source deactivate_conanbuild.sh
   artifacts:
     when: always
     expire_in: 1 day
     paths:
       - build
 
-.build_windows_WithQt:
+.build_windows_ConanAndQt:
   stage: build
   rules: *BuildAndTest_rules
   variables:
@@ -176,7 +188,7 @@
       - build
 
 
-.test_base_WithQt:
+.test_base_ConanAndQt:
   stage: test
   rules: *BuildAndTest_rules
   script:
@@ -190,7 +202,7 @@
     paths:
       - build
 
-.test_linux_WithQt:
+.test_linux_ConanAndQt:
   extends:
     - .test_base_WithQt
   before_script:
@@ -198,7 +210,7 @@
     - /etc/init.d/xdummy-server start
     - sysctl vm.mmap_rnd_bits=28 # See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/19
 
-.test_windows_WithQt:
+.test_windows_ConanAndQt:
   extends:
     - .test_base_WithQt
     - .windows_runner

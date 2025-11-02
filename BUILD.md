@@ -72,21 +72,6 @@ Get the sources:
 git clone https://github.com/scandyna/mdt-cmake-modules.git
 ```
 
-## Build and test - sandbox
-
-TODO: -S .... -B ....
-
-```shell
-
-cmake --preset  ...
-cmake --preset  ...
-
-OR
-
-cmake --preset dev_unix_makefiles_gcc_tests_with_conan ...
-cmake --preset dev_unix_makefiles_gcc_tests_with_conan_and_qt ...
-```
-
 ## Note for some Linux platforms
 
 Some tests will run ThreadSanitizer (TSan).
@@ -119,16 +104,6 @@ This will work with a system wide installed Qt:
 cmake --preset dev_unix_makefiles_gcc13_tests_with_qt -DCMAKE_BUILD_TYPE=Debug ..
 ```
 
-### Configure for tests with Conan
-
- TODO: require a conditinal in conanfile.py . See if we maybe supress this variant
-
-```bash
-conan install --profile:build linux_gcc13_x86_64 --profile:host linux_ubuntu-24.04_gcc13 --settings:build build_type=Release --settings:host build_type=Debug --output-folder . ..
-cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan -DCMAKE_BUILD_TYPE=Debug ..
-```
-
-
 ### Configure for tests with Conan and Qt
 
 Note: when working on multiple builds, Conan will add them to `ConanPresets.json`,
@@ -159,12 +134,6 @@ because CMake presets do not have something like `${buildDir}` initialized.
 See: https://discourse.cmake.org/t/preset-macro-expansion-for-binarydir/3650/3
 
 ### OLD stuff
-
-Configure using the default compiler (gcc):
-```bash
-mkdir build && cd build
-cmake --preset dev_unix_makefiles -DCMAKE_BUILD_TYPE=Debug ..
-```
 
 Configure using Clang 6.0 and libc++
 ```bash
