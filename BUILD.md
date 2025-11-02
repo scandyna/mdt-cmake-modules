@@ -40,6 +40,9 @@ See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/23
 
 Will also check that modules works correctly when using Conan.
 
+Note: this context is currently not supported.
+See: https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/24
+
 ### Tests with Conan and Qt
 
 Will also check that modules works correctly when using Conan
@@ -75,8 +78,8 @@ TODO: -S .... -B ....
 
 ```shell
 
-cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan ...
-cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan_and_qt ...
+cmake --preset  ...
+cmake --preset  ...
 
 OR
 
@@ -118,10 +121,44 @@ cmake --preset dev_unix_makefiles_gcc13_tests_with_qt -DCMAKE_BUILD_TYPE=Debug .
 
 ### Configure for tests with Conan
 
+ TODO: require a conditinal in conanfile.py . See if we maybe supress this variant
+
+```bash
+conan install --profile:build linux_gcc13_x86_64 --profile:host linux_ubuntu-24.04_gcc13 --settings:build build_type=Release --settings:host build_type=Debug --output-folder . ..
+cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan -DCMAKE_BUILD_TYPE=Debug ..
+```
+
 
 ### Configure for tests with Conan and Qt
 
+Note: when working on multiple builds, Conan will add them to `ConanPresets.json`,
+ending with dupplicate presets. In that case, remove it fisrt:
+```bash
+rm ../ConanPresets.json
+```
 
+```bash
+export CONAN_PROFILE_BUILD=linux_gcc13_x86_64
+export CONAN_PROFILE_HOST=linux_ubuntu-24.04_gcc13_x86_64_qt_and_more
+
+conan install --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST --settings:build build_type=Release --settings:host build_type=Debug --output-folder . ..
+
+cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan_and_qt -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake ..
+```
+
+The 2 environment variable `CONAN_PROFILE_BUILD` and `CONAN_PROFILE_HOST` are captured by CMake.
+This is defined in the preset.
+Those profiles are required for tests.
+This is the only known way to pass the Conan profiles to CMake
+(see also comments in the top level `conanfile.py`).
+After the first call of cmake, those 2 environment variable are not needed anymore
+(they are stored as CMake cache variables).
+
+The toolchain file has also to be passed to the cmake command,
+because CMake presets do not have something like `${buildDir}` initialized.
+See: https://discourse.cmake.org/t/preset-macro-expansion-for-binarydir/3650/3
+
+### OLD stuff
 
 Configure using the default compiler (gcc):
 ```bash
