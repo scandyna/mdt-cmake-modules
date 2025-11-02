@@ -28,6 +28,7 @@
     - conan install
       --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
       --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
+      --output-folder .
       ..
 
 # TODO: remove once possible
