@@ -991,32 +991,6 @@ set_tests_properties(GlIssue12_TargetFilePath_app_BuildAndRun PROPERTIES DEPENDS
 
 if(BUILD_CONAN_TESTS)
 
-  # TODO: what we should colect:
-  # - profiles
-  # - see what is in the conan toolchain - compiler ? ENV ?
-  # -- see https://github.com/conan-io/conan/issues/9193
-  # --> https://docs.conan.io/2/reference/extensions/python_api/ProfilesAPI.html <- NO !
-  #
-  # TODO: profile, cache variables in global CMakeLists.txt
-
-  # Conan create command:
-  # - conan create --version 0.0.0 --user scandyna --channel testing $CONAN_PACKAGING_DIR/$COMPONENT
-  #   --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
-  #   --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
-  #   -o "${COMPONENT}/*:shared=${SHARED_LIBS}"
-
-  # Conan install command:
-  # - conan install
-  #   --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST
-  #   --settings:build build_type=Release --settings:host build_type=$BUILD_TYPE
-  #   --options:host "&:shared=$SHARED_LIBS"
-  #   ..
-
-  # TODO SA: conan_cmake for compiler, arch, etc...
-  
-  # TODO: also document in README, update CI, see if CMake presets can help.
-  # TODO -> main CMakeLists
-
   if(NOT CONAN_PROFILE_BUILD)
     message(FATAL_ERROR "CONAN_PROFILE_BUILD not defined")
   endif()
