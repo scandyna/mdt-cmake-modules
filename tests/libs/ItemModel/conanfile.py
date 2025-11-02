@@ -9,6 +9,7 @@ class MdtCmakeModulesTestMdtItemModelConan(ConanFile):
   url = "https://github.com/scandyna/mdt-cmake-modules"
   description = "Test package for MdtCmakeModules tests"
   settings = "os", "compiler", "build_type", "arch"
+  package_type = "library"
   options = {"shared": [True, False], "install_namespace_package_config_files": [True, False]}
   default_options = {"shared": True, "install_namespace_package_config_files": True}
   generators = "CMakeDeps", "VirtualBuildEnv"

@@ -15,6 +15,7 @@ class MdtCmakeModulesTestMdtHeaderOnlyConan(ConanFile):
   # We will remove them in the package_id()
   # See: https://docs.conan.io/2/tutorial/creating_packages/other_types_of_packages/header_only_packages.html
   settings = "os", "compiler", "build_type", "arch"
+  package_type = "header-library"
   options = {"install_namespace_package_config_files": [True, False]}
   default_options = {"install_namespace_package_config_files": True}
   generators = "CMakeDeps", "VirtualBuildEnv"
@@ -25,7 +26,7 @@ class MdtCmakeModulesTestMdtHeaderOnlyConan(ConanFile):
   short_paths = True
 
   def requirements(self):
-    self.requires("mdtcmakeconfig/0.1.0@scandyna/testing")
+    self.requires("mdtcmakeconfig/0.2.3@scandyna/testing")
 
   def build_requirements(self):
     self.test_requires("mdtcmakemodules/[>0.1]@mdtcmakemodules_tests/testing")
@@ -50,6 +51,7 @@ class MdtCmakeModulesTestMdtHeaderOnlyConan(ConanFile):
     cmake = CMake(self)
     cmake.install()
 
+  # TODO: is this redundant to package_type ?
   def package_id(self):
     self.info.clear()
 

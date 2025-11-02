@@ -9,6 +9,7 @@ class MdtCmakeModulesTestMdtItemEditorConan(ConanFile):
   url = "https://github.com/scandyna/mdt-cmake-modules"
   description = "Test package for MdtCmakeModules tests"
   settings = "os", "compiler", "build_type", "arch"
+  package_type = "library"
   options = {"shared": [True, False]}
   default_options = {"shared": True}
   generators = "CMakeDeps", "VirtualBuildEnv"
@@ -19,7 +20,7 @@ class MdtCmakeModulesTestMdtItemEditorConan(ConanFile):
   short_paths = True
 
   def requirements(self):
-    self.requires("mdtcmakemodulestests_mdtitemmodel/0.1@mdtcmakemodules_tests/testing")
+    self.requires("mdtcmakemodulestests_mdtitemmodel/0.1@mdtcmakemodules_tests/testing", transitive_headers=True)
 
   def build_requirements(self):
     self.test_requires("mdtcmakemodules/[>0.1]@mdtcmakemodules_tests/testing")

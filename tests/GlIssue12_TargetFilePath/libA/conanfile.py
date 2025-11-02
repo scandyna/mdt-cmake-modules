@@ -27,7 +27,7 @@ class MdtLibAConan(ConanFile):
     cmake_layout(self)
 
   def requirements(self):
-    self.requires("mdtcmakeconfig/0.1.0@scandyna/testing")
+    self.requires("mdtcmakeconfig/0.2.3@scandyna/testing")
 
   def build_requirements(self):
     self.test_requires("mdtcmakemodules/0.2@mdtcmakemodules_tests/testing")
