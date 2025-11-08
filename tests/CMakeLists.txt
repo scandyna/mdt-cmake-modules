@@ -627,197 +627,12 @@ set_tests_properties(Install_MdtItemEditor_CL_opt
 )
 
 
-####################################
-# Test installing in common location
-#
-# This set of tests will also check
-# UNIX system wide installations
-####################################
-
-
-# Build and install MdtCMakeModules
-
-add_test(NAME Build_MdtCMakeModules_CL
-  COMMAND "${CMAKE_CTEST_COMMAND}"
-    --build-and-test "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL"
-    --build-generator "${CMAKE_GENERATOR}"
-    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
-    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-    --build-config $<CONFIG>
-    --build-options
-      "-DCMAKE_INSTALL_PREFIX=/usr"
-)
-
-add_test(NAME Install_MdtCMakeModules_CL
-  COMMAND "${CMAKE_COMMAND}"
-    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
-    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL/cmake_install.cmake"
-)
-
-set_tests_properties(Install_MdtCMakeModules_CL
-  PROPERTIES
-    DEPENDS Build_MdtCMakeModules_CL
-    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
-)
-
-if(BUILD_REAL_INSTALL_TESTS)
-
-  add_test(NAME Install_MdtCMakeModules_CL_usr_Real
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL" --target install --config $<CONFIG>
-  )
-
-  set_tests_properties(Install_MdtCMakeModules_CL_usr_Real
-    PROPERTIES
-      DEPENDS Build_MdtCMakeModules_CL
-  )
-
-endif()
-
-# gl_issue3: configure and install a INTERFACE library
-
-add_test(NAME ConfigureAndTest_HeaderOnly_CL
-  COMMAND "${CMAKE_CTEST_COMMAND}"
-    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/HeaderOnly" "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL"
-    --build-generator "${CMAKE_GENERATOR}"
-    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
-    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-    --build-config $<CONFIG>
-    --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
-      "-DCMAKE_INSTALL_PREFIX=/usr"
-      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
-    --test-command "${CMAKE_CTEST_COMMAND}"
-)
-set_tests_properties(ConfigureAndTest_HeaderOnly_CL PROPERTIES DEPENDS Install_MdtCMakeModules_CL)
-
-add_test(NAME Install_HeaderOnly_CL
-  COMMAND "${CMAKE_COMMAND}"
-    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
-    -P "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL/cmake_install.cmake"
-)
-set_tests_properties(Install_HeaderOnly_CL
-  PROPERTIES
-    DEPENDS ConfigureAndTest_HeaderOnly_CL
-    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
-)
-
-if(BUILD_REAL_INSTALL_TESTS)
-
-  add_test(NAME Install_HeaderOnly_CL_usr_Real
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL" --target install --config $<CONFIG>
-  )
-
-  set_tests_properties(Install_HeaderOnly_CL_usr_Real
-    PROPERTIES
-      DEPENDS ConfigureAndTest_HeaderOnly_CL
-  )
-
-endif()
-
-
-# Build + install MdtItemModel
-
-add_test(NAME Build_MdtItemModel_CL
-  COMMAND "${CMAKE_CTEST_COMMAND}"
-    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemModel" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL"
-    --build-generator "${CMAKE_GENERATOR}"
-    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
-    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-    --build-config $<CONFIG>
-    --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
-      "-DCMAKE_INSTALL_PREFIX=/usr"
-      "-DBUILD_SHARED_LIBS=ON"
-      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
-    --test-command "${CMAKE_CTEST_COMMAND}"
-)
-set_tests_properties(Build_MdtItemModel_CL PROPERTIES DEPENDS Install_HeaderOnly_CL)
-
-add_test(NAME Install_MdtItemModel_CL
-  COMMAND "${CMAKE_COMMAND}"
-    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
-    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL/cmake_install.cmake"
-)
-set_tests_properties(Install_MdtItemModel_CL
-  PROPERTIES
-    DEPENDS Build_MdtItemModel_CL
-    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
-)
-
-if(BUILD_REAL_INSTALL_TESTS)
-
-  add_test(NAME Install_MdtItemModel_CL_usr_Real
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL" --target install --config $<CONFIG>
-  )
-
-  set_tests_properties(Install_MdtItemModel_CL_usr_Real
-    PROPERTIES
-      DEPENDS Build_MdtItemModel_CL
-  )
-
-endif()
-
-# Build + install MdtItemEditor
-
-add_test(NAME Build_MdtItemEditor_CL
-  COMMAND "${CMAKE_CTEST_COMMAND}"
-    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL"
-    --build-generator "${CMAKE_GENERATOR}"
-    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
-    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-    --build-config $<CONFIG>
-    --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
-      "-DCMAKE_INSTALL_PREFIX=/usr"
-      "-DBUILD_SHARED_LIBS=ON"
-      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
-    --test-command "${CMAKE_CTEST_COMMAND}"
-)
-set_tests_properties(Build_MdtItemEditor_CL PROPERTIES DEPENDS Install_MdtItemModel_CL)
-
-add_test(NAME Install_MdtItemEditor_CL
-  COMMAND "${CMAKE_COMMAND}"
-    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
-    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL/cmake_install.cmake"
-)
-set_tests_properties(Install_MdtItemEditor_CL
-  PROPERTIES
-    DEPENDS Build_MdtItemEditor_CL
-    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
-)
-
-if(BUILD_REAL_INSTALL_TESTS)
-
-  add_test(NAME Install_MdtItemEditor_CL_usr_Real
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL" --target install --config $<CONFIG>
-  )
-
-  set_tests_properties(Install_MdtItemEditor_CL_usr_Real
-    PROPERTIES
-      DEPENDS Build_MdtItemEditor_CL
-  )
-
-endif()
-
-# Build + run TableEditor app
-
-add_test(NAME BuildAndRun_TableEditor_CL
-  COMMAND "${CMAKE_CTEST_COMMAND}"
-    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildTableEditorCL"
-    --build-generator "${CMAKE_GENERATOR}"
-    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
-    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-    --build-config $<CONFIG>
-    --build-options
-      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
-      "-DCMAKE_INSTALL_PREFIX=/usr"
-      "-DBUILD_SHARED_LIBS=ON"
-    --test-command "${CMAKE_CTEST_COMMAND}" -V
-)
-set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtItemEditor_CL)
-
 #########################################################################
 # mdt_install_executable() test
+#########################################################################
+# Group: install in common location /opt
+# Part: (common) build and test - install relocated with DESTDIR
+#########################################################################
 #
 # Use a simple executable that depends on ItemEditor test library.
 # We not add other non std dependencies, like Qt.
@@ -832,7 +647,7 @@ set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtIt
 # One goal ist to check that RPATH are set correctly for Unixes
 # (note that RPATH will be empty on UNIX system wide install)
 #
-# A other goal is to check that the app is installed correctly and
+# Another goal is to check that the app is installed correctly and
 # that the CMake package files are generated and installed correctly.
 #
 # To make the test run, also on Windows,
@@ -889,49 +704,6 @@ add_test(NAME BuildAndRun_TableEditorUserProject_CL_opt
 )
 set_tests_properties(BuildAndRun_TableEditorUserProject_CL_opt PROPERTIES DEPENDS Install_TableEditor_CL_opt)
 
-# Build and install TableEditor for /usr
-
-if(BUILD_REAL_INSTALL_TESTS)
-
-  add_test(NAME Build_TableEditor_CL_usr
-    COMMAND "${CMAKE_CTEST_COMMAND}"
-      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditor_CL_usr"
-      --build-generator "${CMAKE_GENERATOR}"
-      --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
-      --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-      --build-config $<CONFIG>
-      --build-options
-        "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
-        "-DCMAKE_INSTALL_PREFIX=/usr"
-        "-DBUILD_SHARED_LIBS=ON"
-  )
-  set_tests_properties(Build_TableEditor_CL_usr PROPERTIES DEPENDS Install_MdtItemEditor_CL_usr_Real)
-
-  add_test(NAME Install_TableEditor_CL_usr_Real
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditor_CL_usr" --target install --config $<CONFIG>
-  )
-  set_tests_properties(Install_TableEditor_CL_usr_Real
-    PROPERTIES
-      DEPENDS Build_TableEditor_CL_usr
-  )
-
-  # Build and run the user project
-
-  add_test(NAME BuildAndRun_TableEditorUserProject_CL_usr_Real
-    COMMAND "${CMAKE_CTEST_COMMAND}"
-      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditorUserProject" "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditorUserProject_CL_usr"
-      --build-generator "${CMAKE_GENERATOR}"
-      --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
-      --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
-      --build-config $<CONFIG>
-      --build-options
-        "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
-        "-DBUILD_SHARED_LIBS=ON"
-      --test-command "${CMAKE_CTEST_COMMAND}" -V
-  )
-  set_tests_properties(BuildAndRun_TableEditorUserProject_CL_usr_Real PROPERTIES DEPENDS Install_TableEditor_CL_usr_Real)
-
-endif()
 
 ################################################################################
 # GL issue 12
@@ -1216,3 +988,326 @@ if(BUILD_CONAN_TESTS)
   )
 
 endif()
+
+
+
+# TODO: review - CL and CL real -CL -> DESTDIR - For deps / clareté: group Real together ??? Blocks with name
+
+
+
+
+# TODO: seems to be a CL Common Location super block - yes: Group
+
+
+#########################################################################
+# BEGIN Group: install in common location /usr
+#########################################################################
+# In this group we check that installing in common location works.
+# Some tests will relocate the install using DESTDIR,
+# allowing those to run on any machine.
+# Some tests will install system wide, and should only run
+# in a virtualized machine (f.ex. a Docker image).
+#########################################################################
+
+
+#########################################################################
+# Build and install MdtCMakeModules
+#########################################################################
+# Group: install in common location /usr
+# Part: common build and test - install relocated with DESTDIR
+#########################################################################
+
+add_test(NAME Build_MdtCMakeModules_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+)
+
+add_test(NAME Install_MdtCMakeModules_CL
+  COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL/cmake_install.cmake"
+)
+
+set_tests_properties(Install_MdtCMakeModules_CL
+  PROPERTIES
+    DEPENDS Build_MdtCMakeModules_CL
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+
+#########################################################################
+# gl_issue3 (GL-3): configure and install an INTERFACE library
+#########################################################################
+# Group: install in common location /usr
+# Part: common build and test - install relocated with DESTDIR
+#########################################################################
+
+add_test(NAME ConfigureAndTest_HeaderOnly_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/HeaderOnly" "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(ConfigureAndTest_HeaderOnly_CL PROPERTIES DEPENDS Install_MdtCMakeModules_CL)
+
+add_test(NAME Install_HeaderOnly_CL
+  COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL/cmake_install.cmake"
+)
+set_tests_properties(Install_HeaderOnly_CL
+  PROPERTIES
+    DEPENDS ConfigureAndTest_HeaderOnly_CL
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+
+#########################################################################
+# Build and install MdtItemModel
+#########################################################################
+# Group: install in common location /usr
+# Part: common build and test - install relocated with DESTDIR
+#########################################################################
+
+add_test(NAME Build_MdtItemModel_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemModel" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+      "-DBUILD_SHARED_LIBS=ON"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(Build_MdtItemModel_CL PROPERTIES DEPENDS Install_HeaderOnly_CL)
+
+add_test(NAME Install_MdtItemModel_CL
+  COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL/cmake_install.cmake"
+)
+set_tests_properties(Install_MdtItemModel_CL
+  PROPERTIES
+    DEPENDS Build_MdtItemModel_CL
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+
+#########################################################################
+# Build and install MdtItemEditor
+#########################################################################
+# Group: install in common location /usr
+# Part: common build and test - install relocated with DESTDIR
+#########################################################################
+
+add_test(NAME Build_MdtItemEditor_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/libs/ItemEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+      "-DBUILD_SHARED_LIBS=ON"
+      "-DINSTALL_NAMESPACE_PACKAGE_CONFIG_FILES=OFF"
+    --test-command "${CMAKE_CTEST_COMMAND}"
+)
+set_tests_properties(Build_MdtItemEditor_CL PROPERTIES DEPENDS Install_MdtItemModel_CL)
+
+add_test(NAME Install_MdtItemEditor_CL
+  COMMAND "${CMAKE_COMMAND}"
+    -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+    -P "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL/cmake_install.cmake"
+)
+set_tests_properties(Install_MdtItemEditor_CL
+  PROPERTIES
+    DEPENDS Build_MdtItemEditor_CL
+    ENVIRONMENT "DESTDIR=${CMAKE_CURRENT_BINARY_DIR}"
+)
+
+
+#########################################################################
+# Build and run TableEditor app
+#########################################################################
+# Group: install in common location /usr
+# Part: build and run using reloctaed install
+#########################################################################
+
+add_test(NAME BuildAndRun_TableEditor_CL
+  COMMAND "${CMAKE_CTEST_COMMAND}"
+    --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/buildTableEditorCL"
+    --build-generator "${CMAKE_GENERATOR}"
+    --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+    --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+    --build-config $<CONFIG>
+    --build-options
+      "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+      "-DCMAKE_INSTALL_PREFIX=/usr"
+      "-DBUILD_SHARED_LIBS=ON"
+    --test-command "${CMAKE_CTEST_COMMAND}" -V
+)
+set_tests_properties(BuildAndRun_TableEditor_CL PROPERTIES DEPENDS Install_MdtItemEditor_CL)
+
+
+#########################################################################
+# Test installing UNIX system wide
+#
+# # Those tests must run at the end #
+# to avoid having some libraries available in the PATH.
+# Example CI job: https://gitlab.com/scandyna/mdt-cmake-modules/-/jobs/11942878280
+# This job should have failed,
+# because MdtRuntimeEnvironment did not work with Conan 2
+# On my PC, BUILD_REAL_INSTALL_TESTS is OFF,
+# and tests like Conan_BuildAndRun_TableEditor failed,
+# because libMdt0ItemModel.so.0 could not be found.
+# This is normal, because each shared library is installed in another dir,
+# and RPATH are set to ORIGIN.
+# Because MdtRuntimeEnvironment did not work, LD_LIBRARY_PATH was empty.
+#########################################################################
+
+set(TESTS_TO_RUN_BEFORE_REAL_INSTALL_TESTS "BuildAndRun_Hello;BuildAndRun_HelloCompileOptions;BuildAndRun_HelloASan;BuildAndRun_HelloMSan;BuildAndRun_HelloUBSan;BuildAndRun_HelloTSan;BuildAndRun_TableEditor;BuildAndTest_TableEditorGlIssue4;BuildAndRun_TableEditor_Mdt;BuildAndRun_TableEditorUserProject_CL_opt")
+if(BUILD_CONAN_TESTS)
+  list(APPEND TESTS_TO_RUN_BEFORE_REAL_INSTALL_TESTS "Conan_BuildAndRun_TableEditor;Conan_BuildAndRun_TableEditor_CMakeDeps_GlIssue07")
+endif()
+
+if(BUILD_REAL_INSTALL_TESTS)
+
+  #########################################################################
+  # Build and install MdtCMakeModules
+  #########################################################################
+  # Group: install in common location /usr
+  # Part: real system wide install
+  #########################################################################
+
+  add_test(NAME Install_MdtCMakeModules_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtCMakeModulesCL" --target install --config $<CONFIG>
+  )
+
+  set_tests_properties(Install_MdtCMakeModules_CL_usr_Real
+    PROPERTIES
+      DEPENDS "Build_MdtCMakeModules_CL;${TESTS_TO_RUN_BEFORE_REAL_INSTALL_TESTS}"
+  )
+
+
+  #########################################################################
+  # gl_issue3 (GL-3): configure and install an INTERFACE library
+  #########################################################################
+  # Group: install in common location /usr
+  # Part: real system wide install
+  #########################################################################
+
+  add_test(NAME Install_HeaderOnly_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildHeaderOnlyCL" --target install --config $<CONFIG>
+  )
+
+  set_tests_properties(Install_HeaderOnly_CL_usr_Real
+    PROPERTIES
+      DEPENDS "ConfigureAndTest_HeaderOnly_CL;${TESTS_TO_RUN_BEFORE_REAL_INSTALL_TESTS}"
+  )
+
+
+  #########################################################################
+  # Build and install MdtItemModel
+  #########################################################################
+  # Group: install in common location /usr
+  # Part: real system wide install
+  #########################################################################
+
+  add_test(NAME Install_MdtItemModel_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemModelCL" --target install --config $<CONFIG>
+  )
+
+  set_tests_properties(Install_MdtItemModel_CL_usr_Real
+    PROPERTIES
+      DEPENDS "Build_MdtItemModel_CL;${TESTS_TO_RUN_BEFORE_REAL_INSTALL_TESTS}"
+  )
+
+
+  #########################################################################
+  # Build and install MdtItemEditor
+  #########################################################################
+  # Group: install in common location /usr
+  # Part: real system wide install
+  #########################################################################
+
+  add_test(NAME Install_MdtItemEditor_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/buildMdtItemEditorCL" --target install --config $<CONFIG>
+  )
+
+  set_tests_properties(Install_MdtItemEditor_CL_usr_Real
+    PROPERTIES
+      DEPENDS "Build_MdtItemEditor_CL;${TESTS_TO_RUN_BEFORE_REAL_INSTALL_TESTS}"
+  )
+
+
+  #########################################################################
+  # mdt_install_executable() test
+  #########################################################################
+  # Group: install in common location /usr
+  # Part: (common) build and test - real system wide install
+  #########################################################################
+
+  # Build and install TableEditor for /usr
+
+  add_test(NAME Build_TableEditor_CL_usr
+    COMMAND "${CMAKE_CTEST_COMMAND}"
+      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditor" "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditor_CL_usr"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+      --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+      --build-config $<CONFIG>
+      --build-options
+        "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+        "-DCMAKE_INSTALL_PREFIX=/usr"
+        "-DBUILD_SHARED_LIBS=ON"
+  )
+  set_tests_properties(Build_TableEditor_CL_usr PROPERTIES DEPENDS Install_MdtItemEditor_CL_usr_Real)
+
+  add_test(NAME Install_TableEditor_CL_usr_Real
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditor_CL_usr" --target install --config $<CONFIG>
+  )
+  set_tests_properties(Install_TableEditor_CL_usr_Real
+    PROPERTIES
+      DEPENDS "Build_TableEditor_CL_usr;${TESTS_TO_RUN_BEFORE_REAL_INSTALL_TESTS}"
+  )
+
+  # Build and run the user project
+
+  add_test(NAME BuildAndRun_TableEditorUserProject_CL_usr_Real
+    COMMAND "${CMAKE_CTEST_COMMAND}"
+      --build-and-test "${CMAKE_SOURCE_DIR}/tests/apps/TableEditorUserProject" "${CMAKE_CURRENT_BINARY_DIR}/build/TableEditorUserProject_CL_usr"
+      --build-generator "${CMAKE_GENERATOR}"
+      --build-generator-platform "${CMAKE_GENERATOR_PLATFORM}"
+      --build-generator-toolset "${CMAKE_GENERATOR_TOOLSET}"
+      --build-config $<CONFIG>
+      --build-options
+        "-DCMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/usr"
+        "-DBUILD_SHARED_LIBS=ON"
+      --test-command "${CMAKE_CTEST_COMMAND}" -V
+  )
+  set_tests_properties(BuildAndRun_TableEditorUserProject_CL_usr_Real PROPERTIES DEPENDS Install_TableEditor_CL_usr_Real)
+
+endif() # if(BUILD_REAL_INSTALL_TESTS)
+
+#########################################################################
+# END Group: install in common location /usr
+#########################################################################
