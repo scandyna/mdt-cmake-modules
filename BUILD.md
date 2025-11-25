@@ -133,7 +133,21 @@ The toolchain file has also to be passed to the cmake command,
 because CMake presets do not have something like `${buildDir}` initialized.
 See: https://discourse.cmake.org/t/preset-macro-expansion-for-binarydir/3650/3
 
-### OLD stuff
+## Build the documentation on Linux
+
+Configure:
+```cmd
+mkdir build && cd build
+cmake --preset linux_doc ..
+```
+
+Build the documentation:
+```bash
+make documentation
+```
+
+
+## OLD stuff
 
 Configure using Clang 6.0 and libc++
 ```bash
@@ -213,17 +227,4 @@ cmake --build . --config Debug
 To run the tests:
 ```bash
 ctest --output-on-failure -C Debug -j4 .
-```
-
-## Build the documentation on Linux
-
-Configure:
-```cmd
-mkdir build && cd build
-cmake --preset linux_doc ..
-```
-
-Build the documentation:
-```bash
-make documentation
 ```
