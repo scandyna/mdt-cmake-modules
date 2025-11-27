@@ -6,6 +6,12 @@ Some CMake modules used in my projects
 
 [[_TOC_]]
 
+# Existing projects
+
+- [CMake native cmake-modules](https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html)
+- [KDE Extra CMake Modules](https://api.kde.org/ecm/)
+- [BDE Build System](https://bloomberg.github.io/bde-tools/)
+
 # Usage
 
 Add the following to your ``CMakeLists.txt``:
