@@ -867,7 +867,12 @@ if(BUILD_CONAN_TESTS)
         "-DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"
       --test-command "${CMAKE_CTEST_COMMAND}" -V
   )
-  set_tests_properties(Conan_BuildAndRun_TableEditor PROPERTIES DEPENDS Conan_Install_TableEditor_dependecies)
+  set_tests_properties(Conan_BuildAndRun_TableEditor
+    PROPERTIES
+      DEPENDS Conan_Install_TableEditor_dependecies
+      # GL-12 (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/12)
+      DISABLED True
+  )
 
   # Build and run a simple executable
   # This project uses Conan CMakeDeps generator
@@ -899,7 +904,13 @@ if(BUILD_CONAN_TESTS)
         "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_BINARY_DIR}/build/GlIssue07_TestEnvPath/TableEditor_Conan_CMakeDeps/conan_toolchain.cmake"
       --test-command "${CMAKE_CTEST_COMMAND}" -V
   )
-  set_tests_properties(Conan_BuildAndRun_TableEditor_CMakeDeps_GlIssue07 PROPERTIES DEPENDS Conan_Install_TableEditor_CMakeDeps_GlIssue07_dependencies)
+  set_tests_properties(Conan_BuildAndRun_TableEditor_CMakeDeps_GlIssue07
+    PROPERTIES
+      DEPENDS Conan_Install_TableEditor_CMakeDeps_GlIssue07_dependencies
+      # GL-12 (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/12)
+      # GL-7 (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/7)
+      DISABLED True
+    )
   # See remarks for Conan_Create_MdtCMakeModules
   mdt_append_test_environment_variables_string(Conan_BuildAndRun_TableEditor_CMakeDeps_GlIssue07
     "CONAN_CMAKE_GENERATOR=${CMAKE_GENERATOR};CC=${CMAKE_C_COMPILER};CXX=${CMAKE_CXX_COMPILER}"
