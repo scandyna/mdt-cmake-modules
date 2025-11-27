@@ -13,6 +13,8 @@
 #
 # .. command:: mdt_add_test
 #
+# Requires at least CMake 3.22.
+#
 # Add a test::
 #
 #   mdt_add_test(
@@ -27,7 +29,7 @@
 # Will add a executable target named ``target`` using :command:`add_executable()`,
 # then add a test using :command:`add_test()`.
 #
-# See also :command:`mdt_set_test_library_env_path()`
+# See also :command:`mdt_modify_test_library_env_path()`
 # and :command:`mdt_target_libraries_to_library_env_path()`.
 #
 # Example:
@@ -140,6 +142,10 @@ include(MdtRuntimeEnvironment)
 
 function(mdt_add_test)
 
+  if(${CMAKE_VERSION} VERSION_LESS "3.22")
+    message(FATAL_ERROR "mdt_add_test() only works with CMake >= 3.22")
+  endif()
+
   set(options)
   set(oneValueArgs NAME TARGET)
   set(multiValueArgs DEPENDENCIES SOURCE_FILES)
@@ -166,6 +172,6 @@ function(mdt_add_test)
 
   add_test(NAME ${ARG_NAME} COMMAND ${ARG_TARGET})
 
-  mdt_set_test_library_env_path(NAME ${ARG_NAME} TARGET ${ARG_TARGET})
+  mdt_modify_test_library_env_path(NAME ${ARG_NAME} TARGET ${ARG_TARGET})
 
 endfunction()

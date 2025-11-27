@@ -3,6 +3,7 @@
 
 #############################################################
 # Documentation example
+#  PATH_LIST_VALUE_STRING_PREFIX argument: not used
 #  LD_LIBRARY_PATH initially empty
 #  conanbuildinfo.txt not used
 #############################################################
@@ -15,6 +16,24 @@ set(MDT_CONAN_BUILD_INFO_FILE_PATH "")
 mdt_target_libraries_to_library_env_path(myAppEnv TARGET MyAppLib)
 
 require_string_equals_to(myAppEnv "LD_LIBRARY_PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>")
+
+
+#############################################################
+# Documentation example
+#  PATH_LIST_VALUE_STRING_PREFIX argument: path_list_prepend:
+#  LD_LIBRARY_PATH initially empty
+#  conanbuildinfo.txt not used
+#############################################################
+
+message(VERBOSE "TEST mdt_target_libraries_to_library_env_path(): documentation example, LD_LIBRARY_PATH initially empty, PATH_LIST_VALUE_STRING_PREFIX path_list_prepend:")
+
+set(ENV{LD_LIBRARY_PATH} "")
+set(MDT_CONAN_BUILD_INFO_FILE_PATH "")
+
+mdt_target_libraries_to_library_env_path(myAppEnv TARGET MyAppLib PATH_LIST_VALUE_STRING_PREFIX "path_list_prepend:")
+
+require_string_equals_to(myAppEnv "LD_LIBRARY_PATH=path_list_prepend:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>")
+
 
 #############################################################
 # Documentation example

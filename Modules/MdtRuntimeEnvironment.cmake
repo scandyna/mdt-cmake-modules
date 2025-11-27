@@ -5,7 +5,35 @@ include(MdtTargetDependenciesHelpers)
 include(MdtConanBuildInfoReader)
 
 
+function(mdt_append_test_environment_modification_property_variables_string test_name)
+
+  if(${CMAKE_VERSION} VERSION_LESS "3.22")
+    message(FATAL_ERROR "mdt_append_test_environment_modification_property_variables_string() only works with CMake >= 3.22")
+  endif()
+
+  if(${ARGC} LESS 2)
+    message(FATAL_ERROR "mdt_append_test_environment_modification_property_variables_string(): expected a test name and a variables string")
+  endif()
+
+  if(NOT test_name)
+    message(FATAL_ERROR "mdt_append_test_environment_modification_property_variables_string(): test name argument missing")
+  endif()
+
+  get_test_property(${test_name} ENVIRONMENT_MODIFICATION testEnvirnoment)
+  if(testEnvirnoment)
+    set(testEnvirnoment "${testEnvirnoment};${ARGN}")
+  else()
+    set(testEnvirnoment "${ARGN}")
+  endif()
+
+  set_tests_properties(${test_name} PROPERTIES ENVIRONMENT_MODIFICATION "${testEnvirnoment}")
+
+endfunction()
+
+
 function(mdt_append_test_environment_variables_string test_name)
+
+  # message(DEPRECATION "mdt_append_test_environment_variables_string() is deprecated. Consider mdt_append_test_environment_modification_property_variables_string()")
 
   if(${ARGC} LESS 2)
     message(FATAL_ERROR "mdt_append_test_environment_variables_string(): expected a test name and a variables string")
@@ -30,7 +58,7 @@ endfunction()
 function(mdt_target_libraries_to_library_env_path out_var)
 
   set(options ALWAYS_USE_SLASHES)
-  set(oneValueArgs TARGET)
+  set(oneValueArgs TARGET PATH_LIST_VALUE_STRING_PREFIX)
   set(multiValueArgs "")
   cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -112,7 +140,7 @@ function(mdt_target_libraries_to_library_env_path out_var)
     string(APPEND envPathContent "${currentEnvPath}")
   endif()
 
-  set(envPath "${pathName}=${envPathContent}")
+  set(envPath "${pathName}=${ARG_PATH_LIST_VALUE_STRING_PREFIX}${envPathContent}")
 
   set(${out_var} ${envPath} PARENT_SCOPE)
 
@@ -143,6 +171,38 @@ function(mdt_set_test_library_env_path)
   if(envPath)
 #     set_tests_properties(${ARG_NAME} PROPERTIES ENVIRONMENT "${envPath}")
     mdt_append_test_environment_variables_string(${ARG_NAME} "${envPath}")
+  endif()
+
+endfunction()
+
+
+function(mdt_modify_test_library_env_path)
+
+  if(${CMAKE_VERSION} VERSION_LESS "3.22")
+    message(FATAL_ERROR "mdt_modify_test_library_env_path() only works with CMake >= 3.22")
+  endif()
+
+  set(options "")
+  set(oneValueArgs NAME TARGET)
+  set(multiValueArgs "")
+  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if(NOT ARG_NAME)
+    message(FATAL_ERROR "mdt_modify_test_library_env_path(): mandatory argument NAME missing")
+  endif()
+  if(NOT TARGET ${ARG_TARGET})
+    message(FATAL_ERROR "mdt_modify_test_library_env_path(): ${ARG_TARGET} is not a valid target")
+  endif()
+  if(ARG_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "mdt_modify_test_library_env_path(): unknown arguments passed: ${ARG_UNPARSED_ARGUMENTS}")
+  endif()
+
+  mdt_target_libraries_to_library_env_path(envPath TARGET ${ARG_TARGET} PATH_LIST_VALUE_STRING_PREFIX "path_list_prepend:")
+  if(WIN32)
+    string(REPLACE ";" "\\;" envPath "${envPath}")
+  endif()
+  if(envPath)
+    mdt_append_test_environment_modification_property_variables_string(${ARG_NAME} "${envPath}")
   endif()
 
 endfunction()

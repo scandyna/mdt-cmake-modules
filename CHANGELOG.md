@@ -1,3 +1,9 @@
+# [0.21.0] - 2025-11-27
+
+## Changed
+
+- Use `ENVIRONMENT_MODIFICATION` test property to avoid overwriting given runtime environment (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/25)
+
 
 # [0.20.0] - 2024-11-28
 

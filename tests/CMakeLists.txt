@@ -827,6 +827,9 @@ if(BUILD_CONAN_TESTS)
   )
 
   # Build and install MdtItemEditor
+  # This package also has a test_package
+  # to reproduce GL-25 (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/25)
+  # For more info, see the conanfile.py in the test_package.
   add_test(NAME Conan_Create_MdtItemEditor
     COMMAND "${CONAN_COMMAND}"
       create "${CMAKE_CURRENT_SOURCE_DIR}/libs/ItemEditor" "--version" "0.1" "--user" "mdtcmakemodules_tests" "--channel" "testing"

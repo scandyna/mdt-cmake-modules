@@ -15,8 +15,6 @@ Add a string of variables to the end of the ``ENVIRONMENT_MODIFICATION`` propert
 
   mdt_append_test_environment_modification_property_variables_string(SomeTest "VAR1=OP:value1;VAR2=OP:value2")
 
-  new_alternate_f(NAME <test-name> VARIABLE <variable-name> VALUE_STRING <string>)
-
 
 Example:
 
@@ -24,13 +22,6 @@ Example:
 
   mdt_append_test_environment_modification_property_variables_string(SomeTest
     "LD_LIBRARY_PATH=path_list_prepend:$<SHELL_PATH:/some/path/one;$<TARGET_FILE_DIR:SomeLibraryTarget>>:$ENV{LD_LIBRARY_PATH}"
-  )
-
-  new_alternate_f(NAME SomeTest
-    VARIABLE
-      LD_LIBRARY_PATH
-    VALUE_STRING
-      "$<SHELL_PATH:/some/path/one;$<TARGET_FILE_DIR:SomeLibraryTarget>>:$ENV{LD_LIBRARY_PATH}"
   )
 
 
@@ -45,12 +36,12 @@ Is equivalent to:
   )
 
 If the ``ENVIRONMENT_MODIFICATION`` property was not empty,
-the given string will simply be appended.
+the given string will be appended.
 
 
 .. command:: mdt_append_test_environment_variables_string
 
-This function is deprecated, consider :command:`new_alternate_f()`.
+See also :command:`mdt_append_test_environment_modification_property_variables_string()`.
 
 Add a string of variables to the end of the ``ENVIRONMENT`` property of a test::
 
