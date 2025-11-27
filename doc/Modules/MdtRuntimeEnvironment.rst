@@ -7,7 +7,50 @@ MdtRuntimeEnvironment
 Some test utilities
 ^^^^^^^^^^^^^^^^^^^
 
+.. command:: mdt_append_test_environment_modification_property_variables_string
+
+Requires at least CMake 3.22.
+
+Add a string of variables to the end of the ``ENVIRONMENT_MODIFICATION`` property of a test::
+
+  mdt_append_test_environment_modification_property_variables_string(SomeTest "VAR1=OP:value1;VAR2=OP:value2")
+
+  new_alternate_f(NAME <test-name> VARIABLE <variable-name> VALUE_STRING <string>)
+
+
+Example:
+
+.. code-block:: cmake
+
+  mdt_append_test_environment_modification_property_variables_string(SomeTest
+    "LD_LIBRARY_PATH=path_list_prepend:$<SHELL_PATH:/some/path/one;$<TARGET_FILE_DIR:SomeLibraryTarget>>:$ENV{LD_LIBRARY_PATH}"
+  )
+
+  new_alternate_f(NAME SomeTest
+    VARIABLE
+      LD_LIBRARY_PATH
+    VALUE_STRING
+      "$<SHELL_PATH:/some/path/one;$<TARGET_FILE_DIR:SomeLibraryTarget>>:$ENV{LD_LIBRARY_PATH}"
+  )
+
+
+Is equivalent to:
+
+.. code-block:: cmake
+
+  set_tests_properties(SomeTest
+    PROPERTIES
+      ENVIRONMENT_MODIFICATION
+        "LD_LIBRARY_PATH=path_list_prepend:$<SHELL_PATH:/some/path/one;$<TARGET_FILE_DIR:SomeLibraryTarget>>:$ENV{LD_LIBRARY_PATH}"
+  )
+
+If the ``ENVIRONMENT_MODIFICATION`` property was not empty,
+the given string will simply be appended.
+
+
 .. command:: mdt_append_test_environment_variables_string
+
+This function is deprecated, consider :command:`new_alternate_f()`.
 
 Add a string of variables to the end of the ``ENVIRONMENT`` property of a test::
 
@@ -21,6 +64,7 @@ Example:
 
 The `VARIABLES_STRING` is not parsed, but appended as is to the ``ENVIRONMENT`` property of the test.
 See next sections to understand this choice.
+
 
 .. command:: mdt_set_test_library_env_path
 
@@ -65,6 +109,77 @@ Sadly, I found no way to set a test property to a test defined in a other direct
 See also :command:`mdt_target_libraries_to_library_env_path()`
 
 See also https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/4
+
+
+.. command:: mdt_modify_test_library_env_path
+
+Requires at least CMake 3.22.
+
+Set the ``ENVIRONMENT_MODIFICATION`` property to a test with paths
+to the libraries the test links to::
+
+  mdt_modify_test_library_env_path(NAME <test-name> TARGET <test-target>)
+
+This function is similar to :command:`mdt_set_test_library_env_path()`,
+but it uses ``ENVIRONMENT_MODIFICATION`` for reasons explained below.
+
+Example:
+
+.. code-block:: cmake
+
+  add_executable(myApp main.cpp)
+
+  target_link_libraries(myApp
+    PRIVATE Mdt0::ItemEditor
+  )
+
+  add_test(NAME RunMyApp COMMAND myApp)
+  mdt_modify_test_library_env_path(NAME RunMyApp TARGET myApp)
+
+This will set the ``ENVIRONMENT_MODIFICATION`` property to the test like this:
+
+.. code-block:: cmake
+
+  set_tests_properties(RunMyApp
+    PROPERTIES
+      ENVIRONMENT_MODIFICATION
+        "LD_LIBRARY_PATH=path_list_prepend:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>:$<TARGET_FILE_DIR:Mdt0::ItemModel>>:$ENV{LD_LIBRARY_PATH}"
+  )
+
+
+
+Some details about test environment properties
+""""""""""""""""""""""""""""""""""""""""""""""
+
+When setting the ``ENVIRONMENT`` property of a test,
+`ctest` will ignore the environment variables set at runtime.
+
+As an example, `cmake` configure step is done with an empty, or incomplete, ``LD_LIBRARY_PATH`` and/or ``PATH``.
+At this stage, the build system is generated, and the ``ENVIRONMENT`` property is set to a given test.
+Later, the tests are executed in another runtime environment.
+This time, the environment variable ``LD_LIBRARY_PATH`` and/or ``PATH`` is/are complete.
+Because the ``ENVIRONMENT`` property was set, the runtime environment will be ignored for the test,
+and it will probably fail (typically because of missing shared libraries).
+
+Setting ``ENVIRONMENT_MODIFICATION`` property to a test will avoid this issue,
+because it will be extended with the runtime environment.
+
+A practical example is testing a package with Conan:
+
+.. code-block:: python
+
+  def build(self):
+    cmake = CMake(self)
+    # Here, environment variables like LD_LIBRARY_PATH, PATH, may be empty or incomplete for runtime
+    cmake.configure()
+    cmake.build()
+
+  def test(self):
+    cmake = CMake(self)
+    # Conan will set runtime environment with variables like PATH, LD_LIBRARY_PATH
+    cmake.ctest(cli_args=["--output-on-failure", "-V"])
+
+See also: https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/25
 
 
 Using installed shared libraries in your development
@@ -173,9 +288,10 @@ Also adapt documentation for mdt_add_test(), mdt_set_test_library_env_path()
 
 .. command:: mdt_target_libraries_to_library_env_path
 
+
 Get a list of generator expression that will expand to the directory for each dependency of a target::
 
-  mdt_target_libraries_to_library_env_path(<out_var> TARGET <target> [ALWAYS_USE_SLASHES])
+  mdt_target_libraries_to_library_env_path(<out_var> TARGET <target> [ALWAYS_USE_SLASHES] [PATH_LIST_VALUE_STRING_PREFIX <string>])
 
 Example:
 
@@ -211,7 +327,19 @@ If ``PATH`` was already set, for example to ``C:\Qt\5.15.2\mingw73_64\bin``, it 
   PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>;$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>;C:\Qt\5.15.2\mingw73_64\bin
 
 
-When using the Conan package manager, the `conanbuildinfo.txt` can also be used.
+A prefix can also be inserted at the beginning of the path list string:
+
+.. code-block:: cmake
+
+  mdt_target_libraries_to_library_env_path(myAppEnv TARGET myApp PATH_LIST_VALUE_STRING_PREFIX "path_list_prepend:")
+
+resulting to (Linux example)::
+
+  LD_LIBRARY_PATH=path_list_prepend:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemEditor>>:$<SHELL_PATH:$<TARGET_FILE_DIR:Mdt0::ItemModel>>
+
+This format can be used for the ``ENVIRONMENT_MODIFICATION`` test property.
+
+When using the Conan 1 package manager, the `conanbuildinfo.txt` can also be used.
 On Unix, the paths of the `[libdirs]` section will be added,
 or those from the `[bindirs]` section on Windows.
 The `conanbuildinfo.txt` will be located in ``CMAKE_PREFIX_PATH``,
@@ -219,6 +347,8 @@ which will be set by the ``CMakeToolchain`` Conan generator.
 Alternatively, a variable named ``MDT_CONAN_BUILD_INFO_FILE_PATH``
 can be set to a absolute file path to the `conanbuildinfo.txt`.
 See also :command:`mdt_get_shared_libraries_directories_from_conanbuildinfo_if_exists()`
+This does no longer work with Conan 2.
+See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/22
 
 If the ``ALWAYS_USE_SLASHES`` is present, the resulting environment variable will have slahes as separators on Windows.
 This can be used to prevent `Invalid escape sequence \\U` warning
@@ -256,6 +386,10 @@ where some limitations are documented.
 
 Note about the implementation
 """""""""""""""""""""""""""""
+
+TODO: review this section about ``$<SHELL_PATH:...>``.
+Since CMake 3.14, it should accept a semicolon-separated list of paths
+and replace them to the target platform seperator.
 
 Notice that the ``$<SHELL_PATH:...>`` is able to handle a whole expression, so this works on Linux (also on CMake 3.10, despite it is not documented)::
 
