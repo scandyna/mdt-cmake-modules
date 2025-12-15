@@ -118,7 +118,7 @@ export CONAN_PROFILE_HOST=linux_ubuntu-24.04_gcc13_x86_64_qt_and_more
 
 conan install --profile:build $CONAN_PROFILE_BUILD --profile:host $CONAN_PROFILE_HOST --settings:build build_type=Release --settings:host build_type=Debug --output-folder . ..
 
-cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan_and_qt -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake ..
+cmake --preset dev_conan_unix_makefiles_gcc_tests_with_conan_and_qt -DCMAKE_TOOLCHAIN_FILE=/path/to/build/dir/conan_toolchain.cmake ..
 ```
 
 The 2 environment variable `CONAN_PROFILE_BUILD` and `CONAN_PROFILE_HOST` are captured by CMake.
