@@ -1,3 +1,11 @@
+# [0.22.0] - 2025-12-xx 
+
+## Changed
+
+- Deprecate the `AddQt5ToCMakePrefixPath` module (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/26)
+
+
+
 # [0.21.0] - 2025-11-27
 
 ## Changed

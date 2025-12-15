@@ -5,6 +5,9 @@
 # AddQt5ToCMakePrefixPath
 # -----------------------
 #
+# NOTE: this module is deprecated.
+# See: https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/26
+#
 # ::
 #
 #   add_qt5_to_cmake_prefix_path(qt_prefix_path)
@@ -71,6 +74,8 @@
 #=============================================================================
 
 macro(add_qt5_to_cmake_prefix_path)
+
+  message(DEPRECATION "add_qt5_to_cmake_prefix_path() is deprecated")
 
   # We have to use a macro to unset cache variables
   # Using macro has its caveats (see CMake doc for arguments, we also cannot use return() )

@@ -1,7 +1,7 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.22)
 
 ##################################################################
 # Project definition with versionning got from git tag or by Conan
@@ -48,10 +48,11 @@ if(BUILD_CONAN_TESTS)
 endif()
 
 if(BUILD_QT_TESTS)
-  include(AddQt5ToCMakePrefixPath)
-  set(QT_PREFIX_PATH CACHE PATH "Path to the root of Qt distribution. (For example: /opt/qt/Qt5/5.13.0/gcc_64). If empty, system distribution is considered.")
-  add_qt5_to_cmake_prefix_path("${QT_PREFIX_PATH}")
-  find_package(Qt5 COMPONENTS Core REQUIRED)
+  # TODO: remove. See https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/26
+  # include(AddQt5ToCMakePrefixPath)
+  # set(QT_PREFIX_PATH CACHE PATH "Path to the root of Qt distribution. (For example: /opt/qt/Qt5/5.13.0/gcc_64). If empty, system distribution is considered.")
+  # add_qt5_to_cmake_prefix_path("${QT_PREFIX_PATH}")
+  find_package(Qt6 COMPONENTS Core REQUIRED)
 endif()
 
 if(BUILD_TESTS)
