@@ -19,7 +19,7 @@ if(NOT MDT_CMAKE_MODULES_PATH)
   message(FATAL_ERROR "TEST package failed: MDT_CMAKE_MODULES_PATH not set after find_package(MdtCMakeModules)")
 endif()
 
-include(AddQt5ToCMakePrefixPath)
+# include(AddQt5ToCMakePrefixPath)
 include(MdtBuildOptionsUtils)
 include(MdtAddLibrary)
 include(MdtAddTest)
