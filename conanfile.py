@@ -17,7 +17,7 @@ class MdtCMakeModulesConan(ConanFile):
   generators = "CMakeDeps", "VirtualBuildEnv"
 
   def requirements(self):
-    self.requires("qt/5.15.16")
+    self.requires("qt/6.8.3")
 
   def generate(self):
     # Had attempted to get the profiles using the Conan API.

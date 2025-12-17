@@ -14,7 +14,7 @@ if(BUILD_QT_TESTS)
   mdt_add_test(
     NAME HelloQt
     TARGET helloQt
-    DEPENDENCIES Qt5::Core
+    DEPENDENCIES Qt6::Core
     SOURCE_FILES
       "src/hello.cpp"
   )

@@ -1,7 +1,7 @@
 
 include:
   - local: 'ci_cd/GitLab/Rules.yml'
-  - component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/Conan_CreateAndTest_Ubuntu-24-04_gcc13_x86_64@0.0.20
+  - component: $CI_SERVER_FQDN/scandyna/gitlab-ci-cd-cpp-components/Conan_CreateAndTest_Ubuntu-24-04_gcc13_x86_64@0.0.23
     inputs:
       rules_job_template: .Conan_CreateAndTest__RulesJobTemplate
       components:
