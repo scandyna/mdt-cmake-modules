@@ -1,9 +1,9 @@
-# [0.22.0] - 2025-12-xx 
+# [0.22.0] - 2025-12-18
 
 ## Changed
 
 - Deprecate the `AddQt5ToCMakePrefixPath` module (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/26)
-
+- Test modules with Qt6 (https://gitlab.com/scandyna/mdt-cmake-modules/-/issues/21)
 
 
 # [0.21.0] - 2025-11-27
