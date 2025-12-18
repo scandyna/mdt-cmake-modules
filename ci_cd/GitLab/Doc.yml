@@ -25,7 +25,7 @@ BuildApiDoc:
   script:
     - mkdir build
     - cd build
-    - cmake --preset linux_doc -DCMAKE_BUILD_TYPE=Debug ..
+    - cmake --preset linux_doc ..
     - make documentation
   artifacts:
     expire_in: 1 day
@@ -42,7 +42,8 @@ pages:
   dependencies:
     - BuildApiDoc
   script:
-    - mv build/doc/html public
+    - mkdir public
+    - mv build/doc/html/* public/
   artifacts:
     paths:
       - public
